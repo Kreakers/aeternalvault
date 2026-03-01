@@ -41,9 +41,20 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
     if (provider.useBiometrics) {
-      bool authenticated = await AuthService().authenticate();
-      if (authenticated && context.mounted && provider.vaultMasterKey != null) {
-        await _unlockAndGo(context, provider.vaultMasterKey!);
+      final authenticated = await AuthService().authenticate();
+      if (!context.mounted) return;
+      if (authenticated) {
+        final plainKey = await provider.getBiometricKey();
+        if (!context.mounted) return;
+        if (plainKey != null) {
+          await _unlockAndGo(context, plainKey);
+        } else {
+          // Secure storage'da key yok, şifre diyaloğuna düş
+          _showUnlockDialog(context);
+        }
+      } else {
+        // Biyometrik başarısız veya iptal edildi, şifre diyaloğuna düş
+        _showUnlockDialog(context);
       }
     } else {
       _showUnlockDialog(context);

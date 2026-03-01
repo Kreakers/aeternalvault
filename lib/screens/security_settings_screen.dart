@@ -18,7 +18,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
 
   void _generateRecoveryCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    final rnd = Random();
+    final rnd = Random.secure();
     final code = String.fromCharCodes(Iterable.generate(8, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
     
     showDialog(
@@ -191,6 +191,8 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
   }
 
   void _showChangeKeyDialog(BuildContext context) {
+    _keyController.clear();
+    _newKeyController.clear();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -198,8 +200,20 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: _keyController, obscureText: true, decoration: const InputDecoration(labelText: 'Eski Şifre')),
-            TextField(controller: _newKeyController, obscureText: true, decoration: const InputDecoration(labelText: 'Yeni Şifre')),
+            TextField(
+              controller: _keyController,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Eski Şifre', border: OutlineInputBorder()),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _newKeyController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Yeni Şifre (en az 8 karakter, harf+rakam)',
+                border: OutlineInputBorder(),
+              ),
+            ),
           ],
         ),
         actions: [
@@ -207,12 +221,21 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
           ElevatedButton(
             onPressed: () async {
               final provider = Provider.of<AppProvider>(context, listen: false);
-              if (_keyController.text == provider.vaultMasterKey) {
-                await provider.updateMasterKey(_newKeyController.text);
-                if (mounted) Navigator.pop(context);
-                if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Şifre başarıyla güncellendi.')));
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Eski şifre hatalı!')));
+              final newKey = _newKeyController.text;
+              final hasLetter = newKey.contains(RegExp(r'[A-Za-z]'));
+              final hasDigit = newKey.contains(RegExp(r'[0-9]'));
+              if (newKey.length < 8 || !hasLetter || !hasDigit) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Yeni şifre en az 8 karakter, harf ve rakam içermelidir.')),
+                );
+                return;
+              }
+              final success = await provider.updateMasterKey(_keyController.text, newKey);
+              if (mounted) Navigator.pop(context);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(success ? 'Şifre başarıyla güncellendi.' : 'Eski şifre hatalı!')),
+                );
               }
             },
             child: const Text('Güncelle'),

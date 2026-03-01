@@ -76,10 +76,9 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
   }
 
   void _generateStrongPassword() {
-    // Raw string (r'') kullanarak $ işaretinin interpolasyon hatası vermesini engelledik
     const chars = r'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
-    final rnd = Random();
-    final pwd = String.fromCharCodes(Iterable.generate(12, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+    final rnd = Random.secure();
+    final pwd = String.fromCharCodes(Iterable.generate(16, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
     setState(() {
       _field2Controller.text = pwd;
       _obscurePassword = false;

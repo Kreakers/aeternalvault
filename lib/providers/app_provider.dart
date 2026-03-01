@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/contact.dart';
 import '../models/vault_item.dart';
 import '../models/reminder.dart';
@@ -9,6 +11,9 @@ import '../services/encryption_service.dart';
 class AppProvider with ChangeNotifier {
   final DatabaseService _dbService = DatabaseService();
   final EncryptionService _encryptionService = EncryptionService();
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+
+  static const _secureStorageKeyId = 'aeterna_vault_master_key';
 
   List<Contact> _contacts = [];
   List<Contact> get contacts => _contacts;
@@ -22,8 +27,8 @@ class AppProvider with ChangeNotifier {
   bool _isVaultSetupComplete = false;
   bool get isVaultSetupComplete => _isVaultSetupComplete;
 
-  String? _vaultMasterKey; 
-  String? get vaultMasterKey => _vaultMasterKey;
+  /// Veritabanında saklanan SHA-256 hash değeri (plaintext değil).
+  String? _vaultMasterKeyHash;
 
   bool _useBiometrics = false;
   bool get useBiometrics => _useBiometrics;
@@ -33,6 +38,23 @@ class AppProvider with ChangeNotifier {
 
   String? _recoveryCode;
   bool get hasRecoveryCode => _recoveryCode != null && _recoveryCode!.isNotEmpty;
+
+  /// SHA-256 ile master key'i hash'ler (hex string döner).
+  static String _hashKey(String key) {
+    final bytes = utf8.encode(key);
+    return sha256.convert(bytes).toString();
+  }
+
+  /// Girilen plaintext key'in hash'inin saklanana eşit olup olmadığını doğrular.
+  bool verifyMasterKey(String plainKey) {
+    if (_vaultMasterKeyHash == null) return false;
+    return _hashKey(plainKey) == _vaultMasterKeyHash;
+  }
+
+  /// Biyometrik kimlik doğrulaması sonrası kullanmak için secure storage'dan key'i alır.
+  Future<String?> getBiometricKey() async {
+    return await _secureStorage.read(key: _secureStorageKeyId);
+  }
 
   // --- Theme Settings ---
   Color _themeColor = const Color(0xFF673AB7); // Default DeepPurple
@@ -51,7 +73,7 @@ class AppProvider with ChangeNotifier {
     final settings = await _dbService.getVaultSettings();
     if (settings != null) {
       _isVaultSetupComplete = settings['isSetupComplete'] == 1;
-      _vaultMasterKey = settings['hashedMasterKey'];
+      _vaultMasterKeyHash = settings['hashedMasterKey'];
       _useBiometrics = settings['useBiometrics'] == 1;
       _recoveryCode = settings['recoveryCode'];
       _themeColor = Color(settings['themeColor'] ?? 4284572657);
@@ -63,11 +85,15 @@ class AppProvider with ChangeNotifier {
   }
 
   Future<void> completeVaultSetup(String masterKey, bool useBio) async {
+    final keyHash = _hashKey(masterKey);
     await _dbService.updateVaultSettings({
       'isSetupComplete': 1,
-      'hashedMasterKey': masterKey,
+      'hashedMasterKey': keyHash,
       'useBiometrics': useBio ? 1 : 0,
     });
+    if (useBio) {
+      await _secureStorage.write(key: _secureStorageKeyId, value: masterKey);
+    }
     await checkVaultStatus();
     notifyListeners();
   }
@@ -86,14 +112,46 @@ class AppProvider with ChangeNotifier {
   }
 
   // --- Security Updates ---
-  Future<void> updateMasterKey(String newKey) async {
-    await _dbService.updateVaultSettings({'hashedMasterKey': newKey});
+
+  /// Master key'i değiştirir: eski key doğrulanır, vault item'lar yeni key ile yeniden şifrelenir.
+  Future<bool> updateMasterKey(String oldKey, String newKey) async {
+    if (!verifyMasterKey(oldKey)) return false;
+
+    // Kasanın açık olup olmadığından bağımsız olarak re-encryption yap:
+    // Eski key ile geçici encrypter başlat, tüm items'ı çöz, yeni key ile yeniden şifrele.
+    final oldEncrypter = EncryptionService()..init(oldKey);
+    final rawItems = await _dbService.getVaultItems();
+
+    final newHash = _hashKey(newKey);
+    await _dbService.updateVaultSettings({'hashedMasterKey': newHash});
+
+    _encryptionService.init(newKey);
+
+    for (final item in rawItems) {
+      try {
+        final decrypted = oldEncrypter.decryptData(item.secretContent);
+        final reEncrypted = _encryptionService.encryptData(decrypted);
+        await _dbService.updateVaultItem(item.copyWith(secretContent: reEncrypted));
+      } catch (_) {
+        // Çözülemeyen item'ı atla (bozuk veri)
+      }
+    }
+
+    if (_useBiometrics) {
+      await _secureStorage.write(key: _secureStorageKeyId, value: newKey);
+    }
+
     await checkVaultStatus();
+    if (_isVaultUnlocked) await loadVaultItems();
     notifyListeners();
+    return true;
   }
 
   Future<void> updateBiometricPref(bool useBio) async {
     await _dbService.updateVaultSettings({'useBiometrics': useBio ? 1 : 0});
+    if (!useBio) {
+      await _secureStorage.delete(key: _secureStorageKeyId);
+    }
     await checkVaultStatus();
     notifyListeners();
   }
@@ -106,11 +164,14 @@ class AppProvider with ChangeNotifier {
 
   Future<void> performFactoryReset() async {
     await _dbService.factoryReset();
+    await _secureStorage.delete(key: _secureStorageKeyId);
+    _encryptionService.clear();
     _isVaultUnlocked = false;
     _isVaultSetupComplete = false;
-    _vaultMasterKey = null;
+    _vaultMasterKeyHash = null;
     _contacts = [];
     _vaultItems = [];
+    notifyListeners();
     await loadContacts();
   }
 
@@ -200,7 +261,7 @@ class AppProvider with ChangeNotifier {
 
   // --- Vault Methods ---
   Future<bool> unlockVault(String masterKey) async {
-    if (_isVaultSetupComplete && _vaultMasterKey != masterKey) {
+    if (_isVaultSetupComplete && !verifyMasterKey(masterKey)) {
       return false;
     }
 
@@ -212,13 +273,14 @@ class AppProvider with ChangeNotifier {
       await _dbService.updateVaultSettings({'lastUnlockTime': now.toIso8601String()});
       await loadVaultItems();
       return true;
-    } catch (e) {
+    } catch (_) {
       _isVaultUnlocked = false;
       return false;
     }
   }
 
   void lockVault() {
+    _encryptionService.clear();
     _isVaultUnlocked = false;
     _vaultItems = [];
     notifyListeners();

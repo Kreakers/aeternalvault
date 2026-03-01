@@ -10,32 +10,26 @@ class AuthService {
 
   Future<bool> authenticate() async {
     try {
-      final bool canAuthenticateWithBiometrics = await _localAuth.canCheckBiometrics;
+      final bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
       final bool isDeviceSupported = await _localAuth.isDeviceSupported();
 
-      if (!canAuthenticateWithBiometrics && !isDeviceSupported) {
-        return true; // Cihaz hiçbir güvenlik yöntemini desteklemiyorsa erişime izin ver
+      if (!canCheckBiometrics && !isDeviceSupported) {
+        // Cihaz biyometriği desteklemiyorsa şifre diyaloğuna yönlendir
+        return false;
       }
 
-      final bool didAuthenticate = await _localAuth.authenticate(
+      return await _localAuth.authenticate(
         localizedReason: 'Lütfen Kasa\'ya erişmek için doğrulama yapın',
         options: const AuthenticationOptions(
-          biometricOnly: false, 
+          biometricOnly: false,
           stickyAuth: true,
           useErrorDialogs: true,
         ),
       );
-
-      return didAuthenticate;
-    } on PlatformException catch (e) {
-      print('Biyometrik doğrulama platform hatası: $e');
-      // Eğer kullanıcı biyometriği iptal ederse veya cihazda ayarlı değilse
-      // Gerçek bir uygulamada burada manuel şifreye zorlanabilir.
-      // Şimdilik test kolaylığı için true dönüyoruz.
-      return true; 
-    } catch (e) {
-      print('Genel doğrulama hatası: $e');
-      return true;
+    } on PlatformException {
+      return false;
+    } catch (_) {
+      return false;
     }
   }
 }

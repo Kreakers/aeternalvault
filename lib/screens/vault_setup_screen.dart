@@ -69,7 +69,13 @@ class _VaultSetupScreenState extends State<VaultSetupScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.key),
                 ),
-                validator: (value) => (value == null || value.length < 4) ? 'En az 4 karakter giriniz' : null,
+                validator: (value) {
+                  if (value == null || value.length < 8) return 'En az 8 karakter giriniz';
+                  final hasLetter = value.contains(RegExp(r'[A-Za-z]'));
+                  final hasDigit = value.contains(RegExp(r'[0-9]'));
+                  if (!hasLetter || !hasDigit) return 'Harf ve rakam içermelidir';
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               TextFormField(

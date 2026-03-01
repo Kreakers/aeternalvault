@@ -51,9 +51,8 @@ class BackupService {
       // 2. JSON'u Parse Et
       final Map<String, dynamic> backupData = jsonDecode(decryptedJson);
 
-      // 3. Veritabanına Yaz (Mevcut verileri temizleme veya üzerine yazma stratejisi eklenebilir)
-      // Şimdilik sadece consola bilgi veriyoruz (İskelet olarak)
-      print('Backup data resolved: ${backupData['exportDate']}');
+      // TODO: Veritabanına yazma stratejisi (clearAllData + insert) eklenecek
+      assert(backupData.containsKey('exportDate'));
       
     } catch (e) {
       throw Exception('Yedek geri yüklenirken hata oluştu: $e');
