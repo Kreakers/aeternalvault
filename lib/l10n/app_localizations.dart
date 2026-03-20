@@ -1481,6 +1481,30 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Sil'**
   String get delete;
+
+  /// Not ekle dialog başlığı
+  ///
+  /// In tr, this message translates to:
+  /// **'Not Ekle'**
+  String get addNote;
+
+  /// Not ekleme placeholder
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu kişiyle ilgili notunuzu yazın...'**
+  String get addNoteHint;
+
+  /// Yedek dosyaya kaydedildi mesajı
+  ///
+  /// In tr, this message translates to:
+  /// **'Yedek kaydedildi'**
+  String get backupSaved;
+
+  /// Manuel not etiketi
+  ///
+  /// In tr, this message translates to:
+  /// **'Not'**
+  String get manualNote;
 }
 
 class _AppLocalizationsDelegate

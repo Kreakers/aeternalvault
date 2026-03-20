@@ -736,4 +736,16 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get delete => 'Sil';
+
+  @override
+  String get addNote => 'Not Ekle';
+
+  @override
+  String get addNoteHint => 'Bu kişiyle ilgili notunuzu yazın...';
+
+  @override
+  String get backupSaved => 'Yedek kaydedildi';
+
+  @override
+  String get manualNote => 'Not';
 }

@@ -739,4 +739,16 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get delete => 'Löschen';
+
+  @override
+  String get addNote => 'Notiz hinzufügen';
+
+  @override
+  String get addNoteHint => 'Schreiben Sie Ihre Notiz über diesen Kontakt...';
+
+  @override
+  String get backupSaved => 'Backup gespeichert';
+
+  @override
+  String get manualNote => 'Notiz';
 }

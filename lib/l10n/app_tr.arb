@@ -696,5 +696,17 @@
   "@confirmDelete": {"description": "Silmeyi onayla başlığı"},
 
   "delete": "Sil",
-  "@delete": {"description": "Sil butonu"}
+  "@delete": {"description": "Sil butonu"},
+
+  "addNote": "Not Ekle",
+  "@addNote": {"description": "Not ekle dialog başlığı"},
+
+  "addNoteHint": "Bu kişiyle ilgili notunuzu yazın...",
+  "@addNoteHint": {"description": "Not ekleme placeholder"},
+
+  "backupSaved": "Yedek kaydedildi",
+  "@backupSaved": {"description": "Yedek dosyaya kaydedildi mesajı"},
+
+  "manualNote": "Not",
+  "@manualNote": {"description": "Manuel not etiketi"}
 }

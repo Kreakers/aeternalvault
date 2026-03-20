@@ -740,4 +740,16 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get delete => 'Elimina';
+
+  @override
+  String get addNote => 'Aggiungi nota';
+
+  @override
+  String get addNoteHint => 'Scrivi la tua nota su questo contatto...';
+
+  @override
+  String get backupSaved => 'Backup salvato';
+
+  @override
+  String get manualNote => 'Nota';
 }

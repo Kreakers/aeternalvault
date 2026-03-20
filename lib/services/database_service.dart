@@ -24,7 +24,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 12,
+      version: 13,
       onConfigure: _onConfigure,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
@@ -104,6 +104,7 @@ class DatabaseService {
         contactId INTEGER,
         action TEXT NOT NULL,
         timestamp TEXT NOT NULL,
+        isManual INTEGER DEFAULT 0,
         FOREIGN KEY (contactId) REFERENCES contacts (id) ON DELETE CASCADE
       )
     ''');
@@ -133,6 +134,10 @@ class DatabaseService {
       } catch (_) {
         // Column may already exist
       }
+    } else if (oldVersion < 13) {
+      try {
+        await db.execute('ALTER TABLE logs ADD COLUMN isManual INTEGER DEFAULT 0');
+      } catch (_) {}
     }
   }
 

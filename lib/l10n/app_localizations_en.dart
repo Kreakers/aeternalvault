@@ -737,4 +737,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get delete => 'Delete';
+
+  @override
+  String get addNote => 'Add Note';
+
+  @override
+  String get addNoteHint => 'Write your note about this contact...';
+
+  @override
+  String get backupSaved => 'Backup saved';
+
+  @override
+  String get manualNote => 'Note';
 }

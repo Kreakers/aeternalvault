@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import '../models/contact.dart';
 import '../providers/app_provider.dart';
 import '../theme/app_theme.dart';
@@ -38,6 +39,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
   DateTime? _selectedBirthday;
   DateTime? _selectedAnniversary;
   String? _imagePath;
+  String _fullPhoneNumber = '';
 
   // Category keys kept in Turkish for data compatibility
   final List<String> _categories = ['Müşteri', 'Aile', 'Arkadaş', 'İş', 'Tedarikçi', 'Diğer'];
@@ -62,6 +64,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
     _selectedBirthday = c?.birthday;
     _selectedAnniversary = c?.anniversary;
     _imagePath = c?.imagePath;
+    _fullPhoneNumber = c?.phone ?? '';
     if (c != null) {
       _category = c.category;
     }
@@ -124,7 +127,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
         id: widget.contact?.id,
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
-        phone: _phoneController.text.trim(),
+        phone: _fullPhoneNumber.isNotEmpty ? _fullPhoneNumber : _phoneController.text.trim(),
         email: _emailController.text.trim(),
         socialMedia: _socialMediaController.text.trim(),
         company: _companyController.text.trim(),
@@ -238,7 +241,21 @@ class _AddContactScreenState extends State<AddContactScreen> {
                           const SizedBox(width: 10),
                           Expanded(child: _buildTextField(_lastNameController, l.lastName)),
                         ]),
-                        _buildTextField(_phoneController, l.phone, icon: Icons.phone, keyboard: TextInputType.phone),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: IntlPhoneField(
+                            decoration: InputDecoration(labelText: l.phone),
+                            initialCountryCode: 'TR',
+                            initialValue: widget.contact?.phone,
+                            onChanged: (phone) {
+                              _fullPhoneNumber = phone.completeNumber;
+                            },
+                            dropdownIconPosition: IconPosition.trailing,
+                            flagsButtonPadding: const EdgeInsets.only(left: 8),
+                            showDropdownIcon: true,
+                            dropdownTextStyle: const TextStyle(color: Colors.white),
+                          ),
+                        ),
                         _buildTextField(_emailController, l.email, icon: Icons.email, keyboard: TextInputType.emailAddress),
                         _buildTextField(_socialMediaController, l.socialMedia, icon: Icons.link),
                       ]),

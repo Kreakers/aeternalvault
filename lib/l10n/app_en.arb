@@ -233,5 +233,10 @@
   "openWhatsapp": "Open in WhatsApp",
   "cannotLaunch": "Could not open app",
   "confirmDelete": "Confirm Delete",
-  "delete": "Delete"
+  "delete": "Delete",
+
+  "addNote": "Add Note",
+  "addNoteHint": "Write your note about this contact...",
+  "backupSaved": "Backup saved",
+  "manualNote": "Note"
 }

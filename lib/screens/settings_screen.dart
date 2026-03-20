@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
 import '../providers/app_provider.dart';
 import '../l10n/app_localizations.dart';
 
@@ -97,6 +99,16 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               const Divider(height: 48),
+              _buildSectionTitle(l.backupRestore),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.save_alt),
+                  title: Text(l.backup),
+                  subtitle: Text(l.backupSaved),
+                  onTap: () => _saveBackupToFile(context, provider, l),
+                ),
+              ),
+              const SizedBox(height: 16),
               _buildSectionTitle(l.dataSecurity),
               Card(
                 color: Colors.red.withOpacity(0.05),
@@ -123,6 +135,44 @@ class SettingsScreen extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Text(title.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.2, color: Colors.grey)),
     );
+  }
+
+  Future<void> _saveBackupToFile(BuildContext context, AppProvider provider, AppLocalizations l) async {
+    try {
+      final json = await provider.generateBackup();
+      final now = DateTime.now();
+      final dateStr =
+          '${now.day.toString().padLeft(2, '0')}${now.month.toString().padLeft(2, '0')}${now.year}';
+      final fileName = 'aeterna_backup_$dateStr.json';
+
+      Directory? dir;
+      if (Platform.isAndroid) {
+        dir = Directory('/storage/emulated/0/Download');
+        if (!await dir.exists()) {
+          dir = await getExternalStorageDirectory();
+        }
+      } else {
+        dir = await getApplicationDocumentsDirectory();
+      }
+
+      final file = File('${dir!.path}/$fileName');
+      await file.writeAsString(json);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l.backupSaved}: $fileName')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Backup hatası: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _showResetConfirm(BuildContext context, AppProvider provider) {

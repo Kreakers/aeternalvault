@@ -74,6 +74,49 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
     _launchUrl('https://wa.me/$digits');
   }
 
+  Future<void> _showAddNoteDialog(BuildContext context, AppLocalizations l) async {
+    final ctrl = TextEditingController();
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(children: [
+          Container(
+            width: 32, height: 32,
+            decoration: BoxDecoration(
+              color: const Color(0xFF00BCD4).withOpacity(0.15),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFF00BCD4).withOpacity(0.3)),
+            ),
+            child: const Icon(Icons.edit_note, color: Color(0xFF00BCD4), size: 16),
+          ),
+          const SizedBox(width: 10),
+          Text(l.addNote),
+        ]),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          maxLines: 4,
+          decoration: InputDecoration(hintText: l.addNoteHint),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l.cancel)),
+          ElevatedButton(
+            onPressed: () async {
+              if (ctrl.text.trim().isNotEmpty) {
+                await Provider.of<AppProvider>(context, listen: false)
+                    .addManualNote(contact.id!, ctrl.text.trim());
+                if (ctx.mounted) Navigator.pop(ctx);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00BCD4), foregroundColor: Colors.white),
+            child: Text(l.save),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _showAddReminderDialog(BuildContext context, AppLocalizations l) async {
     final ctrl = TextEditingController();
     DateTime selected = DateTime.now().add(const Duration(hours: 1));
@@ -250,8 +293,9 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
                     _sectionLabel(l.activityLog),
                     const SizedBox(height: 8),
                     GlassCard(
-                      child: Column(children: List.generate(logs.take(5).length, (i) {
+                      child: Column(children: List.generate(logs.take(10).length, (i) {
                         final log = logs[i];
+                        final isNote = log.isManual;
                         return Column(children: [
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
@@ -259,20 +303,44 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
                               Container(
                                 width: 34, height: 34,
                                 decoration: BoxDecoration(
-                                  color: AC.navyLight.withOpacity(0.09),
+                                  color: isNote
+                                      ? AC.gold.withOpacity(0.12)
+                                      : AC.navyLight.withOpacity(0.09),
                                   borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: AC.navyLight.withOpacity(0.17)),
+                                  border: Border.all(
+                                      color: isNote
+                                          ? AC.gold.withOpacity(0.25)
+                                          : AC.navyLight.withOpacity(0.17)),
                                 ),
-                                child: const Icon(Icons.history, color: AC.navyLight, size: 15),
+                                child: Icon(
+                                  isNote ? Icons.edit_note : Icons.history,
+                                  color: isNote ? AC.gold : AC.navyLight,
+                                  size: 15,
+                                ),
                               ),
                               const SizedBox(width: 11),
-                              Expanded(child: Text(log.action,
-                                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600))),
+                              Expanded(child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (isNote)
+                                    Text(l.manualNote,
+                                        style: TextStyle(
+                                            color: AC.gold.withOpacity(0.7),
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 0.4)),
+                                  Text(log.action,
+                                      style: TextStyle(
+                                          color: isNote ? AC.gold : Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600)),
+                                ],
+                              )),
                               Text(DateFormat('dd MMM').format(log.timestamp),
                                   style: const TextStyle(color: AC.textMuted, fontSize: 10)),
                             ]),
                           ),
-                          if (i < logs.take(5).length - 1)
+                          if (i < logs.take(10).length - 1)
                             Divider(height: 1, color: Colors.white.withOpacity(0.04)),
                         ]);
                       })),
@@ -298,6 +366,24 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
                     boxShadow: [BoxShadow(color: AC.navy.withOpacity(0.5), blurRadius: 20, offset: const Offset(0, 6))],
                   ),
                   child: const Icon(Icons.alarm_add, color: AC.gold, size: 22),
+                ),
+              ),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () => _showAddNoteDialog(context, l),
+                child: Container(
+                  width: 52, height: 52,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                        colors: [Color(0xFF00BCD4), Color(0xFF0097A7)],
+                        begin: Alignment.topLeft, end: Alignment.bottomRight),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFF00BCD4).withOpacity(0.35)),
+                    boxShadow: [BoxShadow(
+                        color: const Color(0xFF00BCD4).withOpacity(0.35),
+                        blurRadius: 20, offset: const Offset(0, 6))],
+                  ),
+                  child: const Icon(Icons.edit_note, color: Colors.white, size: 22),
                 ),
               ),
               const SizedBox(height: 10),

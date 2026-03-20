@@ -90,6 +90,18 @@ class AppProvider with ChangeNotifier {
     _allLogs = await _dbService.getLogs();
   }
 
+  Future<void> addManualNote(int contactId, String note) async {
+    final log = LogEntry(
+      contactId: contactId,
+      action: note,
+      timestamp: DateTime.now(),
+      isManual: true,
+    );
+    await _dbService.insertLog(log);
+    _allLogs = await _dbService.getLogs();
+    notifyListeners();
+  }
+
   // --- Theme ---
   Future<void> updateThemeColor(Color color) async {
     _themeColor = color;
