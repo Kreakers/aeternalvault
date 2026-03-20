@@ -7,10 +7,12 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'l10n/app_localizations.dart';
 import 'providers/app_provider.dart';
 import 'screens/home_screen.dart';
+import 'services/notification_service.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().init();
   await initializeDateFormatting('tr', null);
   await initializeDateFormatting('en', null);
   await initializeDateFormatting('de', null);

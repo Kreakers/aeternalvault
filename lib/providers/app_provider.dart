@@ -7,6 +7,7 @@ import '../models/reminder.dart';
 import '../models/log_entry.dart';
 import '../services/database_service.dart';
 import '../services/encryption_service.dart';
+import '../services/notification_service.dart';
 
 class AppProvider with ChangeNotifier {
   final DatabaseService _dbService = DatabaseService();
@@ -177,14 +178,24 @@ class AppProvider with ChangeNotifier {
   }
 
   Future<void> addReminder(Reminder reminder) async {
-    await _dbService.insertReminder(reminder);
+    final id = await _dbService.insertReminder(reminder);
     await _addLog('Yeni görev eklendi: ${reminder.title}', contactId: reminder.contactId);
+
+    // Bildirim planla
+    await NotificationService().scheduleReminder(
+      id: id,
+      title: '⏰ Hatırlatıcı',
+      body: reminder.title,
+      scheduledDate: reminder.dateTime,
+    );
+
     await loadContacts();
   }
 
   Future<void> updateReminder(Reminder reminder) async {
     await _dbService.updateReminder(reminder);
     if (reminder.isCompleted) {
+      await NotificationService().cancelReminder(reminder.id!);
       await _addLog('Görev tamamlandı: ${reminder.title}', contactId: reminder.contactId);
     }
     await loadContacts();
@@ -192,6 +203,7 @@ class AppProvider with ChangeNotifier {
 
   Future<void> deleteReminder(int id) async {
     await _dbService.deleteReminder(id);
+    await NotificationService().cancelReminder(id);
     await loadContacts();
   }
 
