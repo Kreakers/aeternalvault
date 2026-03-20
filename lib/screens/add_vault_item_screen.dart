@@ -144,9 +144,10 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: AC.bg,
+      backgroundColor: isDark ? AC.bg : AL.bg,
       body: Column(children: [
         _buildHeader(context, l),
         Expanded(
@@ -170,7 +171,7 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
                             labelText: l.category,
                             prefixIcon: const Icon(Icons.category_outlined, size: 18),
                           ),
-                          dropdownColor: AC.bgCard,
+                          dropdownColor: isDark ? AC.bgCard : AL.bgCard,
                           items: _categories.map((c) => DropdownMenuItem(
                             value: c,
                             child: Text(_localizedCategory(l, c)),
@@ -189,7 +190,7 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(l.secretData.toUpperCase(),
-                          style: const TextStyle(color: Color(0x73FFFFFF), fontSize: 11,
+                          style: TextStyle(color: isDark ? const Color(0x73FFFFFF) : AL.textMuted, fontSize: 11,
                               fontWeight: FontWeight.w600, letterSpacing: 0.8)),
                       if (_category == 'Şifre')
                         GestureDetector(
@@ -240,7 +241,7 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
                   ),
                   const SizedBox(height: 14),
                   Text(l.fileAttachment.toUpperCase(),
-                      style: const TextStyle(color: Color(0x73FFFFFF), fontSize: 11,
+                      style: TextStyle(color: isDark ? const Color(0x73FFFFFF) : AL.textMuted, fontSize: 11,
                           fontWeight: FontWeight.w600, letterSpacing: 0.8)),
                   const SizedBox(height: 8),
                   _buildFilePickerArea(l),
@@ -281,14 +282,15 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
   }
 
   Widget _buildHeader(BuildContext context, AppLocalizations l) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 10,
         left: 14, right: 14, bottom: 14,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xCC0D0D1A),
-        border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.06))),
+        color: isDark ? const Color(0xCC0D0D1A) : AL.bgCard,
+        border: Border(bottom: BorderSide(color: isDark ? Colors.white.withOpacity(0.06) : AL.divider)),
       ),
       child: Row(children: [
         GestureDetector(
@@ -296,11 +298,11 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
           child: Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
+              color: isDark ? Colors.white.withOpacity(0.06) : AL.bg,
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              border: Border.all(color: isDark ? Colors.white.withOpacity(0.1) : AL.divider),
             ),
-            child: const Icon(Icons.arrow_back, color: Colors.white70, size: 18),
+            child: Icon(Icons.arrow_back, color: isDark ? Colors.white70 : AL.textSec, size: 18),
           ),
         ),
         const SizedBox(width: 12),
@@ -316,21 +318,22 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
         const SizedBox(width: 10),
         Expanded(child: Text(
           widget.vaultItem == null ? l.addVaultItem : l.editVaultItem,
-          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+          style: TextStyle(color: isDark ? Colors.white : AL.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
         )),
       ]),
     );
   }
 
   Widget _buildFilePickerArea(AppLocalizations l) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: _pickFile,
       child: Container(
         height: 90,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.04),
+          color: isDark ? Colors.white.withOpacity(0.04) : AL.bg,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
+          border: Border.all(color: isDark ? Colors.white.withOpacity(0.1) : AL.divider),
         ),
         child: _filePath == null
             ? Column(
@@ -338,7 +341,7 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
                 children: [
                   Icon(Icons.upload_file, size: 28, color: AC.navyLight),
                   const SizedBox(height: 6),
-                  Text(l.selectFile, style: const TextStyle(color: AC.textMuted, fontSize: 12)),
+                  Text(l.selectFile, style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 12)),
                 ],
               )
             : Padding(
@@ -349,7 +352,7 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
                   Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
                     Text(_filePath!.split('/').last,
                         maxLines: 1, overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+                        style: TextStyle(color: isDark ? Colors.white : AL.textPrimary, fontSize: 12, fontWeight: FontWeight.w600)),
                     Text(l.fileReady, style: const TextStyle(color: AC.success, fontSize: 10)),
                   ])),
                   GestureDetector(

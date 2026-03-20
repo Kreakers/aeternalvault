@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:math';
 import '../providers/app_provider.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
@@ -28,44 +27,6 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
     _newKeyController.dispose();
     _importController.dispose();
     super.dispose();
-  }
-
-  void _generateRecoveryCode() {
-    final l = AppLocalizations.of(context);
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    final rnd = Random.secure();
-    final code = String.fromCharCodes(
-        Iterable.generate(8, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(l.recoveryCodeGenerated),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(l.saveNote),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: BoxDecoration(
-              color: AC.goldGlass(),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AC.goldBorder()),
-            ),
-            child: SelectableText(code,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700,
-                    letterSpacing: 3, color: AC.gold)),
-          ),
-        ]),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Provider.of<AppProvider>(context, listen: false).updateRecoveryCode(code);
-              Navigator.pop(context);
-            },
-            child: Text(l.saveAndClose),
-          ),
-        ],
-      ),
-    );
   }
 
   void _exportData() async {
@@ -181,7 +142,17 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text(l.cancel)),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () async {
+              final provider = Provider.of<AppProvider>(context, listen: false);
+              await provider.performFactoryReset();
+              if (!mounted) return;
+              Navigator.pop(context);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l.appResetSuccess)),
+                );
+              }
+            },
             style: ElevatedButton.styleFrom(backgroundColor: AC.danger),
             child: Text(l.confirmAndDelete),
           ),
@@ -240,21 +211,23 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: AC.bg,
+      backgroundColor: isDark ? AC.bg : AL.bg,
       body: Column(children: [
-        _buildHeader(l),
+        _buildHeader(l, isDark),
         Expanded(child: Consumer<AppProvider>(builder: (_, provider, __) => ListView(
           padding: const EdgeInsets.fromLTRB(14, 12, 14, 32),
           children: [
-            _buildSecurityScore(provider, l),
+            _buildSecurityScore(provider, l, isDark),
             const SizedBox(height: 16),
 
             SectionLabel(l.passwordSecurity),
             const SizedBox(height: 8),
             GlassCard(child: Column(children: [
               _settingRow(
+                isDark: isDark,
                 icon: Icons.lock_outline,
                 iconColor: AC.gold,
                 title: l.masterKeyTitle,
@@ -263,8 +236,9 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 badgeColor: AC.gold,
                 onTap: _showChangeKeyDialog,
               ),
-              _divider(),
+              _divider(isDark),
               _settingRow(
+                isDark: isDark,
                 icon: Icons.visibility_outlined,
                 iconColor: AC.navyLight,
                 title: l.passwordHints,
@@ -279,6 +253,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
             const SizedBox(height: 8),
             GlassCard(child: Column(children: [
               _settingRow(
+                isDark: isDark,
                 icon: Icons.fingerprint,
                 iconColor: AC.success,
                 title: l.fingerprint,
@@ -288,8 +263,9 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 badgeColor: AC.success,
                 onToggle: () => provider.updateBiometricPref(!provider.useBiometrics),
               ),
-              _divider(),
+              _divider(isDark),
               _settingRow(
+                isDark: isDark,
                 icon: Icons.timer_outlined,
                 iconColor: const Color(0xFF9C27B0),
                 title: l.autoLock,
@@ -302,60 +278,34 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
 
             SectionLabel(l.accountSecurity),
             const SizedBox(height: 8),
-            GlassCard(child: Column(children: [
-              _settingRow(
-                icon: Icons.vpn_key_outlined,
-                iconColor: AC.gold,
-                title: l.recoveryCode,
-                subtitle: provider.hasRecoveryCode ? l.recoveryCodeExists : l.recoveryCodeHint,
-                arrow: true,
-                onTap: _generateRecoveryCode,
-              ),
-              _divider(),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(13, 10, 13, 12),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(l.backupRestore,
-                      style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 8),
-                  Row(children: [
-                    Expanded(child: _actionBtn(
-                      label: _backupDone ? l.backupDone : l.backup,
-                      icon: Icons.cloud_upload_outlined,
-                      color: _backupDone ? AC.success : AC.navyLight,
-                      onTap: _exportData,
-                    )),
-                    const SizedBox(width: 8),
-                    Expanded(child: _actionBtn(
-                      label: l.restore,
-                      icon: Icons.restore,
-                      color: Colors.white54,
-                      onTap: _importData,
-                    )),
-                  ]),
+            GlassCard(child: Padding(
+              padding: const EdgeInsets.fromLTRB(13, 10, 13, 12),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(l.backupRestore,
+                    style: TextStyle(
+                        color: isDark ? Colors.white70 : AL.textSec,
+                        fontSize: 11, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                Row(children: [
+                  Expanded(child: _actionBtn(
+                    label: _backupDone ? l.backupDone : l.backup,
+                    icon: Icons.cloud_upload_outlined,
+                    color: _backupDone ? AC.success : AC.navyLight,
+                    onTap: _exportData,
+                  )),
+                  const SizedBox(width: 8),
+                  Expanded(child: _actionBtn(
+                    label: l.restore,
+                    icon: Icons.restore,
+                    color: isDark ? Colors.white54 : AL.textSec,
+                    onTap: _importData,
+                  )),
                 ]),
-              ),
-            ])),
+              ]),
+            )),
             const SizedBox(height: 12),
 
             SectionLabel(l.dangerZone),
-            const SizedBox(height: 8),
-            Container(
-              decoration: BoxDecoration(
-                color: AC.danger.withOpacity(0.04),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AC.danger.withOpacity(0.2)),
-              ),
-              child: _settingRow(
-                icon: Icons.warning_amber_rounded,
-                iconColor: AC.danger,
-                title: l.factoryReset,
-                subtitle: l.deleteAllPermanently,
-                danger: true,
-                arrow: true,
-                onTap: _showResetConfirm,
-              ),
-            ),
             const SizedBox(height: 8),
             GestureDetector(
               onTap: _showResetConfirm,
@@ -381,15 +331,16 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
     );
   }
 
-  Widget _buildHeader(AppLocalizations l) {
+  Widget _buildHeader(AppLocalizations l, bool isDark) {
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 10,
         left: 16, right: 16, bottom: 14,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xE60D0D1A),
-        border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.06))),
+        color: isDark ? const Color(0xE60D0D1A) : AL.bgCard,
+        border: Border(bottom: BorderSide(
+            color: isDark ? Colors.white.withOpacity(0.06) : AL.divider)),
       ),
       child: Row(children: [
         GestureDetector(
@@ -397,11 +348,13 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
           child: Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
+              color: isDark ? Colors.white.withOpacity(0.06) : AL.bg,
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              border: Border.all(
+                  color: isDark ? Colors.white.withOpacity(0.1) : AL.divider),
             ),
-            child: const Icon(Icons.arrow_back, color: Colors.white70, size: 18),
+            child: Icon(Icons.arrow_back,
+                color: isDark ? Colors.white70 : AL.textSec, size: 18),
           ),
         ),
         const SizedBox(width: 12),
@@ -418,21 +371,25 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
         const SizedBox(width: 10),
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(l.securitySettingsTitle,
-              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
+              style: TextStyle(
+                  color: isDark ? Colors.white : AL.textPrimary,
+                  fontSize: 18, fontWeight: FontWeight.w700)),
           Text(l.appProtectionSettings,
-              style: const TextStyle(color: AC.textMuted, fontSize: 10)),
+              style: TextStyle(
+                  color: isDark ? AC.textMuted : AL.textMuted, fontSize: 10)),
         ]),
       ]),
     );
   }
 
-  Widget _buildSecurityScore(AppProvider provider, AppLocalizations l) {
+  Widget _buildSecurityScore(AppProvider provider, AppLocalizations l, bool isDark) {
     final score = provider.useBiometrics ? 94 : 72;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-            colors: [Color(0x1A00E676), Color(0x331A237E)]),
+        gradient: LinearGradient(colors: isDark
+            ? [const Color(0x1A00E676), const Color(0x331A237E)]
+            : [AC.success.withOpacity(0.05), AL.navyGlass(0.08)]),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AC.success.withOpacity(0.18)),
       ),
@@ -452,13 +409,13 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
               style: const TextStyle(color: AC.success, fontSize: 13, fontWeight: FontWeight.w700)),
           const SizedBox(height: 2),
           Text(score >= 90 ? l.securityVeryStrong : l.enableBiometric,
-              style: const TextStyle(color: AC.textMuted, fontSize: 10)),
+              style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 10)),
           const SizedBox(height: 6),
           ClipRRect(
             borderRadius: BorderRadius.circular(2),
             child: LinearProgressIndicator(
               value: score / 100,
-              backgroundColor: Colors.white.withOpacity(0.1),
+              backgroundColor: isDark ? Colors.white.withOpacity(0.1) : AL.divider,
               valueColor: const AlwaysStoppedAnimation(AC.success),
               minHeight: 4,
             ),
@@ -469,6 +426,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
   }
 
   Widget _settingRow({
+    required bool isDark,
     required IconData icon,
     required Color iconColor,
     required String title,
@@ -500,10 +458,11 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(title,
                 style: TextStyle(
-                    color: danger ? AC.danger : Colors.white,
+                    color: danger ? AC.danger : (isDark ? Colors.white : AL.textPrimary),
                     fontSize: 13, fontWeight: FontWeight.w600)),
             const SizedBox(height: 2),
-            Text(subtitle, style: const TextStyle(color: AC.textMuted, fontSize: 10)),
+            Text(subtitle,
+                style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 10)),
           ])),
           if (badge != null) ...[
             const SizedBox(width: 8),
@@ -515,7 +474,9 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 border: Border.all(color: (badgeColor ?? AC.success).withOpacity(0.2)),
               ),
               child: Text(badge,
-                  style: TextStyle(color: badgeColor ?? AC.success, fontSize: 10, fontWeight: FontWeight.w700)),
+                  style: TextStyle(
+                      color: badgeColor ?? AC.success,
+                      fontSize: 10, fontWeight: FontWeight.w700)),
             ),
           ],
           if (toggle != null) ...[
@@ -524,7 +485,8 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
           ],
           if (arrow) ...[
             const SizedBox(width: 4),
-            const Icon(Icons.chevron_right, color: Colors.white24, size: 16),
+            Icon(Icons.chevron_right,
+                color: isDark ? Colors.white24 : AL.textMuted, size: 16),
           ],
         ]),
       ),
@@ -554,6 +516,9 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
         ),
       );
 
-  Widget _divider() => Divider(
-      height: 1, color: Colors.white.withOpacity(0.04), indent: 60, endIndent: 0);
+  Widget _divider(bool isDark) => Divider(
+      height: 1,
+      color: isDark ? Colors.white.withOpacity(0.04) : AL.divider,
+      indent: 60,
+      endIndent: 0);
 }

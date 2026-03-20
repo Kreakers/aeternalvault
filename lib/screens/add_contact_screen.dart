@@ -179,8 +179,9 @@ class _AddContactScreenState extends State<AddContactScreen> {
       title = l.addContactTitle;
     }
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AC.bg,
+      backgroundColor: isDark ? AC.bg : AL.bg,
       body: Column(children: [
         _buildHeader(context, title, l),
         Expanded(
@@ -218,7 +219,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
                             decoration: BoxDecoration(
                               color: AC.gold,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: AC.bg, width: 2),
+                              border: Border.all(color: isDark ? AC.bg : AL.bg, width: 2),
                             ),
                             child: const Icon(Icons.edit, size: 12, color: Colors.black),
                           ),
@@ -253,7 +254,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
                             dropdownIconPosition: IconPosition.trailing,
                             flagsButtonPadding: const EdgeInsets.only(left: 8),
                             showDropdownIcon: true,
-                            dropdownTextStyle: const TextStyle(color: Colors.white),
+                            dropdownTextStyle: TextStyle(color: isDark ? Colors.white : AL.textPrimary),
                           ),
                         ),
                         _buildTextField(_emailController, l.email, icon: Icons.email, keyboard: TextInputType.emailAddress),
@@ -308,7 +309,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
                             labelText: l.category,
                             prefixIcon: const Icon(Icons.category_outlined),
                           ),
-                          dropdownColor: AC.bgCard,
+                          dropdownColor: isDark ? AC.bgCard : AL.bgCard,
                           items: _categories.map((c) => DropdownMenuItem(
                             value: c,
                             child: Text(_localizedCategory(l, c)),
@@ -318,31 +319,34 @@ class _AddContactScreenState extends State<AddContactScreen> {
                           },
                         ),
                         const SizedBox(height: 12),
-                        GestureDetector(
-                          onTap: () => setState(() => _isPrivate = !_isPrivate),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: _isPrivate ? AC.danger.withOpacity(0.08) : Colors.white.withOpacity(0.03),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                  color: _isPrivate ? AC.danger.withOpacity(0.25) : Colors.white.withOpacity(0.09)),
-                            ),
-                            child: Row(children: [
-                              Icon(Icons.security, color: _isPrivate ? AC.danger : Colors.white38, size: 18),
-                              const SizedBox(width: 12),
-                              Expanded(child: Text(l.saveAsPrivate,
-                                  style: TextStyle(
-                                      color: _isPrivate ? AC.danger : Colors.white54,
-                                      fontSize: 13, fontWeight: FontWeight.w500))),
-                              Switch(
-                                value: _isPrivate,
-                                onChanged: (v) => setState(() => _isPrivate = v),
-                                activeColor: AC.danger,
+                        Builder(builder: (context) {
+                          final isDark = Theme.of(context).brightness == Brightness.dark;
+                          return GestureDetector(
+                            onTap: () => setState(() => _isPrivate = !_isPrivate),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: _isPrivate ? AC.danger.withOpacity(0.08) : (isDark ? Colors.white.withOpacity(0.03) : AL.bg),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                    color: _isPrivate ? AC.danger.withOpacity(0.25) : (isDark ? Colors.white.withOpacity(0.09) : AL.divider)),
                               ),
-                            ]),
-                          ),
-                        ),
+                              child: Row(children: [
+                                Icon(Icons.security, color: _isPrivate ? AC.danger : (isDark ? Colors.white38 : AL.textMuted), size: 18),
+                                const SizedBox(width: 12),
+                                Expanded(child: Text(l.saveAsPrivate,
+                                    style: TextStyle(
+                                        color: _isPrivate ? AC.danger : (isDark ? Colors.white54 : AL.textSec),
+                                        fontSize: 13, fontWeight: FontWeight.w500))),
+                                Switch(
+                                  value: _isPrivate,
+                                  onChanged: (v) => setState(() => _isPrivate = v),
+                                  activeColor: AC.danger,
+                                ),
+                              ]),
+                            ),
+                          );
+                        }),
                         const SizedBox(height: 12),
                         _buildTextField(_notesController, l.notes, icon: Icons.notes_outlined, maxLines: 3),
                       ]),
@@ -379,14 +383,15 @@ class _AddContactScreenState extends State<AddContactScreen> {
   }
 
   Widget _buildHeader(BuildContext context, String title, AppLocalizations l) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 10,
         left: 14, right: 14, bottom: 14,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xCC0D0D1A),
-        border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.06))),
+        color: isDark ? const Color(0xCC0D0D1A) : AL.bgCard,
+        border: Border(bottom: BorderSide(color: isDark ? Colors.white.withOpacity(0.06) : AL.divider)),
       ),
       child: Row(children: [
         GestureDetector(
@@ -394,11 +399,11 @@ class _AddContactScreenState extends State<AddContactScreen> {
           child: Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
+              color: isDark ? Colors.white.withOpacity(0.06) : AL.bg,
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              border: Border.all(color: isDark ? Colors.white.withOpacity(0.1) : AL.divider),
             ),
-            child: const Icon(Icons.arrow_back, color: Colors.white70, size: 18),
+            child: Icon(Icons.arrow_back, color: isDark ? Colors.white70 : AL.textSec, size: 18),
           ),
         ),
         const SizedBox(width: 12),
@@ -415,18 +420,23 @@ class _AddContactScreenState extends State<AddContactScreen> {
         const SizedBox(width: 10),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title,
-              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+              style: TextStyle(color: isDark ? Colors.white : AL.textPrimary, fontSize: 16, fontWeight: FontWeight.w700)),
         ])),
       ]),
     );
   }
 
-  Widget _sectionLabel(String label) => Padding(
-    padding: const EdgeInsets.only(left: 2, bottom: 0),
-    child: Text(label.toUpperCase(),
-        style: const TextStyle(
-            color: Color(0x73FFFFFF), fontSize: 11,
-            fontWeight: FontWeight.w600, letterSpacing: 0.8)),
+  Widget _sectionLabel(String label) => Builder(
+    builder: (context) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      return Padding(
+        padding: const EdgeInsets.only(left: 2, bottom: 0),
+        child: Text(label.toUpperCase(),
+            style: TextStyle(
+                color: isDark ? const Color(0x73FFFFFF) : AL.textMuted, fontSize: 11,
+                fontWeight: FontWeight.w600, letterSpacing: 0.8)),
+      );
+    },
   );
 
   Widget _buildTextField(TextEditingController controller, String label,
@@ -446,23 +456,24 @@ class _AddContactScreenState extends State<AddContactScreen> {
       );
 
   Widget _buildDatePickerTile(String label, DateTime? date, IconData icon, bool isBirthday, AppLocalizations l) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () => _selectDate(context, isBirthday),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.03),
+          color: isDark ? Colors.white.withOpacity(0.03) : AL.bg,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withOpacity(0.09)),
+          border: Border.all(color: isDark ? Colors.white.withOpacity(0.09) : AL.divider),
         ),
         child: Row(children: [
           Icon(icon, color: AC.gold, size: 18),
           const SizedBox(width: 12),
           Expanded(child: Text(
             date == null ? label : '$label: ${DateFormat('dd MMMM yyyy', 'tr').format(date)}',
-            style: TextStyle(color: date == null ? Colors.white38 : Colors.white, fontSize: 13),
+            style: TextStyle(color: date == null ? (isDark ? Colors.white38 : AL.textMuted) : (isDark ? Colors.white : AL.textPrimary), fontSize: 13),
           )),
-          const Icon(Icons.calendar_today, color: Colors.white38, size: 16),
+          Icon(Icons.calendar_today, color: isDark ? Colors.white38 : AL.textMuted, size: 16),
         ]),
       ),
     );

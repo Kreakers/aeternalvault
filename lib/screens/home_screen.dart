@@ -131,9 +131,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   // ── Build ─────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final provider = Provider.of<AppProvider>(context);
     return Scaffold(
-      backgroundColor: AC.bg,
+      backgroundColor: isDark ? AC.bg : AL.bg,
       appBar: _buildAppBar(),
       drawer: _buildDrawer(provider),
       body: Column(children: [
@@ -148,12 +149,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   PreferredSizeWidget _buildAppBar() {
     final l = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return PreferredSize(
       preferredSize: const Size.fromHeight(60),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xCC0D0D1A),
-          border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.06))),
+          color: isDark ? const Color(0xCC0D0D1A) : AL.bgCard,
+          border: Border(bottom: BorderSide(color: isDark ? Colors.white.withOpacity(0.06) : AL.divider)),
         ),
         child: SafeArea(
           child: Padding(
@@ -178,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ? TextField(
                         controller: _searchController,
                         autofocus: true,
-                        style: const TextStyle(color: Colors.white, fontSize: 15),
+                        style: TextStyle(color: isDark ? Colors.white : AL.textPrimary, fontSize: 15),
                         decoration: InputDecoration(
                           hintText: l.searchHint,
                           border: InputBorder.none,
@@ -187,15 +189,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         ),
                         onChanged: (v) => setState(() => _searchQuery = v.toLowerCase()),
                       )
-                    : const Text('Aeterna CRM',
-                        style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700, letterSpacing: -0.3)),
+                    : Text('Aeterna CRM',
+                        style: TextStyle(color: isDark ? Colors.white : AL.textPrimary, fontSize: 17, fontWeight: FontWeight.w700, letterSpacing: -0.3)),
               ),
               const SizedBox(width: 6),
               _appBarBtn(
                 icon: _isSearching ? Icons.close : Icons.search,
-                color: Colors.white70,
-                bg: Colors.white.withOpacity(0.06),
-                border: Colors.white.withOpacity(0.1),
+                color: isDark ? Colors.white70 : AL.textSec,
+                bg: isDark ? Colors.white.withOpacity(0.06) : AL.bg,
+                border: isDark ? Colors.white.withOpacity(0.1) : AL.divider,
                 onTap: () => setState(() {
                   _isSearching = !_isSearching;
                   if (!_isSearching) { _searchController.clear(); _searchQuery = ''; }
@@ -239,6 +241,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   // ── Dashboard ─────────────────────────────────────────────
   Widget _buildDashboard(AppProvider provider) {
     final l = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final now = DateTime.now();
     final Map<String, int> catStats = {};
     final List<String> alerts = [];
@@ -266,19 +269,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
             child: Row(children: [
               Text(l.overview,
-                  style: const TextStyle(color: AC.textSec, fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 0.8)),
+                  style: TextStyle(color: isDark ? AC.textSec : AL.textSec, fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 0.8)),
               const Spacer(),
               Text('${provider.totalContacts} ${l.contacts} · ${provider.totalVaultItems} ${l.digitalVault}',
-                  style: const TextStyle(color: AC.textMuted, fontSize: 10)),
+                  style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 10)),
               const SizedBox(width: 6),
               Icon(_statsOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                  color: Colors.white38, size: 18),
+                  color: isDark ? Colors.white38 : AL.textMuted, size: 18),
             ]),
           ),
         ),
 
         if (_statsOpen) ...[
-          Divider(height: 1, color: Colors.white.withOpacity(0.06)),
+          Divider(height: 1, color: isDark ? Colors.white.withOpacity(0.06) : AL.divider),
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
             child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
@@ -298,10 +301,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Widget _statPill(String emoji, String label, String sub, Color color) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
+        color: isDark ? Colors.white.withOpacity(0.04) : AL.bg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withOpacity(0.13)),
       ),
@@ -309,8 +313,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         Text(emoji, style: const TextStyle(fontSize: 18)),
         const SizedBox(width: 10),
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
-          Text(sub, style: const TextStyle(color: AC.textMuted, fontSize: 10)),
+          Text(label, style: TextStyle(color: isDark ? Colors.white : AL.textPrimary, fontSize: 13, fontWeight: FontWeight.w700)),
+          Text(sub, style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 10)),
         ]),
       ]),
     );
@@ -336,6 +340,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildAlerts(List<String> alerts) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.fromLTRB(14, 0, 14, 14),
       padding: const EdgeInsets.all(12),
@@ -350,7 +355,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           child: Row(children: [
             const Icon(Icons.notifications_active, size: 14, color: AC.warning),
             const SizedBox(width: 8),
-            Expanded(child: Text(a, style: const TextStyle(color: Colors.white70, fontSize: 11))),
+            Expanded(child: Text(a, style: TextStyle(color: isDark ? Colors.white70 : AL.textSec, fontSize: 11))),
           ]),
         )).toList(),
       ),
@@ -367,8 +372,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           c.phone.contains(_searchQuery)).toList();
     }
     if (contacts.isEmpty) {
+      final isDarkEmpty = Theme.of(context).brightness == Brightness.dark;
       return Center(
-        child: Text(l.contactNotFound, style: const TextStyle(color: AC.textMuted)),
+        child: Text(l.contactNotFound, style: TextStyle(color: isDarkEmpty ? AC.textMuted : AL.textMuted)),
       );
     }
 
@@ -396,8 +402,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   // ── Drawer ─────────────────────────────────────────────────
   Widget _buildDrawer(AppProvider provider) {
     final l = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Drawer(
-      backgroundColor: AC.bgCard,
+      backgroundColor: isDark ? AC.bgCard : AL.bgCard,
       child: Column(children: [
         Container(
           width: double.infinity,
@@ -425,37 +432,38 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ]),
         ),
         const SizedBox(height: 8),
-        _drawerItem(Icons.people_outline, l.contacts, () => Navigator.pop(context)),
+        _drawerItem(Icons.people_outline, l.contacts, () => Navigator.pop(context), isDark: isDark),
         _drawerItem(
           provider.isVaultSetupComplete ? Icons.lock_outline : Icons.security,
           provider.isVaultSetupComplete ? l.digitalVault : l.activateVault,
           () { Navigator.pop(context); _handleVaultNavigation(provider); },
           color: provider.isVaultSetupComplete ? AC.gold : AC.success,
+          isDark: isDark,
         ),
-        Divider(height: 24, color: Colors.white.withOpacity(0.06)),
+        Divider(height: 24, color: isDark ? Colors.white.withOpacity(0.06) : AL.divider),
         _drawerItem(Icons.security_outlined, l.securitySettings, () {
           Navigator.pop(context);
           Navigator.push(context, MaterialPageRoute(builder: (_) => const SecuritySettingsScreen()));
-        }),
+        }, isDark: isDark),
         _drawerItem(Icons.settings_outlined, l.generalSettings, () {
           Navigator.pop(context);
           Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
-        }),
+        }, isDark: isDark),
         const Spacer(),
-        Divider(color: Colors.white.withOpacity(0.06)),
+        Divider(color: isDark ? Colors.white.withOpacity(0.06) : AL.divider),
         _drawerItem(Icons.info_outline, l.about, () {
           Navigator.pop(context);
           Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutScreen()));
-        }),
+        }, isDark: isDark),
         const SizedBox(height: 16),
       ]),
     );
   }
 
-  Widget _drawerItem(IconData icon, String label, VoidCallback onTap, {Color? color}) {
+  Widget _drawerItem(IconData icon, String label, VoidCallback onTap, {Color? color, bool isDark = true}) {
     return ListTile(
-      leading: Icon(icon, color: color ?? Colors.white70, size: 20),
-      title: Text(label, style: TextStyle(color: color ?? Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
+      leading: Icon(icon, color: color ?? (isDark ? Colors.white70 : AL.textSec), size: 20),
+      title: Text(label, style: TextStyle(color: color ?? (isDark ? Colors.white : AL.textPrimary), fontSize: 14, fontWeight: FontWeight.w500)),
       onTap: onTap,
       dense: true,
       horizontalTitleGap: 8,
@@ -507,8 +515,22 @@ class _ContactGroupState extends State<_ContactGroup> {
 
   Color get _color => _catColors[widget.category] ?? AC.navyLight;
 
+  String _localizedCategory(AppLocalizations l, String cat) {
+    switch (cat) {
+      case 'Müşteri':   return l.categoryCustomer;
+      case 'Aile':      return l.categoryFamily;
+      case 'Arkadaş':   return l.categoryFriend;
+      case 'İş':        return l.categoryWork;
+      case 'Tedarikçi': return l.categorySupplier;
+      case 'Diğer':     return l.categoryOther;
+      default:          return cat;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -525,8 +547,8 @@ class _ContactGroupState extends State<_ContactGroup> {
               child: Icon(Icons.folder_outlined, size: 12, color: _color),
             ),
             const SizedBox(width: 8),
-            Expanded(child: Text(widget.category,
-                style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w700))),
+            Expanded(child: Text(_localizedCategory(l, widget.category),
+                style: TextStyle(color: isDark ? Colors.white70 : AL.textSec, fontSize: 12, fontWeight: FontWeight.w700))),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
               decoration: BoxDecoration(
@@ -539,7 +561,7 @@ class _ContactGroupState extends State<_ContactGroup> {
             ),
             const SizedBox(width: 4),
             Icon(_open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                color: Colors.white30, size: 16),
+                color: isDark ? Colors.white30 : AL.textMuted, size: 16),
           ]),
         ),
 
@@ -562,21 +584,21 @@ class _ContactGroupState extends State<_ContactGroup> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('${c.firstName} ${c.lastName}',
-                                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                                style: TextStyle(color: isDark ? Colors.white : AL.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
                             const SizedBox(height: 2),
                             Row(children: [
-                              const Icon(Icons.phone, size: 10, color: Colors.white30),
+                              Icon(Icons.phone, size: 10, color: isDark ? Colors.white30 : AL.textMuted),
                               const SizedBox(width: 4),
-                              Text(c.phone, style: const TextStyle(color: AC.textMuted, fontSize: 11)),
+                              Text(c.phone, style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 11)),
                             ]),
                           ],
                         )),
-                        const Icon(Icons.chevron_right, size: 16, color: Colors.white24),
+                        Icon(Icons.chevron_right, size: 16, color: isDark ? Colors.white24 : AL.textMuted),
                       ]),
                     ),
                   ),
                   if (i < widget.contacts.length - 1)
-                    Divider(height: 1, color: Colors.white.withOpacity(0.04), indent: 63),
+                    Divider(height: 1, color: isDark ? Colors.white.withOpacity(0.04) : AL.divider, indent: 63),
                 ]);
               }),
             ),

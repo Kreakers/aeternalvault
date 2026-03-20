@@ -38,6 +38,18 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
   };
   Color _catColor() => _catColors[contact.category] ?? AC.navyLight;
 
+  String _localizedCategory(AppLocalizations l, String cat) {
+    switch (cat) {
+      case 'Müşteri': return l.categoryCustomer;
+      case 'Aile':    return l.categoryFamily;
+      case 'Arkadaş': return l.categoryFriend;
+      case 'İş':      return l.categoryWork;
+      case 'Tedarikçi': return l.categorySupplier;
+      case 'Diğer':   return l.categoryOther;
+      default:        return cat;
+    }
+  }
+
   void _shareContact(Contact c, AppLocalizations l) {
     Share.share(l.shareContact(
       '${c.firstName} ${c.lastName}',
@@ -190,9 +202,10 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: AC.bg,
+      backgroundColor: isDark ? AC.bg : AL.bg,
       body: Consumer<AppProvider>(builder: (context, provider, _) {
         final c = provider.contacts.firstWhere((x) => x.id == contact.id, orElse: () => contact);
         final logs = provider.allLogs.where((log) => log.contactId == contact.id).toList();
@@ -250,7 +263,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
                         if (reminders.isEmpty)
                           Padding(
                             padding: const EdgeInsets.all(16),
-                            child: Text(l.noPendingTasks, style: const TextStyle(color: AC.textMuted, fontSize: 12)),
+                            child: Text(l.noPendingTasks, style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 12)),
                           ),
                         ...List.generate(reminders.length, (i) {
                           final r = reminders[i];
@@ -267,21 +280,21 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
                                 padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
                                 child: Row(children: [
                                   Icon(r.isCompleted ? Icons.check_box : Icons.check_box_outline_blank,
-                                      color: r.isCompleted ? AC.success : const Color(0x40FFFFFF), size: 18),
+                                      color: r.isCompleted ? AC.success : (isDark ? const Color(0x40FFFFFF) : AL.textMuted), size: 18),
                                   const SizedBox(width: 10),
                                   Expanded(child: Text(r.title, style: TextStyle(
-                                      color: r.isCompleted ? Colors.white38 : Colors.white,
+                                      color: r.isCompleted ? (isDark ? Colors.white38 : AL.textMuted) : (isDark ? Colors.white : AL.textPrimary),
                                       fontSize: 12, fontWeight: FontWeight.w500,
                                       decoration: r.isCompleted ? TextDecoration.lineThrough : null))),
                                   Text(DateFormat('dd MMM').format(r.dateTime),
                                       style: TextStyle(
-                                          color: r.isCompleted ? Colors.white24 : AC.gold,
+                                          color: r.isCompleted ? (isDark ? Colors.white24 : AL.textMuted) : AC.gold,
                                           fontSize: 10, fontWeight: FontWeight.w600)),
                                 ]),
                               ),
                             ),
                             if (i < reminders.length - 1)
-                              Divider(height: 1, color: Colors.white.withOpacity(0.04)),
+                              Divider(height: 1, color: isDark ? Colors.white.withOpacity(0.04) : AL.divider),
                           ]);
                         }),
                       ]),
@@ -331,17 +344,17 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
                                             letterSpacing: 0.4)),
                                   Text(log.action,
                                       style: TextStyle(
-                                          color: isNote ? AC.gold : Colors.white,
+                                          color: isNote ? AC.gold : (isDark ? Colors.white : AL.textPrimary),
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600)),
                                 ],
                               )),
                               Text(DateFormat('dd MMM').format(log.timestamp),
-                                  style: const TextStyle(color: AC.textMuted, fontSize: 10)),
+                                  style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 10)),
                             ]),
                           ),
                           if (i < logs.take(10).length - 1)
-                            Divider(height: 1, color: Colors.white.withOpacity(0.04)),
+                            Divider(height: 1, color: isDark ? Colors.white.withOpacity(0.04) : AL.divider),
                         ]);
                       })),
                     ),
@@ -400,6 +413,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
   }
 
   Widget _buildTopBar(BuildContext context, Contact c, AppLocalizations l) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 10,
@@ -411,16 +425,16 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
           child: Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
+              color: isDark ? Colors.white.withOpacity(0.06) : AL.bg,
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              border: Border.all(color: isDark ? Colors.white.withOpacity(0.1) : AL.divider),
             ),
-            child: const Icon(Icons.arrow_back, color: Colors.white70, size: 16),
+            child: Icon(Icons.arrow_back, color: isDark ? Colors.white70 : AL.textSec, size: 16),
           ),
         ),
         const Spacer(),
         Text(l.contactDetail,
-            style: const TextStyle(color: AC.textSec, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.4)),
+            style: TextStyle(color: isDark ? AC.textSec : AL.textSec, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.4)),
         const Spacer(),
         GestureDetector(
           onTap: () => _shareContact(c, l),
@@ -439,6 +453,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
   }
 
   Widget _buildAvatarHero(BuildContext context, Contact c, AppLocalizations l) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final color = _catColor();
     final hasImage = c.imagePath != null;
     return Padding(
@@ -476,7 +491,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AC.bg, width: 2),
+                border: Border.all(color: isDark ? AC.bg : AL.bgCard, width: 2),
               ),
               child: const Icon(Icons.people, color: Colors.white, size: 11),
             ),
@@ -484,12 +499,12 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
         ]),
         const SizedBox(height: 12),
         Text('${c.firstName} ${c.lastName}',
-            style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
+            style: TextStyle(color: isDark ? Colors.white : AL.textPrimary, fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
         if (c.jobTitle.isNotEmpty || c.company.isNotEmpty) ...[
           const SizedBox(height: 2),
           Text(
             [if (c.jobTitle.isNotEmpty) c.jobTitle, if (c.company.isNotEmpty) c.company].join(' · '),
-            style: const TextStyle(color: AC.textSec, fontSize: 12),
+            style: TextStyle(color: isDark ? AC.textSec : AL.textSec, fontSize: 12),
           ),
         ],
         const SizedBox(height: 10),
@@ -500,7 +515,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: color.withOpacity(0.27)),
           ),
-          child: Text(c.category,
+          child: Text(_localizedCategory(l, c.category),
               style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
         ),
         const SizedBox(height: 14),
@@ -578,24 +593,35 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
             child: Icon(icon, color: color, size: 16),
           ),
           const SizedBox(width: 12),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: const TextStyle(color: AC.textMuted, fontSize: 10, fontWeight: FontWeight.w500)),
-            const SizedBox(height: 2),
-            Text(value,
-                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
-                overflow: TextOverflow.ellipsis),
-          ])),
-          const Icon(Icons.chevron_right, color: Colors.white24, size: 16),
+          Expanded(child: Builder(builder: (context) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(label, style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 10, fontWeight: FontWeight.w500)),
+              const SizedBox(height: 2),
+              Text(value,
+                  style: TextStyle(color: isDark ? Colors.white : AL.textPrimary, fontSize: 13, fontWeight: FontWeight.w600),
+                  overflow: TextOverflow.ellipsis),
+            ]);
+          })),
+          Builder(builder: (context) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            return Icon(Icons.chevron_right, color: isDark ? Colors.white24 : AL.textMuted, size: 16);
+          }),
         ]),
       ),
     );
   }
 
-  Widget _sectionLabel(String label) => Padding(
-    padding: const EdgeInsets.only(left: 2, bottom: 0),
-    child: Text(label.toUpperCase(),
-        style: const TextStyle(
-            color: Color(0x73FFFFFF), fontSize: 11,
-            fontWeight: FontWeight.w600, letterSpacing: 0.8)),
+  Widget _sectionLabel(String label) => Builder(
+    builder: (context) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      return Padding(
+        padding: const EdgeInsets.only(left: 2, bottom: 0),
+        child: Text(label.toUpperCase(),
+            style: TextStyle(
+                color: isDark ? const Color(0x73FFFFFF) : AL.textMuted, fontSize: 11,
+                fontWeight: FontWeight.w600, letterSpacing: 0.8)),
+      );
+    },
   );
 }

@@ -46,6 +46,19 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
     ('Belge', l.filterDocuments),
   ];
 
+  // Kişi kategorileri (DB'de Türkçe, lokalize gösterim)
+  String _localizedContactCategory(AppLocalizations l, String cat) {
+    switch (cat) {
+      case 'Müşteri':   return l.categoryCustomer;
+      case 'Aile':      return l.categoryFamily;
+      case 'Arkadaş':   return l.categoryFriend;
+      case 'İş':        return l.categoryWork;
+      case 'Tedarikçi': return l.categorySupplier;
+      case 'Diğer':     return l.categoryOther;
+      default:          return cat;
+    }
+  }
+
   Future<void> _openFile(String? path) async {
     if (path == null || path.isEmpty) return;
     final l = AppLocalizations.of(context);
@@ -107,10 +120,11 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final l = AppLocalizations.of(context);
     final filters = _getFilters(l);
     return Scaffold(
-      backgroundColor: AC.bg,
+      backgroundColor: isDark ? AC.bg : AL.bg,
       body: Column(children: [
         _buildHeader(l),
         _buildTabBar(l),
@@ -139,14 +153,15 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
 
   // ── Header ────────────────────────────────────────────────
   Widget _buildHeader(AppLocalizations l) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 12,
         left: 16, right: 16, bottom: 14,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xCC0D0D1A),
-        border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.06))),
+        color: isDark ? const Color(0xCC0D0D1A) : AL.bgCard,
+        border: Border(bottom: BorderSide(color: isDark ? Colors.white.withOpacity(0.06) : AL.divider)),
       ),
       child: Row(children: [
         GestureDetector(
@@ -154,11 +169,11 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
           child: Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
+              color: isDark ? Colors.white.withOpacity(0.06) : AL.bg,
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              border: Border.all(color: isDark ? Colors.white.withOpacity(0.1) : AL.divider),
             ),
-            child: const Icon(Icons.arrow_back, color: Colors.white70, size: 18),
+            child: Icon(Icons.arrow_back, color: isDark ? Colors.white70 : AL.textSec, size: 18),
           ),
         ),
         const SizedBox(width: 12),
@@ -175,10 +190,10 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
         const SizedBox(width: 10),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(l.vaultScreenTitle,
-              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
+              style: TextStyle(color: isDark ? Colors.white : AL.textPrimary, fontSize: 18, fontWeight: FontWeight.w700)),
           Consumer<AppProvider>(builder: (_, p, __) =>
               Text(l.encryptedRecordsCount(p.vaultItems.length),
-                  style: const TextStyle(color: AC.textMuted, fontSize: 10))),
+                  style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 10))),
         ])),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -221,8 +236,9 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
   }
 
   Widget _buildTabBar(AppLocalizations l) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      color: const Color(0xCC0D0D1A),
+      color: isDark ? const Color(0xCC0D0D1A) : AL.bgCard,
       child: TabBar(
         controller: _tabController,
         tabs: [
@@ -230,11 +246,11 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
           Tab(icon: const Icon(Icons.description, size: 18), text: l.documentsPasswords),
         ],
         labelColor: AC.gold,
-        unselectedLabelColor: Colors.white38,
+        unselectedLabelColor: isDark ? Colors.white38 : AL.textMuted,
         indicatorColor: AC.gold,
         indicatorSize: TabBarIndicatorSize.label,
         labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-        dividerColor: Colors.white.withOpacity(0.06),
+        dividerColor: isDark ? Colors.white.withOpacity(0.06) : AL.divider,
       ),
     );
   }
@@ -242,6 +258,7 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
   // ── Private Contacts Tab ──────────────────────────────────
   Widget _buildPrivateContactsTab(AppLocalizations l) {
     return Consumer<AppProvider>(builder: (context, provider, _) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
       final privateContacts = provider.contacts.where((c) => c.isPrivate).toList();
       if (privateContacts.isEmpty) {
         return _emptyState(Icons.people_outline, l.noHiddenContacts, l.addWithPlusButton);
@@ -264,14 +281,14 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
             child: GlassCard(
               child: ExpansionTile(
                 leading: const Icon(Icons.folder_shared, color: AC.gold, size: 20),
-                title: Text(cat, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
-                iconColor: Colors.white38,
-                collapsedIconColor: Colors.white38,
+                title: Text(_localizedContactCategory(l, cat), style: TextStyle(color: isDark ? Colors.white : AL.textPrimary, fontWeight: FontWeight.w700, fontSize: 13)),
+                iconColor: isDark ? Colors.white38 : AL.textMuted,
+                collapsedIconColor: isDark ? Colors.white38 : AL.textMuted,
                 children: items.map((c) => ListTile(
                   leading: AeternaAvatar(name: '${c.firstName} ${c.lastName}', size: 36),
                   title: Text('${c.firstName} ${c.lastName}',
-                      style: const TextStyle(color: Colors.white, fontSize: 13)),
-                  trailing: const Icon(Icons.chevron_right, color: Colors.white24, size: 16),
+                      style: TextStyle(color: isDark ? Colors.white : AL.textPrimary, fontSize: 13)),
+                  trailing: Icon(Icons.chevron_right, color: isDark ? Colors.white24 : AL.textMuted, size: 16),
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ContactDetailScreen(contact: c))),
                 )).toList(),
               ),
@@ -285,6 +302,7 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
   // ── Vault Items Tab ───────────────────────────────────────
   Widget _buildVaultItemsTab(AppLocalizations l, List<(String, String)> filters) {
     return Consumer<AppProvider>(builder: (context, provider, _) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
       var items = provider.vaultItems;
       if (items.isEmpty) {
         return _emptyState(Icons.enhanced_encryption, l.vaultEmpty, l.addWithPlusButton);
@@ -308,14 +326,14 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
-                      color: active ? AC.gold.withOpacity(0.15) : Colors.white.withOpacity(0.04),
+                      color: active ? AC.gold.withOpacity(0.15) : (isDark ? Colors.white.withOpacity(0.04) : AL.bg),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                          color: active ? AC.gold : Colors.white.withOpacity(0.1)),
+                          color: active ? AC.gold : (isDark ? Colors.white.withOpacity(0.1) : AL.divider)),
                     ),
                     child: Text(f.$2,
                         style: TextStyle(
-                          color: active ? AC.gold : Colors.white54,
+                          color: active ? AC.gold : (isDark ? Colors.white54 : AL.textMuted),
                           fontSize: 11,
                           fontWeight: active ? FontWeight.w700 : FontWeight.w400,
                         )),
@@ -361,12 +379,13 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
   }
 
   Widget _emptyState(IconData icon, String title, String sub) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, color: Colors.white12, size: 56),
+      Icon(icon, color: isDark ? Colors.white12 : AL.textMuted.withOpacity(0.3), size: 56),
       const SizedBox(height: 12),
-      Text(title, style: const TextStyle(color: Colors.white38, fontSize: 15, fontWeight: FontWeight.w600)),
+      Text(title, style: TextStyle(color: isDark ? Colors.white38 : AL.textMuted, fontSize: 15, fontWeight: FontWeight.w600)),
       const SizedBox(height: 4),
-      Text(sub, style: const TextStyle(color: AC.textMuted, fontSize: 12)),
+      Text(sub, style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 12)),
     ]));
   }
 }
@@ -409,6 +428,7 @@ class _VaultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final (icon, color, glow) = _meta;
 
     Map<String, dynamic> data = {};
@@ -425,7 +445,7 @@ class _VaultCard extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AC.navyGlass(0.22), AC.bg.withOpacity(0.5)],
+            colors: [isDark ? AC.navyGlass(0.22) : AL.navyGlass(0.06), isDark ? AC.bg.withOpacity(0.5) : AL.bgCard],
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: color.withOpacity(0.19)),
@@ -472,10 +492,10 @@ class _VaultCard extends StatelessWidget {
                   child: Container(
                     width: 26, height: 26,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.07),
+                      color: isDark ? Colors.white.withOpacity(0.07) : AL.navyGlass(0.06),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.edit_outlined, color: Colors.white54, size: 13),
+                    child: Icon(Icons.edit_outlined, color: isDark ? Colors.white54 : AL.textSec, size: 13),
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -493,16 +513,16 @@ class _VaultCard extends StatelessWidget {
               ]),
               const SizedBox(height: 10),
               Text(item.title,
-                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+                  style: TextStyle(color: isDark ? Colors.white : AL.textPrimary, fontSize: 13, fontWeight: FontWeight.w700),
                   maxLines: 1, overflow: TextOverflow.ellipsis),
               Text(data['f1'] ?? '-',
-                  style: const TextStyle(color: AC.textMuted, fontSize: 10),
+                  style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 10),
                   maxLines: 1, overflow: TextOverflow.ellipsis),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
+                  color: isDark ? Colors.black.withOpacity(0.3) : AL.navyGlass(0.08),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(children: [
@@ -510,7 +530,7 @@ class _VaultCard extends StatelessWidget {
                     child: Text(
                       isVisible ? secret : '••••••••••',
                       style: TextStyle(
-                        color: isVisible ? Colors.white : Colors.white54,
+                        color: isVisible ? (isDark ? Colors.white : AL.textPrimary) : (isDark ? Colors.white54 : AL.textMuted),
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         letterSpacing: isVisible ? 0 : 1,
@@ -553,15 +573,20 @@ class _VaultCard extends StatelessWidget {
   }
 
   Widget _iconBtn(IconData icon, Color color, VoidCallback onTap) =>
-      GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: 22, height: 22,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.07),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Icon(icon, size: 11, color: color),
-        ),
+      Builder(
+        builder: (context) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          return GestureDetector(
+            onTap: onTap,
+            child: Container(
+              width: 22, height: 22,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white.withOpacity(0.07) : AL.navyGlass(0.06),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Icon(icon, size: 11, color: color),
+            ),
+          );
+        },
       );
 }
