@@ -369,7 +369,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (_searchQuery.isNotEmpty) {
       contacts = contacts.where((c) =>
           '${c.firstName} ${c.lastName}'.toLowerCase().contains(_searchQuery) ||
-          c.phone.contains(_searchQuery)).toList();
+          c.phone.contains(_searchQuery) ||
+          c.email.toLowerCase().contains(_searchQuery) ||
+          c.company.toLowerCase().contains(_searchQuery) ||
+          c.tags.toLowerCase().contains(_searchQuery)).toList();
     }
     if (contacts.isEmpty) {
       final isDarkEmpty = Theme.of(context).brightness == Brightness.dark;

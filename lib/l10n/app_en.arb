@@ -238,5 +238,7 @@
   "addNote": "Add Note",
   "addNoteHint": "Write your note about this contact...",
   "backupSaved": "Backup saved",
-  "manualNote": "Note"
+  "manualNote": "Note",
+
+  "comingSoon": "This feature is coming soon"
 }

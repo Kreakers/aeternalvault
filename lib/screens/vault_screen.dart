@@ -367,8 +367,13 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
                 }
               }),
               onCopy: (val) => _copyToClipboard(val, displayed[i].id!),
-              onEdit: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => AddVaultItemScreen(vaultItem: displayed[i]))),
+              onEdit: () async {
+                await Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => AddVaultItemScreen(vaultItem: displayed[i])));
+                if (context.mounted) {
+                  await Provider.of<AppProvider>(context, listen: false).loadVaultItems();
+                }
+              },
               onOpenFile: () => _openFile(displayed[i].filePath),
               onDelete: () => _deleteVaultItem(context, displayed[i], l),
             ),

@@ -40,9 +40,6 @@ class AppProvider with ChangeNotifier {
   DateTime? _lastVaultUnlockTime;
   DateTime? get lastVaultUnlockTime => _lastVaultUnlockTime;
 
-  String? _recoveryCode;
-  bool get hasRecoveryCode => _recoveryCode != null && _recoveryCode!.isNotEmpty;
-
   bool _autoLockEnabled = false;
   bool get autoLockEnabled => _autoLockEnabled;
 
@@ -72,7 +69,6 @@ class AppProvider with ChangeNotifier {
       _isVaultSetupComplete = settings['isSetupComplete'] == 1;
       _vaultMasterKey = settings['hashedMasterKey'];
       _useBiometrics = settings['useBiometrics'] == 1;
-      _recoveryCode = settings['recoveryCode'];
       _themeColor = Color(settings['themeColor'] ?? 4279935870);
       _isDarkMode = (settings['isDarkMode'] ?? 1) == 1;
       final localeCode = settings['locale'] as String? ?? 'tr';
@@ -125,7 +121,7 @@ class AppProvider with ChangeNotifier {
 
   // --- Security ---
   Future<bool> updateMasterKey(String oldKey, String newKey) async {
-    if (oldKey != _vaultMasterKey) return false;
+    if (_vaultMasterKey == null || oldKey != _vaultMasterKey) return false;
     await _dbService.updateVaultSettings({'hashedMasterKey': newKey});
     await _addLog('Kasa ana şifresi değiştirildi');
     await checkVaultStatus();
@@ -146,12 +142,6 @@ class AppProvider with ChangeNotifier {
       if (minutes != null) 'autoLockMinutes': minutes,
     });
     notifyListeners();
-  }
-
-  Future<void> updateRecoveryCode(String code) async {
-    await _dbService.updateVaultSettings({'recoveryCode': code});
-    await _addLog('Kurtarma kodu güncellendi');
-    await checkVaultStatus();
   }
 
   // --- Stats ---
@@ -194,7 +184,7 @@ class AppProvider with ChangeNotifier {
 
   Future<void> updateReminder(Reminder reminder) async {
     await _dbService.updateReminder(reminder);
-    if (reminder.isCompleted) {
+    if (reminder.isCompleted && reminder.id != null) {
       await NotificationService().cancelReminder(reminder.id!);
       await _addLog('Görev tamamlandı: ${reminder.title}', contactId: reminder.contactId);
     }
@@ -209,7 +199,8 @@ class AppProvider with ChangeNotifier {
 
   // --- Vault ---
   Future<bool> unlockVault(String masterKey) async {
-    if (_isVaultSetupComplete && _vaultMasterKey != masterKey) return false;
+    if (!_isVaultSetupComplete) return false;
+    if (_vaultMasterKey == null || _vaultMasterKey != masterKey) return false;
     try {
       _encryptionService.init(masterKey);
       _isVaultUnlocked = true;

@@ -238,5 +238,7 @@
   "addNote": "Notiz hinzufügen",
   "addNoteHint": "Schreiben Sie Ihre Notiz über diesen Kontakt...",
   "backupSaved": "Backup gespeichert",
-  "manualNote": "Notiz"
+  "manualNote": "Notiz",
+
+  "comingSoon": "Diese Funktion kommt bald"
 }

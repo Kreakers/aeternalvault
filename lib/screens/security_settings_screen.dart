@@ -20,6 +20,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
   final _newKeyController = TextEditingController();
   final _importController = TextEditingController();
   bool _backupDone = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -32,7 +33,9 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
   void _exportData() async {
     final l = AppLocalizations.of(context);
     final provider = Provider.of<AppProvider>(context, listen: false);
+    setState(() => _isLoading = true);
     final jsonString = await provider.generateBackup();
+    setState(() => _isLoading = false);
     if (!mounted) return;
     showDialog(
       context: context,
@@ -45,7 +48,12 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
             height: 180,
             child: SingleChildScrollView(
               child: SelectableText(jsonString,
-                  style: const TextStyle(fontSize: 10, fontFamily: 'monospace', color: AC.textSec)),
+                  style: TextStyle(
+                      fontSize: 10,
+                      fontFamily: 'monospace',
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? AC.textSec
+                          : AL.textSec)),
             ),
           ),
         ]),
@@ -112,10 +120,12 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
           TextButton(onPressed: () => Navigator.pop(context), child: Text(l.cancel)),
           ElevatedButton(
             onPressed: () async {
+              Navigator.pop(context);
+              setState(() => _isLoading = true);
               final provider = Provider.of<AppProvider>(context, listen: false);
               final ok = await provider.restoreBackup(_importController.text);
               if (!mounted) return;
-              Navigator.pop(context);
+              setState(() => _isLoading = false);
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text(ok ? l.restoreSuccess : l.restoreError),
               ));
@@ -215,7 +225,8 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
     final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: isDark ? AC.bg : AL.bg,
-      body: Column(children: [
+      body: Stack(children: [
+        Column(children: [
         _buildHeader(l, isDark),
         Expanded(child: Consumer<AppProvider>(builder: (_, provider, __) => ListView(
           padding: const EdgeInsets.fromLTRB(14, 12, 14, 32),
@@ -244,7 +255,11 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 title: l.passwordHints,
                 subtitle: l.showHintOnLogin,
                 toggle: false,
-                onToggle: () {},
+                onToggle: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l.comingSoon)),
+                  );
+                },
               ),
             ])),
             const SizedBox(height: 12),
@@ -327,6 +342,12 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
             ),
           ],
         ))),
+        ]),
+        if (_isLoading)
+          Container(
+            color: Colors.black45,
+            child: const Center(child: CircularProgressIndicator(color: AC.gold)),
+          ),
       ]),
     );
   }

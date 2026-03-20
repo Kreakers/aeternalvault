@@ -708,5 +708,7 @@
   "@backupSaved": {"description": "Yedek dosyaya kaydedildi mesajı"},
 
   "manualNote": "Not",
-  "@manualNote": {"description": "Manuel not etiketi"}
+  "@manualNote": {"description": "Manuel not etiketi"},
+
+  "comingSoon": "Bu özellik yakında gelecek"
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
+import '../theme/app_theme.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -17,7 +19,7 @@ class AboutScreen extends StatelessWidget {
             Center(
               child: Column(
                 children: [
-                  const Icon(Icons.shield, size: 80, color: Colors.deepPurple),
+                  const Icon(Icons.shield, size: 80, color: AC.gold),
                   const SizedBox(height: 16),
                   const Text(
                     'Aeterna Vault',
@@ -48,11 +50,9 @@ class AboutScreen extends StatelessWidget {
             const SizedBox(height: 12),
             Card(
               child: ListTile(
-                leading: const Icon(Icons.email),
+                leading: const Icon(Icons.email, color: AC.gold),
                 title: const Text('destek@aeternavault.com'),
-                onTap: () {
-                  // E-posta yönlendirmesi eklenebilir
-                },
+                onTap: () => launchUrl(Uri.parse('mailto:destek@aeternavault.com')),
               ),
             ),
             const SizedBox(height: 40),
@@ -73,7 +73,7 @@ class AboutScreen extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Text(
         title,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AC.gold),
       ),
     );
   }
