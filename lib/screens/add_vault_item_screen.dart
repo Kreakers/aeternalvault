@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import '../models/vault_item.dart';
 import '../providers/app_provider.dart';
+import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 
 class AddVaultItemScreen extends StatefulWidget {
@@ -82,7 +83,7 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
   void _generateStrongPassword() {
     final l = AppLocalizations.of(context);
     const chars = r'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
-    final rnd = Random();
+    final rnd = Random.secure();
     final pwd = String.fromCharCodes(Iterable.generate(12, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
     setState(() {
       _field2Controller.text = pwd;
@@ -145,120 +146,217 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.vaultItem == null ? l.addVaultItem : l.editVaultItem),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildTextField(_titleController, l.titleHint,
-                  validator: (v) => v != null && v.isEmpty ? l.required : null),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _category,
-                decoration: InputDecoration(labelText: l.category, border: const OutlineInputBorder()),
-                items: _categories.map((c) => DropdownMenuItem(
-                  value: c,
-                  child: Text(_localizedCategory(l, c)),
-                )).toList(),
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() => _category = val);
-                  }
-                },
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      backgroundColor: AC.bg,
+      body: Column(children: [
+        _buildHeader(context, l),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 40),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(l.secretData, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.redAccent)),
-                  if (_category == 'Şifre')
-                    TextButton.icon(
-                      icon: const Icon(Icons.generating_tokens, size: 18),
-                      label: Text(l.generatePassword),
-                      onPressed: _generateStrongPassword,
+                  GlassCard(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(children: [
+                        _buildTextField(_titleController, l.titleHint,
+                            validator: (v) => v != null && v.isEmpty ? l.required : null),
+                        const SizedBox(height: 4),
+                        DropdownButtonFormField<String>(
+                          value: _category,
+                          decoration: InputDecoration(
+                            labelText: l.category,
+                            prefixIcon: const Icon(Icons.category_outlined, size: 18),
+                          ),
+                          dropdownColor: AC.bgCard,
+                          items: _categories.map((c) => DropdownMenuItem(
+                            value: c,
+                            child: Text(_localizedCategory(l, c)),
+                          )).toList(),
+                          onChanged: (val) {
+                            if (val != null) {
+                              setState(() => _category = val);
+                            }
+                          },
+                        ),
+                      ]),
                     ),
-                ],
-              ),
-              const Divider(color: Colors.redAccent),
-              const SizedBox(height: 12),
-              if (_decryptionFailed)
-                Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.orange.withOpacity(0.4)),
                   ),
-                  child: Row(children: [
-                    const Icon(Icons.warning_amber, color: Colors.orange, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        l.decryptionError,
-                        style: const TextStyle(color: Colors.orange, fontSize: 12),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(l.secretData.toUpperCase(),
+                          style: const TextStyle(color: Color(0x73FFFFFF), fontSize: 11,
+                              fontWeight: FontWeight.w600, letterSpacing: 0.8)),
+                      if (_category == 'Şifre')
+                        GestureDetector(
+                          onTap: _generateStrongPassword,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: AC.goldGlass(),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: AC.goldBorder()),
+                            ),
+                            child: Row(mainAxisSize: MainAxisSize.min, children: [
+                              const Icon(Icons.generating_tokens, color: AC.gold, size: 14),
+                              const SizedBox(width: 4),
+                              Text(l.generatePassword,
+                                  style: const TextStyle(color: AC.gold, fontSize: 11, fontWeight: FontWeight.w600)),
+                            ]),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  GlassCard(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(children: [
+                        if (_decryptionFailed)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AC.warning.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: AC.warning.withOpacity(0.4)),
+                            ),
+                            child: Row(children: [
+                              Icon(Icons.warning_amber, color: AC.warning, size: 18),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(l.decryptionError,
+                                    style: TextStyle(color: AC.warning, fontSize: 12)),
+                              ),
+                            ]),
+                          ),
+                        ..._buildDynamicFields(l),
+                      ]),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(l.fileAttachment.toUpperCase(),
+                      style: const TextStyle(color: Color(0x73FFFFFF), fontSize: 11,
+                          fontWeight: FontWeight.w600, letterSpacing: 0.8)),
+                  const SizedBox(height: 8),
+                  _buildFilePickerArea(l),
+                  const SizedBox(height: 14),
+                  GlassCard(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: _buildTextField(_noteController, l.additionalNotes, maxLines: 3),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  GestureDetector(
+                    onTap: _saveItem,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                            colors: [AC.danger, Color(0xFFCC0020)],
+                            begin: Alignment.topLeft, end: Alignment.bottomRight),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [BoxShadow(color: AC.danger.withOpacity(0.35), blurRadius: 20, offset: const Offset(0, 6))],
+                      ),
+                      child: Center(
+                        child: Text(l.saveEncrypted,
+                            style: const TextStyle(color: Colors.white, fontSize: 14,
+                                fontWeight: FontWeight.w800, letterSpacing: 1)),
                       ),
                     ),
-                  ]),
-                ),
-              ..._buildDynamicFields(l),
-              const SizedBox(height: 24),
-              Text(l.fileAttachment, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-              const SizedBox(height: 8),
-              _buildFilePickerArea(l),
-              const SizedBox(height: 24),
-              _buildTextField(_noteController, l.additionalNotes, maxLines: 3),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _saveItem,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                ),
-                child: Text(l.saveEncrypted, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  const SizedBox(height: 40),
+                ],
               ),
-              const SizedBox(height: 40),
-            ],
+            ),
           ),
         ),
+      ]),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, AppLocalizations l) {
+    return Container(
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 10,
+        left: 14, right: 14, bottom: 14,
       ),
+      decoration: BoxDecoration(
+        color: const Color(0xCC0D0D1A),
+        border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.06))),
+      ),
+      child: Row(children: [
+        GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
+            child: const Icon(Icons.arrow_back, color: Colors.white70, size: 18),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Container(
+          width: 34, height: 34,
+          decoration: BoxDecoration(
+            color: AC.danger.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(11),
+            border: Border.all(color: AC.danger.withOpacity(0.3)),
+          ),
+          child: const Icon(Icons.enhanced_encryption, color: AC.danger, size: 17),
+        ),
+        const SizedBox(width: 10),
+        Expanded(child: Text(
+          widget.vaultItem == null ? l.addVaultItem : l.editVaultItem,
+          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+        )),
+      ]),
     );
   }
 
   Widget _buildFilePickerArea(AppLocalizations l) {
-    return InkWell(
+    return GestureDetector(
       onTap: _pickFile,
       child: Container(
-        height: 100,
+        height: 90,
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade700, style: BorderStyle.solid),
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.grey.withAlpha(25),
+          color: Colors.white.withOpacity(0.04),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.white.withOpacity(0.1)),
         ),
         child: _filePath == null
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.upload_file, size: 32, color: Colors.grey),
-                  const SizedBox(height: 8),
-                  Text(l.selectFile, style: const TextStyle(color: Colors.grey)),
+                  Icon(Icons.upload_file, size: 28, color: AC.navyLight),
+                  const SizedBox(height: 6),
+                  Text(l.selectFile, style: const TextStyle(color: AC.textMuted, fontSize: 12)),
                 ],
               )
-            : ListTile(
-                leading: const Icon(Icons.file_present, color: Colors.redAccent),
-                title: Text(_filePath!.split('/').last, maxLines: 1, overflow: TextOverflow.ellipsis),
-                subtitle: Text(l.fileReady, style: const TextStyle(color: Colors.green, fontSize: 12)),
-                trailing: IconButton(
-                  icon: const Icon(Icons.cancel, color: Colors.red),
-                  onPressed: () => setState(() => _filePath = null),
-                ),
+            : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Row(children: [
+                  const Icon(Icons.file_present, color: AC.navyLight, size: 22),
+                  const SizedBox(width: 12),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+                    Text(_filePath!.split('/').last,
+                        maxLines: 1, overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+                    Text(l.fileReady, style: const TextStyle(color: AC.success, fontSize: 10)),
+                  ])),
+                  GestureDetector(
+                    onTap: () => setState(() => _filePath = null),
+                    child: const Icon(Icons.close, color: AC.danger, size: 18),
+                  ),
+                ]),
               ),
       ),
     );
@@ -319,13 +417,12 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
   Widget _buildTextField(TextEditingController controller, String label,
       {IconData? icon, bool obscure = false, int maxLines = 1, String? Function(String?)? validator, Widget? suffixIcon}) =>
       Padding(
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.only(bottom: 12),
         child: TextFormField(
           controller: controller,
           decoration: InputDecoration(
             labelText: label,
-            border: const OutlineInputBorder(),
-            prefixIcon: icon != null ? Icon(icon) : null,
+            prefixIcon: icon != null ? Icon(icon, size: 18) : null,
             suffixIcon: suffixIcon,
           ),
           obscureText: obscure,

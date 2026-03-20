@@ -213,5 +213,25 @@
   "categoryFriend": "Amico",
   "categoryCustomer": "Cliente",
   "categorySupplier": "Fornitore",
-  "categoryOther": "Altro"
+  "categoryOther": "Altro",
+
+  "deleteVaultItem": "Elimina dal caveau",
+  "deleteVaultItemConfirm": "Sei sicuro di voler eliminare definitivamente \"{title}\"?",
+  "@deleteVaultItemConfirm": {"placeholders": {"title": {"type": "String"}}},
+
+  "clipboardCleared": "Appunti cancellati dopo 30 secondi",
+  "autoLockEnabled": "Abilitato — blocca in background",
+  "autoLockDisabled": "Disabilitato",
+  "shareBackup": "Condividi Backup",
+  "backupShared": "Backup condiviso!",
+  "biometricReason": "Autenticati per accedere alla cassaforte",
+  "connectionSource": "Fonte di Contatto",
+  "deleteContact": "Elimina Contatto",
+  "deleteContactConfirm": "Sei sicuro di voler eliminare questo contatto?",
+  "sendEmail": "Invia Email",
+  "sendSms": "Invia SMS",
+  "openWhatsapp": "Apri in WhatsApp",
+  "cannotLaunch": "Impossibile aprire l'app",
+  "confirmDelete": "Conferma Eliminazione",
+  "delete": "Elimina"
 }

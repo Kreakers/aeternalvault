@@ -683,4 +683,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryOther => 'Other';
+
+  @override
+  String get deleteVaultItem => 'Delete from Vault';
+
+  @override
+  String deleteVaultItemConfirm(String title) {
+    return 'Are you sure you want to permanently delete \"$title\"?';
+  }
+
+  @override
+  String get clipboardCleared => 'Clipboard cleared after 30 seconds';
+
+  @override
+  String get autoLockEnabled => 'Enabled — lock when backgrounded';
+
+  @override
+  String get autoLockDisabled => 'Disabled';
+
+  @override
+  String get shareBackup => 'Share Backup';
+
+  @override
+  String get backupShared => 'Backup shared!';
+
+  @override
+  String get biometricReason => 'Authenticate to access the Vault';
+
+  @override
+  String get connectionSource => 'Connection Source';
+
+  @override
+  String get deleteContact => 'Delete Contact';
+
+  @override
+  String get deleteContactConfirm =>
+      'Are you sure you want to delete this contact?';
+
+  @override
+  String get sendEmail => 'Send Email';
+
+  @override
+  String get sendSms => 'Send SMS';
+
+  @override
+  String get openWhatsapp => 'Open in WhatsApp';
+
+  @override
+  String get cannotLaunch => 'Could not open app';
+
+  @override
+  String get confirmDelete => 'Confirm Delete';
+
+  @override
+  String get delete => 'Delete';
 }

@@ -8,18 +8,17 @@ class AuthService {
 
   final LocalAuthentication _localAuth = LocalAuthentication();
 
-  Future<bool> authenticate() async {
+  Future<bool> authenticate({String? reason}) async {
     try {
       final bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
       final bool isDeviceSupported = await _localAuth.isDeviceSupported();
 
       if (!canCheckBiometrics && !isDeviceSupported) {
-        // Cihaz biyometriği desteklemiyorsa şifre diyaloğuna yönlendir
         return false;
       }
 
       return await _localAuth.authenticate(
-        localizedReason: 'Lütfen Kasa\'ya erişmek için doğrulama yapın',
+        localizedReason: reason ?? 'Please authenticate to access the Vault',
         options: const AuthenticationOptions(
           biometricOnly: false,
           stickyAuth: true,

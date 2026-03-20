@@ -645,5 +645,56 @@
   "@categorySupplier": {"description": "Tedarikçi kategorisi"},
 
   "categoryOther": "Diğer",
-  "@categoryOther": {"description": "Diğer kategorisi"}
+  "@categoryOther": {"description": "Diğer kategorisi"},
+
+  "deleteVaultItem": "Kasadan Sil",
+  "@deleteVaultItem": {"description": "Kasa öğesi sil butonu"},
+
+  "deleteVaultItemConfirm": "\"{title}\" öğesini kalıcı olarak silmek istediğine emin misin?",
+  "@deleteVaultItemConfirm": {"description": "Kasa öğesi silme onay mesajı", "placeholders": {"title": {"type": "String"}}},
+
+  "clipboardCleared": "Pano 30 saniye sonra temizlendi",
+  "@clipboardCleared": {"description": "Pano temizlendi mesajı"},
+
+  "autoLockEnabled": "Etkin — arka plana geçince kilitle",
+  "@autoLockEnabled": {"description": "Otomatik kilit etkin mesajı"},
+
+  "autoLockDisabled": "Devre dışı",
+  "@autoLockDisabled": {"description": "Otomatik kilit devre dışı mesajı"},
+
+  "shareBackup": "Yedeği Paylaş",
+  "@shareBackup": {"description": "Yedeği paylaş butonu"},
+
+  "backupShared": "Yedek paylaşıldı!",
+  "@backupShared": {"description": "Yedek paylaşıldı mesajı"},
+
+  "biometricReason": "Kasaya erişmek için doğrulama yapın",
+  "@biometricReason": {"description": "Biyometrik doğrulama sebebi"},
+
+  "connectionSource": "Tanışma Kaynağı",
+  "@connectionSource": {"description": "Tanışma kaynağı etiketi"},
+
+  "deleteContact": "Kişiyi Sil",
+  "@deleteContact": {"description": "Kişiyi sil butonu"},
+
+  "deleteContactConfirm": "Bu kişiyi silmek istediğine emin misin?",
+  "@deleteContactConfirm": {"description": "Kişi silme onay mesajı"},
+
+  "sendEmail": "E-posta Gönder",
+  "@sendEmail": {"description": "E-posta gönder butonu"},
+
+  "sendSms": "SMS Gönder",
+  "@sendSms": {"description": "SMS gönder butonu"},
+
+  "openWhatsapp": "WhatsApp'ta Aç",
+  "@openWhatsapp": {"description": "WhatsApp'ta aç butonu"},
+
+  "cannotLaunch": "Uygulama açılamadı",
+  "@cannotLaunch": {"description": "Uygulama açılamadı hata mesajı"},
+
+  "confirmDelete": "Silmeyi Onayla",
+  "@confirmDelete": {"description": "Silmeyi onayla başlığı"},
+
+  "delete": "Sil",
+  "@delete": {"description": "Sil butonu"}
 }

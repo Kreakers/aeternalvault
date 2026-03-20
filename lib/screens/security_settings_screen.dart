@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:math';
 import '../providers/app_provider.dart';
 import '../theme/app_theme.dart';
@@ -95,6 +98,33 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
               Navigator.pop(context);
             },
             child: Text(l.copyAndClose),
+          ),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.share, size: 16),
+            label: Text(l.shareBackup),
+            style: ElevatedButton.styleFrom(backgroundColor: AC.navyLight, foregroundColor: Colors.white),
+            onPressed: () async {
+              Navigator.pop(context);
+              try {
+                final dir = await getTemporaryDirectory();
+                final file = File('${dir.path}/aeterna_backup_${DateTime.now().millisecondsSinceEpoch}.json');
+                await file.writeAsString(jsonString);
+                await Share.shareXFiles(
+                  [XFile(file.path)],
+                  subject: 'Aeterna Vault Backup',
+                );
+                setState(() => _backupDone = true);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l.backupShared)));
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l.saveError(e.toString()))));
+                }
+              }
+            },
           ),
         ],
       ),
@@ -263,9 +293,9 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 icon: Icons.timer_outlined,
                 iconColor: const Color(0xFF9C27B0),
                 title: l.autoLock,
-                subtitle: l.autoLockSubtitle,
-                toggle: true,
-                onToggle: () {},
+                subtitle: provider.autoLockEnabled ? l.autoLockEnabled : l.autoLockDisabled,
+                toggle: provider.autoLockEnabled,
+                onToggle: () => provider.updateAutoLock(!provider.autoLockEnabled),
               ),
             ])),
             const SizedBox(height: 12),

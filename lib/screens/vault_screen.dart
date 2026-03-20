@@ -67,6 +67,42 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
     Future.delayed(const Duration(milliseconds: 1800), () {
       if (mounted) setState(() => _copiedItems.remove(id));
     });
+    Future.delayed(const Duration(seconds: 30), () {
+      Clipboard.setData(const ClipboardData(text: ''));
+    });
+  }
+
+  Future<void> _deleteVaultItem(BuildContext context, VaultItem item, AppLocalizations l) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(children: [
+          Container(
+            width: 32, height: 32,
+            decoration: BoxDecoration(
+              color: AC.danger.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AC.danger.withOpacity(0.25)),
+            ),
+            child: const Icon(Icons.delete_outline, color: AC.danger, size: 16),
+          ),
+          const SizedBox(width: 10),
+          Text(l.deleteVaultItem),
+        ]),
+        content: Text(l.deleteVaultItemConfirm(item.title)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.cancel)),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: AC.danger, foregroundColor: Colors.white),
+            child: Text(l.delete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && context.mounted) {
+      await Provider.of<AppProvider>(context, listen: false).deleteVaultItem(item.id!);
+    }
   }
 
   @override
@@ -316,6 +352,7 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
               onEdit: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => AddVaultItemScreen(vaultItem: displayed[i]))),
               onOpenFile: () => _openFile(displayed[i].filePath),
+              onDelete: () => _deleteVaultItem(context, displayed[i], l),
             ),
           ),
         ),
@@ -344,6 +381,7 @@ class _VaultCard extends StatelessWidget {
   final void Function(String) onCopy;
   final VoidCallback onEdit;
   final VoidCallback onOpenFile;
+  final VoidCallback onDelete;
 
   const _VaultCard({
     required this.item,
@@ -354,6 +392,7 @@ class _VaultCard extends StatelessWidget {
     required this.onCopy,
     required this.onEdit,
     required this.onOpenFile,
+    required this.onDelete,
   });
 
   static const _catMeta = {
@@ -380,6 +419,7 @@ class _VaultCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onEdit,
+      onLongPress: onDelete,
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -427,15 +467,28 @@ class _VaultCard extends StatelessWidget {
                   child: Icon(icon, color: color, size: 17),
                 ),
                 const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.09),
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(color: color.withOpacity(0.16)),
+                GestureDetector(
+                  onTap: onEdit,
+                  child: Container(
+                    width: 26, height: 26,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.07),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.edit_outlined, color: Colors.white54, size: 13),
                   ),
-                  child: Text(item.category.toUpperCase(),
-                      style: TextStyle(color: color, fontSize: 7, fontWeight: FontWeight.w700, letterSpacing: 0.6)),
+                ),
+                const SizedBox(width: 4),
+                GestureDetector(
+                  onTap: onDelete,
+                  child: Container(
+                    width: 26, height: 26,
+                    decoration: BoxDecoration(
+                      color: AC.danger.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.delete_outline, color: AC.danger, size: 13),
+                  ),
                 ),
               ]),
               const SizedBox(height: 10),

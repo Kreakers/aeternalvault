@@ -42,6 +42,12 @@ class AppProvider with ChangeNotifier {
   String? _recoveryCode;
   bool get hasRecoveryCode => _recoveryCode != null && _recoveryCode!.isNotEmpty;
 
+  bool _autoLockEnabled = false;
+  bool get autoLockEnabled => _autoLockEnabled;
+
+  int _autoLockMinutes = 1;
+  int get autoLockMinutes => _autoLockMinutes;
+
   Color _themeColor = const Color(0xFF1A237E);
   Color get themeColor => _themeColor;
 
@@ -70,6 +76,8 @@ class AppProvider with ChangeNotifier {
       _isDarkMode = (settings['isDarkMode'] ?? 1) == 1;
       final localeCode = settings['locale'] as String? ?? 'tr';
       _locale = Locale(localeCode);
+      _autoLockEnabled = (settings['autoLockEnabled'] ?? 0) == 1;
+      _autoLockMinutes = settings['autoLockMinutes'] ?? 1;
       if (settings['lastUnlockTime'] != null) {
         _lastVaultUnlockTime = DateTime.tryParse(settings['lastUnlockTime']);
       }
@@ -114,6 +122,16 @@ class AppProvider with ChangeNotifier {
   Future<void> updateBiometricPref(bool useBio) async {
     await _dbService.updateVaultSettings({'useBiometrics': useBio ? 1 : 0});
     await checkVaultStatus();
+    notifyListeners();
+  }
+
+  Future<void> updateAutoLock(bool enabled, {int? minutes}) async {
+    _autoLockEnabled = enabled;
+    if (minutes != null) _autoLockMinutes = minutes;
+    await _dbService.updateVaultSettings({
+      'autoLockEnabled': enabled ? 1 : 0,
+      if (minutes != null) 'autoLockMinutes': minutes,
+    });
     notifyListeners();
   }
 

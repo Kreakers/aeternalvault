@@ -21,11 +21,41 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   bool _statsOpen = true;
+  DateTime? _backgroundedAt;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final provider = Provider.of<AppProvider>(context, listen: false);
+    if (state == AppLifecycleState.paused) {
+      _backgroundedAt = DateTime.now();
+    } else if (state == AppLifecycleState.resumed) {
+      if (provider.autoLockEnabled && _backgroundedAt != null) {
+        final elapsed = DateTime.now().difference(_backgroundedAt!).inMinutes;
+        if (elapsed >= provider.autoLockMinutes) {
+          provider.lockVault();
+        }
+      }
+      _backgroundedAt = null;
+    }
+  }
 
   // ── Vault navigation ─────────────────────────────────────
   Future<void> _unlockAndGo(String key) async {
@@ -48,7 +78,8 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
     if (provider.useBiometrics) {
-      final authenticated = await AuthService().authenticate();
+      final l = AppLocalizations.of(context);
+      final authenticated = await AuthService().authenticate(reason: l.biometricReason);
       if (!mounted) return;
       if (authenticated && provider.vaultMasterKey != null) {
         await _unlockAndGo(provider.vaultMasterKey!);

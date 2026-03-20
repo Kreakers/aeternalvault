@@ -684,4 +684,59 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get categoryOther => 'Andere';
+
+  @override
+  String get deleteVaultItem => 'Aus dem Tresor löschen';
+
+  @override
+  String deleteVaultItemConfirm(String title) {
+    return 'Möchten Sie \"$title\" wirklich dauerhaft löschen?';
+  }
+
+  @override
+  String get clipboardCleared => 'Zwischenablage nach 30 Sekunden geleert';
+
+  @override
+  String get autoLockEnabled => 'Aktiviert — bei Hintergrund sperren';
+
+  @override
+  String get autoLockDisabled => 'Deaktiviert';
+
+  @override
+  String get shareBackup => 'Sicherung teilen';
+
+  @override
+  String get backupShared => 'Sicherung geteilt!';
+
+  @override
+  String get biometricReason =>
+      'Authentifizieren Sie sich, um auf den Tresor zuzugreifen';
+
+  @override
+  String get connectionSource => 'Kontaktquelle';
+
+  @override
+  String get deleteContact => 'Kontakt löschen';
+
+  @override
+  String get deleteContactConfirm =>
+      'Möchten Sie diesen Kontakt wirklich löschen?';
+
+  @override
+  String get sendEmail => 'E-Mail senden';
+
+  @override
+  String get sendSms => 'SMS senden';
+
+  @override
+  String get openWhatsapp => 'In WhatsApp öffnen';
+
+  @override
+  String get cannotLaunch => 'App konnte nicht geöffnet werden';
+
+  @override
+  String get confirmDelete => 'Löschen bestätigen';
+
+  @override
+  String get delete => 'Löschen';
 }

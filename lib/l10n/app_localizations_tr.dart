@@ -683,4 +683,57 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get categoryOther => 'Diğer';
+
+  @override
+  String get deleteVaultItem => 'Kasadan Sil';
+
+  @override
+  String deleteVaultItemConfirm(String title) {
+    return '\"$title\" öğesini kalıcı olarak silmek istediğine emin misin?';
+  }
+
+  @override
+  String get clipboardCleared => 'Pano 30 saniye sonra temizlendi';
+
+  @override
+  String get autoLockEnabled => 'Etkin — arka plana geçince kilitle';
+
+  @override
+  String get autoLockDisabled => 'Devre dışı';
+
+  @override
+  String get shareBackup => 'Yedeği Paylaş';
+
+  @override
+  String get backupShared => 'Yedek paylaşıldı!';
+
+  @override
+  String get biometricReason => 'Kasaya erişmek için doğrulama yapın';
+
+  @override
+  String get connectionSource => 'Tanışma Kaynağı';
+
+  @override
+  String get deleteContact => 'Kişiyi Sil';
+
+  @override
+  String get deleteContactConfirm => 'Bu kişiyi silmek istediğine emin misin?';
+
+  @override
+  String get sendEmail => 'E-posta Gönder';
+
+  @override
+  String get sendSms => 'SMS Gönder';
+
+  @override
+  String get openWhatsapp => 'WhatsApp\'ta Aç';
+
+  @override
+  String get cannotLaunch => 'Uygulama açılamadı';
+
+  @override
+  String get confirmDelete => 'Silmeyi Onayla';
+
+  @override
+  String get delete => 'Sil';
 }

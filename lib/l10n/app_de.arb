@@ -213,5 +213,25 @@
   "categoryFriend": "Freund",
   "categoryCustomer": "Kunde",
   "categorySupplier": "Lieferant",
-  "categoryOther": "Andere"
+  "categoryOther": "Andere",
+
+  "deleteVaultItem": "Aus dem Tresor löschen",
+  "deleteVaultItemConfirm": "Möchten Sie \"{title}\" wirklich dauerhaft löschen?",
+  "@deleteVaultItemConfirm": {"placeholders": {"title": {"type": "String"}}},
+
+  "clipboardCleared": "Zwischenablage nach 30 Sekunden geleert",
+  "autoLockEnabled": "Aktiviert — bei Hintergrund sperren",
+  "autoLockDisabled": "Deaktiviert",
+  "shareBackup": "Sicherung teilen",
+  "backupShared": "Sicherung geteilt!",
+  "biometricReason": "Authentifizieren Sie sich, um auf den Tresor zuzugreifen",
+  "connectionSource": "Kontaktquelle",
+  "deleteContact": "Kontakt löschen",
+  "deleteContactConfirm": "Möchten Sie diesen Kontakt wirklich löschen?",
+  "sendEmail": "E-Mail senden",
+  "sendSms": "SMS senden",
+  "openWhatsapp": "In WhatsApp öffnen",
+  "cannotLaunch": "App konnte nicht geöffnet werden",
+  "confirmDelete": "Löschen bestätigen",
+  "delete": "Löschen"
 }

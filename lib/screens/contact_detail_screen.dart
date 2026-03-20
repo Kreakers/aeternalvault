@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/contact.dart';
 import '../models/reminder.dart';
 import '../providers/app_provider.dart';
@@ -10,9 +11,16 @@ import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import 'add_contact_screen.dart';
 
-class ContactDetailScreen extends StatelessWidget {
+class ContactDetailScreen extends StatefulWidget {
   final Contact contact;
   const ContactDetailScreen({super.key, required this.contact});
+
+  @override
+  State<ContactDetailScreen> createState() => _ContactDetailScreenState();
+}
+
+class _ContactDetailScreenState extends State<ContactDetailScreen> {
+  Contact get contact => widget.contact;
 
   static const _catColors = {
     'İş':      AC.navyLight,
@@ -36,6 +44,34 @@ class ContactDetailScreen extends StatelessWidget {
       c.phone,
       c.email,
     ));
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final l = AppLocalizations.of(context);
+    try {
+      final uri = Uri.parse(url);
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l.cannotLaunch)),
+          );
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).cannotLaunch)),
+        );
+      }
+    }
+  }
+
+  void _callContact(Contact c) => _launchUrl('tel:${c.phone}');
+  void _emailContact(Contact c) => _launchUrl('mailto:${c.email}');
+  void _smsContact(Contact c) => _launchUrl('sms:${c.phone}');
+  void _whatsappContact(Contact c) {
+    final digits = c.phone.replaceAll(RegExp(r'[^0-9]'), '');
+    _launchUrl('https://wa.me/$digits');
   }
 
   Future<void> _showAddReminderDialog(BuildContext context, AppLocalizations l) async {
@@ -144,7 +180,19 @@ class ContactDetailScreen extends StatelessWidget {
                   if (c.contactFrequency > 0)
                     _infoCard(Icons.repeat, l.contactFrequency,
                         l.everyNDays(c.contactFrequency), const Color(0xFF9C27B0)),
-                  const SizedBox(height: 16),
+                  if (c.contactFrequency > 0) const SizedBox(height: 7),
+                  if (c.connectionSource.isNotEmpty)
+                    _infoCard(Icons.handshake_outlined, l.connectionSource,
+                        c.connectionSource, const Color(0xFF9C27B0)),
+                  if (c.connectionSource.isNotEmpty) const SizedBox(height: 7),
+                  if (c.tags.isNotEmpty)
+                    _infoCard(Icons.tag, l.tags, c.tags, AC.navyLight),
+                  if (c.tags.isNotEmpty) const SizedBox(height: 7),
+                  if (c.notes.isNotEmpty) ...[
+                    _infoCard(Icons.notes_outlined, l.notes, c.notes, AC.gold),
+                    const SizedBox(height: 7),
+                  ],
+                  const SizedBox(height: 9),
 
                   if (c.contactFrequency > 0) ...[
                     _buildTrackingCard(c, l),
@@ -371,29 +419,34 @@ class ContactDetailScreen extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          _quickAction(Icons.phone, l.call, AC.success),
-          const SizedBox(width: 10),
-          _quickAction(Icons.email_outlined, l.write, const Color(0xFF00BCD4)),
-          const SizedBox(width: 10),
-          _quickAction(Icons.message_outlined, l.sms, AC.gold),
+          _quickAction(Icons.phone, l.call, AC.success, () => _callContact(c)),
+          const SizedBox(width: 8),
+          _quickAction(Icons.email_outlined, l.sendEmail, const Color(0xFF00BCD4), () => _emailContact(c)),
+          const SizedBox(width: 8),
+          _quickAction(Icons.message_outlined, l.sendSms, AC.gold, () => _smsContact(c)),
+          const SizedBox(width: 8),
+          _quickAction(Icons.chat, l.openWhatsapp, const Color(0xFF25D366), () => _whatsappContact(c)),
         ]),
       ]),
     );
   }
 
-  Widget _quickAction(IconData icon, String label, Color color) =>
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.06),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withOpacity(0.16)),
+  Widget _quickAction(IconData icon, String label, Color color, VoidCallback onTap) =>
+      GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.06),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: color.withOpacity(0.16)),
+          ),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Icon(icon, color: color, size: 18),
+            const SizedBox(height: 5),
+            Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w600)),
+          ]),
         ),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, color: color, size: 18),
-          const SizedBox(height: 5),
-          Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w600)),
-        ]),
       );
 
   Widget _buildTrackingCard(Contact c, AppLocalizations l) {

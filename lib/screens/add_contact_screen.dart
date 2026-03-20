@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/contact.dart';
 import '../providers/app_provider.dart';
+import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 
 class AddContactScreen extends StatefulWidget {
@@ -176,135 +177,277 @@ class _AddContactScreenState extends State<AddContactScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: _isPrivate ? Theme.of(context).colorScheme.errorContainer : null,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: GestureDetector(
-                  onTap: _pickImage,
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.grey.shade300,
-                        backgroundImage: _imagePath != null ? FileImage(File(_imagePath!)) : null,
-                        child: _imagePath == null ? const Icon(Icons.camera_alt, size: 40, color: Colors.white) : null,
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(color: Colors.deepPurple, shape: BoxShape.circle),
-                          child: const Icon(Icons.edit, size: 16, color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              _buildSectionTitle(l.basicInfo),
-              Row(
+      backgroundColor: AC.bg,
+      body: Column(children: [
+        _buildHeader(context, title, l),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 40),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(child: _buildTextField(_firstNameController, l.firstName,
-                      validator: (v) => v != null && v.isEmpty ? l.required : null)),
-                  const SizedBox(width: 12),
-                  Expanded(child: _buildTextField(_lastNameController, l.lastName)),
+                  // Avatar
+                  Center(
+                    child: GestureDetector(
+                      onTap: _pickImage,
+                      child: Stack(children: [
+                        Container(
+                          width: 80, height: 80,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                                colors: [AC.navy, AC.navyLight],
+                                begin: Alignment.topLeft, end: Alignment.bottomRight),
+                            borderRadius: BorderRadius.circular(26),
+                            border: Border.all(color: AC.gold.withOpacity(0.35), width: 2.5),
+                          ),
+                          child: _imagePath != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(24),
+                                  child: Image.file(File(_imagePath!), fit: BoxFit.cover))
+                              : const Icon(Icons.camera_alt, size: 30, color: Colors.white54),
+                        ),
+                        Positioned(
+                          bottom: 0, right: 0,
+                          child: Container(
+                            width: 24, height: 24,
+                            decoration: BoxDecoration(
+                              color: AC.gold,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: AC.bg, width: 2),
+                            ),
+                            child: const Icon(Icons.edit, size: 12, color: Colors.black),
+                          ),
+                        ),
+                      ]),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Basic Info
+                  _sectionLabel(l.basicInfo),
+                  const SizedBox(height: 8),
+                  GlassCard(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(children: [
+                        Row(children: [
+                          Expanded(child: _buildTextField(_firstNameController, l.firstName,
+                              validator: (v) => v != null && v.isEmpty ? l.required : null)),
+                          const SizedBox(width: 10),
+                          Expanded(child: _buildTextField(_lastNameController, l.lastName)),
+                        ]),
+                        _buildTextField(_phoneController, l.phone, icon: Icons.phone, keyboard: TextInputType.phone),
+                        _buildTextField(_emailController, l.email, icon: Icons.email, keyboard: TextInputType.emailAddress),
+                        _buildTextField(_socialMediaController, l.socialMedia, icon: Icons.link),
+                      ]),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Professional
+                  _sectionLabel(l.professionalLocation),
+                  const SizedBox(height: 8),
+                  GlassCard(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(children: [
+                        _buildTextField(_companyController, l.company, icon: Icons.business),
+                        _buildTextField(_jobTitleController, l.jobTitle, icon: Icons.work),
+                        _buildTextField(_addressController, l.address, icon: Icons.location_on, maxLines: 2),
+                      ]),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Important Dates
+                  _sectionLabel(l.importantDates),
+                  const SizedBox(height: 8),
+                  GlassCard(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(children: [
+                        _buildDatePickerTile(l.birthday, _selectedBirthday, Icons.cake, true, l),
+                        const SizedBox(height: 8),
+                        _buildDatePickerTile(l.anniversary, _selectedAnniversary, Icons.event, false, l),
+                      ]),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Relationship Management
+                  _sectionLabel(l.relationshipManagement),
+                  const SizedBox(height: 8),
+                  GlassCard(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(children: [
+                        _buildTextField(_connectionSourceController, l.howWeKnow, icon: Icons.handshake),
+                        _buildTextField(_tagsController, l.tags, icon: Icons.tag),
+                        DropdownButtonFormField<String>(
+                          value: _category,
+                          decoration: InputDecoration(
+                            labelText: l.category,
+                            prefixIcon: const Icon(Icons.category_outlined),
+                          ),
+                          dropdownColor: AC.bgCard,
+                          items: _categories.map((c) => DropdownMenuItem(
+                            value: c,
+                            child: Text(_localizedCategory(l, c)),
+                          )).toList(),
+                          onChanged: (val) {
+                            if (val != null) setState(() => _category = val);
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        GestureDetector(
+                          onTap: () => setState(() => _isPrivate = !_isPrivate),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: _isPrivate ? AC.danger.withOpacity(0.08) : Colors.white.withOpacity(0.03),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                  color: _isPrivate ? AC.danger.withOpacity(0.25) : Colors.white.withOpacity(0.09)),
+                            ),
+                            child: Row(children: [
+                              Icon(Icons.security, color: _isPrivate ? AC.danger : Colors.white38, size: 18),
+                              const SizedBox(width: 12),
+                              Expanded(child: Text(l.saveAsPrivate,
+                                  style: TextStyle(
+                                      color: _isPrivate ? AC.danger : Colors.white54,
+                                      fontSize: 13, fontWeight: FontWeight.w500))),
+                              Switch(
+                                value: _isPrivate,
+                                onChanged: (v) => setState(() => _isPrivate = v),
+                                activeColor: AC.danger,
+                              ),
+                            ]),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildTextField(_notesController, l.notes, icon: Icons.notes_outlined, maxLines: 3),
+                      ]),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Save Button
+                  GestureDetector(
+                    onTap: _saveContact,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                            colors: [AC.gold, AC.goldDim],
+                            begin: Alignment.topLeft, end: Alignment.bottomRight),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [BoxShadow(color: AC.gold.withOpacity(0.35), blurRadius: 20, offset: const Offset(0, 6))],
+                      ),
+                      child: Center(
+                        child: Text(l.save,
+                            style: const TextStyle(
+                                color: Colors.black, fontSize: 14, fontWeight: FontWeight.w800, letterSpacing: 1)),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              _buildTextField(_phoneController, l.phone, icon: Icons.phone, keyboard: TextInputType.phone),
-              _buildTextField(_emailController, l.email, icon: Icons.email, keyboard: TextInputType.emailAddress),
-              _buildTextField(_socialMediaController, l.socialMedia, icon: Icons.link),
-
-              const SizedBox(height: 24),
-              _buildSectionTitle(l.professionalLocation),
-              _buildTextField(_companyController, l.company, icon: Icons.business),
-              _buildTextField(_jobTitleController, l.jobTitle, icon: Icons.work),
-              _buildTextField(_addressController, l.address, icon: Icons.location_on, maxLines: 2),
-
-              const SizedBox(height: 24),
-              _buildSectionTitle(l.importantDates),
-              _buildDatePickerTile(l.birthday, _selectedBirthday, Icons.cake, true, l),
-              _buildDatePickerTile(l.anniversary, _selectedAnniversary, Icons.event, false, l),
-
-              const SizedBox(height: 24),
-              _buildSectionTitle(l.relationshipManagement),
-              _buildTextField(_connectionSourceController, l.howWeKnow, icon: Icons.handshake),
-              _buildTextField(_tagsController, l.tags, icon: Icons.tag),
-              DropdownButtonFormField<String>(
-                value: _category,
-                decoration: InputDecoration(labelText: l.category, border: const OutlineInputBorder()),
-                items: _categories.map((c) => DropdownMenuItem(
-                  value: c,
-                  child: Text(_localizedCategory(l, c)),
-                )).toList(),
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() => _category = val);
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
-              SwitchListTile(
-                title: Text(l.saveAsPrivate),
-                value: _isPrivate,
-                onChanged: (val) => setState(() => _isPrivate = val),
-                secondary: Icon(Icons.security, color: _isPrivate ? Colors.red : Colors.grey),
-              ),
-              _buildTextField(_notesController, l.notes, maxLines: 3),
-
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _saveContact,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: _isPrivate ? Colors.red : null,
-                  foregroundColor: _isPrivate ? Colors.white : null,
-                ),
-                child: Text(l.save, style: const TextStyle(fontWeight: FontWeight.bold)),
-              ),
-              const SizedBox(height: 40),
-            ],
+            ),
           ),
         ),
-      ),
+      ]),
     );
   }
 
-  Widget _buildSectionTitle(String title) => Padding(
-    padding: const EdgeInsets.only(bottom: 12, top: 8),
-    child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+  Widget _buildHeader(BuildContext context, String title, AppLocalizations l) {
+    return Container(
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 10,
+        left: 14, right: 14, bottom: 14,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xCC0D0D1A),
+        border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.06))),
+      ),
+      child: Row(children: [
+        GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
+            child: const Icon(Icons.arrow_back, color: Colors.white70, size: 18),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Container(
+          width: 34, height: 34,
+          decoration: BoxDecoration(
+            color: _isPrivate ? AC.danger.withOpacity(0.12) : AC.goldGlass(),
+            borderRadius: BorderRadius.circular(11),
+            border: Border.all(color: _isPrivate ? AC.danger.withOpacity(0.3) : AC.goldBorder()),
+          ),
+          child: Icon(_isPrivate ? Icons.security : Icons.person_add_outlined,
+              color: _isPrivate ? AC.danger : AC.gold, size: 17),
+        ),
+        const SizedBox(width: 10),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(title,
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+        ])),
+      ]),
+    );
+  }
+
+  Widget _sectionLabel(String label) => Padding(
+    padding: const EdgeInsets.only(left: 2, bottom: 0),
+    child: Text(label.toUpperCase(),
+        style: const TextStyle(
+            color: Color(0x73FFFFFF), fontSize: 11,
+            fontWeight: FontWeight.w600, letterSpacing: 0.8)),
   );
 
   Widget _buildTextField(TextEditingController controller, String label,
       {IconData? icon, TextInputType? keyboard, String? Function(String?)? validator, int maxLines = 1}) =>
       Padding(
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.only(bottom: 12),
         child: TextFormField(
           controller: controller,
           decoration: InputDecoration(
-              labelText: label, border: const OutlineInputBorder(), prefixIcon: icon != null ? Icon(icon) : null),
+            labelText: label,
+            prefixIcon: icon != null ? Icon(icon, size: 18) : null,
+          ),
           keyboardType: keyboard,
           validator: validator,
           maxLines: maxLines,
         ),
       );
 
-  Widget _buildDatePickerTile(String label, DateTime? date, IconData icon, bool isBirthday, AppLocalizations l) =>
-      ListTile(
-        title: Text(date == null ? label : '$label: ${DateFormat('dd MMMM yyyy', 'tr').format(date)}'),
-        leading: Icon(icon),
-        trailing: const Icon(Icons.calendar_today, size: 20),
-        shape: RoundedRectangleBorder(side: const BorderSide(color: Colors.grey), borderRadius: BorderRadius.circular(4)),
-        onTap: () => _selectDate(context, isBirthday),
-      );
+  Widget _buildDatePickerTile(String label, DateTime? date, IconData icon, bool isBirthday, AppLocalizations l) {
+    return GestureDetector(
+      onTap: () => _selectDate(context, isBirthday),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.03),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white.withOpacity(0.09)),
+        ),
+        child: Row(children: [
+          Icon(icon, color: AC.gold, size: 18),
+          const SizedBox(width: 12),
+          Expanded(child: Text(
+            date == null ? label : '$label: ${DateFormat('dd MMMM yyyy', 'tr').format(date)}',
+            style: TextStyle(color: date == null ? Colors.white38 : Colors.white, fontSize: 13),
+          )),
+          const Icon(Icons.calendar_today, color: Colors.white38, size: 16),
+        ]),
+      ),
+    );
+  }
 }

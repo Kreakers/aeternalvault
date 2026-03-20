@@ -213,5 +213,25 @@
   "categoryFriend": "Friend",
   "categoryCustomer": "Customer",
   "categorySupplier": "Supplier",
-  "categoryOther": "Other"
+  "categoryOther": "Other",
+
+  "deleteVaultItem": "Delete from Vault",
+  "deleteVaultItemConfirm": "Are you sure you want to permanently delete \"{title}\"?",
+  "@deleteVaultItemConfirm": {"placeholders": {"title": {"type": "String"}}},
+
+  "clipboardCleared": "Clipboard cleared after 30 seconds",
+  "autoLockEnabled": "Enabled — lock when backgrounded",
+  "autoLockDisabled": "Disabled",
+  "shareBackup": "Share Backup",
+  "backupShared": "Backup shared!",
+  "biometricReason": "Authenticate to access the Vault",
+  "connectionSource": "Connection Source",
+  "deleteContact": "Delete Contact",
+  "deleteContactConfirm": "Are you sure you want to delete this contact?",
+  "sendEmail": "Send Email",
+  "sendSms": "Send SMS",
+  "openWhatsapp": "Open in WhatsApp",
+  "cannotLaunch": "Could not open app",
+  "confirmDelete": "Confirm Delete",
+  "delete": "Delete"
 }

@@ -1379,6 +1379,108 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Diğer'**
   String get categoryOther;
+
+  /// Kasa öğesi sil butonu
+  ///
+  /// In tr, this message translates to:
+  /// **'Kasadan Sil'**
+  String get deleteVaultItem;
+
+  /// Kasa öğesi silme onay mesajı
+  ///
+  /// In tr, this message translates to:
+  /// **'\"{title}\" öğesini kalıcı olarak silmek istediğine emin misin?'**
+  String deleteVaultItemConfirm(String title);
+
+  /// Pano temizlendi mesajı
+  ///
+  /// In tr, this message translates to:
+  /// **'Pano 30 saniye sonra temizlendi'**
+  String get clipboardCleared;
+
+  /// Otomatik kilit etkin mesajı
+  ///
+  /// In tr, this message translates to:
+  /// **'Etkin — arka plana geçince kilitle'**
+  String get autoLockEnabled;
+
+  /// Otomatik kilit devre dışı mesajı
+  ///
+  /// In tr, this message translates to:
+  /// **'Devre dışı'**
+  String get autoLockDisabled;
+
+  /// Yedeği paylaş butonu
+  ///
+  /// In tr, this message translates to:
+  /// **'Yedeği Paylaş'**
+  String get shareBackup;
+
+  /// Yedek paylaşıldı mesajı
+  ///
+  /// In tr, this message translates to:
+  /// **'Yedek paylaşıldı!'**
+  String get backupShared;
+
+  /// Biyometrik doğrulama sebebi
+  ///
+  /// In tr, this message translates to:
+  /// **'Kasaya erişmek için doğrulama yapın'**
+  String get biometricReason;
+
+  /// Tanışma kaynağı etiketi
+  ///
+  /// In tr, this message translates to:
+  /// **'Tanışma Kaynağı'**
+  String get connectionSource;
+
+  /// Kişiyi sil butonu
+  ///
+  /// In tr, this message translates to:
+  /// **'Kişiyi Sil'**
+  String get deleteContact;
+
+  /// Kişi silme onay mesajı
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu kişiyi silmek istediğine emin misin?'**
+  String get deleteContactConfirm;
+
+  /// E-posta gönder butonu
+  ///
+  /// In tr, this message translates to:
+  /// **'E-posta Gönder'**
+  String get sendEmail;
+
+  /// SMS gönder butonu
+  ///
+  /// In tr, this message translates to:
+  /// **'SMS Gönder'**
+  String get sendSms;
+
+  /// WhatsApp'ta aç butonu
+  ///
+  /// In tr, this message translates to:
+  /// **'WhatsApp\'ta Aç'**
+  String get openWhatsapp;
+
+  /// Uygulama açılamadı hata mesajı
+  ///
+  /// In tr, this message translates to:
+  /// **'Uygulama açılamadı'**
+  String get cannotLaunch;
+
+  /// Silmeyi onayla başlığı
+  ///
+  /// In tr, this message translates to:
+  /// **'Silmeyi Onayla'**
+  String get confirmDelete;
+
+  /// Sil butonu
+  ///
+  /// In tr, this message translates to:
+  /// **'Sil'**
+  String get delete;
 }
 
 class _AppLocalizationsDelegate

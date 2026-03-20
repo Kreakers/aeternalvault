@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add lib/ pubspec.yaml pubspec.lock analysis_options.yaml README.md plan.md .gitignore android/ ios/ test/)",
+      "Bash(git commit:*)",
+      "Bash(git push -u origin master)",
+      "Bash(git checkout -b fix/security-improvements)",
+      "Bash(flutter pub get)",
+      "Bash(/c/Users/alior/develop/flutter/bin/flutter.bat pub get)",
+      "Bash(git add lib/services/encryption_service.dart lib/services/auth_service.dart lib/services/backup_service.dart lib/providers/app_provider.dart lib/screens/vault_setup_screen.dart lib/screens/security_settings_screen.dart lib/screens/home_screen.dart lib/screens/add_vault_item_screen.dart pubspec.yaml pubspec.lock)",
+      "Bash(git push -u origin fix/security-improvements)",
+      "Bash(gh pr:*)",
+      "Bash(where gh)",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter build:*)",
+      "Bash(flutter gen-l10n:*)",
+      "Bash(dart run:*)"
+    ]
+  }
+}
