@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../models/contact.dart';
 import '../providers/app_provider.dart';
 import '../services/auth_service.dart';
+import '../theme/app_theme.dart';
+import '../l10n/app_localizations.dart';
 import 'add_contact_screen.dart';
 import 'contact_detail_screen.dart';
 import 'vault_screen.dart';
@@ -24,186 +25,321 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  bool _statsOpen = true;
 
-  Future<void> _unlockAndGo(BuildContext context, String key) async {
+  // ── Vault navigation ─────────────────────────────────────
+  Future<void> _unlockAndGo(String key) async {
     final provider = Provider.of<AppProvider>(context, listen: false);
+    final l = AppLocalizations.of(context);
     final unlocked = await provider.unlockVault(key);
-    if (unlocked && context.mounted) {
+    if (!mounted) return;
+    if (unlocked) {
       Navigator.push(context, MaterialPageRoute(builder: (_) => const VaultScreen()));
-    } else if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Kasa kilidi açılamadı!')));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.vaultUnlockFailed)),
+      );
     }
   }
 
-  void _handleVaultNavigation(BuildContext context, AppProvider provider) async {
+  void _handleVaultNavigation(AppProvider provider) async {
     if (!provider.isVaultSetupComplete) {
       Navigator.push(context, MaterialPageRoute(builder: (_) => const VaultSetupScreen()));
       return;
     }
     if (provider.useBiometrics) {
       final authenticated = await AuthService().authenticate();
-      if (!context.mounted) return;
-      if (authenticated) {
-        final plainKey = await provider.getBiometricKey();
-        if (!context.mounted) return;
-        if (plainKey != null) {
-          await _unlockAndGo(context, plainKey);
-        } else {
-          // Secure storage'da key yok, şifre diyaloğuna düş
-          _showUnlockDialog(context);
-        }
+      if (!mounted) return;
+      if (authenticated && provider.vaultMasterKey != null) {
+        await _unlockAndGo(provider.vaultMasterKey!);
       } else {
-        // Biyometrik başarısız veya iptal edildi, şifre diyaloğuna düş
-        _showUnlockDialog(context);
+        _showUnlockDialog();
       }
     } else {
-      _showUnlockDialog(context);
+      _showUnlockDialog();
     }
   }
 
-  void _showUnlockDialog(BuildContext context) {
-    final TextEditingController controller = TextEditingController();
+  void _showUnlockDialog() {
+    final l = AppLocalizations.of(context);
+    final ctrl = TextEditingController();
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Kasa Kilidi'),
-        content: TextField(controller: controller, obscureText: true, autofocus: true, decoration: const InputDecoration(hintText: 'Master Key')),
+        title: Row(children: [
+          Container(
+            width: 32, height: 32,
+            decoration: BoxDecoration(
+              color: AC.goldGlass(),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AC.goldBorder()),
+            ),
+            child: const Icon(Icons.lock_outline, color: AC.gold, size: 16),
+          ),
+          const SizedBox(width: 10),
+          Text(l.vaultLock),
+        ]),
+        content: TextField(
+          controller: ctrl,
+          obscureText: true,
+          autofocus: true,
+          decoration: InputDecoration(hintText: l.masterKey),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('İptal')),
-          ElevatedButton(onPressed: () {
-            Navigator.pop(ctx);
-            _unlockAndGo(context, controller.text);
-          }, child: const Text('Giriş')),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = Provider.of<AppProvider>(context);
-    
-    return Scaffold(
-      appBar: AppBar(
-        title: _isSearching 
-          ? TextField(
-              controller: _searchController,
-              autofocus: true,
-              decoration: const InputDecoration(hintText: 'İsim veya telefon ara...', border: InputBorder.none),
-              onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
-            )
-          : const Text('Aeterna CRM'),
-        actions: [
-          IconButton(
-            icon: Icon(_isSearching ? Icons.close : Icons.search),
-            onPressed: () {
-              setState(() {
-                _isSearching = !_isSearching;
-                if (!_isSearching) {
-                  _searchController.clear();
-                  _searchQuery = '';
-                }
-              });
-            },
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l.cancel)),
+          ElevatedButton(
+            onPressed: () { Navigator.pop(ctx); _unlockAndGo(ctrl.text); },
+            style: ElevatedButton.styleFrom(backgroundColor: AC.gold, foregroundColor: Colors.black),
+            child: Text(l.login),
           ),
         ],
       ),
-      drawer: _buildDrawer(context, provider),
-      body: Column(
-        children: [
-          if (!_isSearching) _buildDashboard(context, provider),
-          Expanded(child: _buildCategorizedContactList(context, provider)),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
+    );
+  }
+
+  // ── Build ─────────────────────────────────────────────────
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<AppProvider>(context);
+    return Scaffold(
+      backgroundColor: AC.bg,
+      appBar: _buildAppBar(),
+      drawer: _buildDrawer(provider),
+      body: Column(children: [
+        if (!_isSearching) _buildDashboard(provider),
+        Expanded(child: _buildContactList(provider)),
+      ]),
+      floatingActionButton: GoldFab(
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddContactScreen())),
-        child: const Icon(Icons.add),
       ),
     );
   }
 
-  Widget _buildDashboard(BuildContext context, AppProvider provider) {
-    final now = DateTime.now();
-    List<String> alerts = [];
+  PreferredSizeWidget _buildAppBar() {
+    final l = AppLocalizations.of(context);
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(60),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xCC0D0D1A),
+          border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.06))),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(children: [
+              Builder(builder: (ctx) => GestureDetector(
+                onTap: () => Scaffold.of(ctx).openDrawer(),
+                child: Container(
+                  width: 32, height: 32,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(colors: [AC.navy, AC.navyLight]),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AC.gold.withOpacity(0.3)),
+                    boxShadow: [BoxShadow(color: AC.navy.withOpacity(0.5), blurRadius: 16)],
+                  ),
+                  child: const Icon(Icons.bolt, color: AC.gold, size: 18),
+                ),
+              )),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _isSearching
+                    ? TextField(
+                        controller: _searchController,
+                        autofocus: true,
+                        style: const TextStyle(color: Colors.white, fontSize: 15),
+                        decoration: InputDecoration(
+                          hintText: l.searchHint,
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          isDense: true,
+                        ),
+                        onChanged: (v) => setState(() => _searchQuery = v.toLowerCase()),
+                      )
+                    : const Text('Aeterna CRM',
+                        style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700, letterSpacing: -0.3)),
+              ),
+              const SizedBox(width: 6),
+              _appBarBtn(
+                icon: _isSearching ? Icons.close : Icons.search,
+                color: Colors.white70,
+                bg: Colors.white.withOpacity(0.06),
+                border: Colors.white.withOpacity(0.1),
+                onTap: () => setState(() {
+                  _isSearching = !_isSearching;
+                  if (!_isSearching) { _searchController.clear(); _searchQuery = ''; }
+                }),
+              ),
+              const SizedBox(width: 6),
+              Consumer<AppProvider>(builder: (_, p, __) => _appBarBtn(
+                icon: Icons.lock_outline,
+                color: AC.gold,
+                bg: AC.goldGlass(),
+                border: AC.goldBorder(),
+                onTap: () => _handleVaultNavigation(p),
+              )),
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
 
-    final Map<String, int> categoryStats = {};
-    for (var c in provider.contacts) {
-      if (!c.isPrivate) {
-        categoryStats[c.category] = (categoryStats[c.category] ?? 0) + 1;
-      }
-      
+  Widget _appBarBtn({
+    required IconData icon,
+    required Color color,
+    required Color bg,
+    required Color border,
+    required VoidCallback onTap,
+  }) =>
+      GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 36, height: 36,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(11),
+            border: Border.all(color: border),
+          ),
+          child: Icon(icon, color: color, size: 16),
+        ),
+      );
+
+  // ── Dashboard ─────────────────────────────────────────────
+  Widget _buildDashboard(AppProvider provider) {
+    final l = AppLocalizations.of(context);
+    final now = DateTime.now();
+    final Map<String, int> catStats = {};
+    final List<String> alerts = [];
+
+    for (var c in provider.contacts.where((c) => !c.isPrivate)) {
+      catStats[c.category] = (catStats[c.category] ?? 0) + 1;
       if (c.birthday != null && c.birthday!.month == now.month && c.birthday!.day == now.day) {
-        alerts.add('Bugün ${c.firstName} ${c.lastName}\'ın doğum günü! 🎂');
+        alerts.add(l.birthdayAlert('${c.firstName} ${c.lastName}'));
       }
       if (c.contactFrequency > 0 && c.lastContactDate != null) {
         final diff = now.difference(c.lastContactDate!).inDays;
         if (diff >= c.contactFrequency) {
-          alerts.add('${c.firstName} ile görüşme zamanı gelmiş. 📞');
+          alerts.add(l.meetingAlert(c.firstName));
         }
       }
     }
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
-      ),
-      child: ExpansionTile(
-        initiallyExpanded: false,
-        title: const Text('Dashboard & İstatistikler', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-        subtitle: Text('${provider.totalContacts} Kişi | ${provider.totalVaultItems} Kasa Öğesi', style: const TextStyle(fontSize: 12)),
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                if (categoryStats.isNotEmpty)
-                  SizedBox(
-                    height: 150,
-                    child: PieChart(
-                      PieChartData(
-                        sections: categoryStats.entries.map((e) {
-                          final index = categoryStats.keys.toList().indexOf(e.key);
-                          return PieChartSectionData(
-                            color: Colors.primaries[index % Colors.primaries.length],
-                            value: e.value.toDouble(),
-                            title: '${e.value}',
-                            radius: 40,
-                            titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
-                          );
-                        }).toList(),
-                        sectionsSpace: 2,
-                        centerSpaceRadius: 30,
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 16),
-                if (alerts.isNotEmpty)
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-                    child: Column(
-                      children: alerts.map((a) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: Row(children: [const Icon(Icons.notifications_active, size: 16, color: Colors.orange), const SizedBox(width: 8), Expanded(child: Text(a, style: const TextStyle(fontSize: 12)))]),
-                      )).toList(),
-                    ),
-                  ),
-              ],
-            ),
+    return GlassCard(
+      tint: GlassTint.navy,
+      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+      child: Column(children: [
+        GestureDetector(
+          onTap: () => setState(() => _statsOpen = !_statsOpen),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+            child: Row(children: [
+              Text(l.overview,
+                  style: const TextStyle(color: AC.textSec, fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 0.8)),
+              const Spacer(),
+              Text('${provider.totalContacts} ${l.contacts} · ${provider.totalVaultItems} ${l.digitalVault}',
+                  style: const TextStyle(color: AC.textMuted, fontSize: 10)),
+              const SizedBox(width: 6),
+              Icon(_statsOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  color: Colors.white38, size: 18),
+            ]),
           ),
+        ),
+
+        if (_statsOpen) ...[
+          Divider(height: 1, color: Colors.white.withOpacity(0.06)),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+              Expanded(child: Column(children: [
+                _statPill('👤', l.totalContacts(provider.totalContacts), l.totalContactsSub, AC.navyLight),
+                const SizedBox(height: 8),
+                _statPill('🔐', l.vaultItems(provider.totalVaultItems), l.encryptedRecord, AC.gold),
+              ])),
+              const SizedBox(width: 16),
+              if (catStats.isNotEmpty) _buildDonut(catStats),
+            ]),
+          ),
+          if (alerts.isNotEmpty) _buildAlerts(alerts),
         ],
+      ]),
+    );
+  }
+
+  Widget _statPill(String emoji, String label, String sub, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.04),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.13)),
+      ),
+      child: Row(children: [
+        Text(emoji, style: const TextStyle(fontSize: 18)),
+        const SizedBox(width: 10),
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(label, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
+          Text(sub, style: const TextStyle(color: AC.textMuted, fontSize: 10)),
+        ]),
+      ]),
+    );
+  }
+
+  Widget _buildDonut(Map<String, int> stats) {
+    final colors = [AC.navyLight, AC.gold, AC.success, AC.warning, Colors.cyan];
+    final entries = stats.entries.toList();
+    return SizedBox(
+      width: 80, height: 80,
+      child: PieChart(PieChartData(
+        sections: List.generate(entries.length, (i) => PieChartSectionData(
+          color: colors[i % colors.length],
+          value: entries[i].value.toDouble(),
+          title: '${entries[i].value}',
+          radius: 24,
+          titleStyle: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white),
+        )),
+        centerSpaceRadius: 22,
+        sectionsSpace: 2,
+      )),
+    );
+  }
+
+  Widget _buildAlerts(List<String> alerts) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AC.warning.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AC.warning.withOpacity(0.2)),
+      ),
+      child: Column(
+        children: alerts.map((a) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3),
+          child: Row(children: [
+            const Icon(Icons.notifications_active, size: 14, color: AC.warning),
+            const SizedBox(width: 8),
+            Expanded(child: Text(a, style: const TextStyle(color: Colors.white70, fontSize: 11))),
+          ]),
+        )).toList(),
       ),
     );
   }
 
-  Widget _buildCategorizedContactList(BuildContext ctx, AppProvider provider) {
+  // ── Contact list ──────────────────────────────────────────
+  Widget _buildContactList(AppProvider provider) {
+    final l = AppLocalizations.of(context);
     var contacts = provider.contacts.where((c) => !c.isPrivate).toList();
     if (_searchQuery.isNotEmpty) {
-      contacts = contacts.where((c) => c.firstName.toLowerCase().contains(_searchQuery) || c.lastName.toLowerCase().contains(_searchQuery) || c.phone.contains(_searchQuery)).toList();
+      contacts = contacts.where((c) =>
+          '${c.firstName} ${c.lastName}'.toLowerCase().contains(_searchQuery) ||
+          c.phone.contains(_searchQuery)).toList();
     }
-    if (contacts.isEmpty) return const Center(child: Text('Kişi bulunamadı.'));
+    if (contacts.isEmpty) {
+      return Center(
+        child: Text(l.contactNotFound, style: const TextStyle(color: AC.textMuted)),
+      );
+    }
 
     final Map<String, List<Contact>> grouped = {};
     for (var c in contacts) {
@@ -212,43 +348,210 @@ class _HomeScreenState extends State<HomeScreen> {
     final cats = grouped.keys.toList()..sort();
 
     return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 80),
       itemCount: cats.length,
-      itemBuilder: (context, index) {
-        final cat = cats[index];
-        final items = grouped[cat]!;
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.1))),
-          child: ExpansionTile(
-            initiallyExpanded: _isSearching,
-            title: Text(cat, style: const TextStyle(fontWeight: FontWeight.bold)),
-            leading: CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-              child: Text(items.length.toString(), style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSecondaryContainer)),
-            ),
-            children: items.map((c) => ListTile(
-              leading: CircleAvatar(child: Text(c.firstName[0])),
-              title: Text('${c.firstName} ${c.lastName}'),
-              subtitle: Text(c.phone),
-              onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => ContactDetailScreen(contact: c))),
-            )).toList(),
-          ),
-        );
-      },
+      itemBuilder: (context, i) => _ContactGroup(
+        category: cats[i],
+        contacts: grouped[cats[i]]!,
+        initiallyExpanded: _isSearching || i == 0,
+        onContactTap: (c) => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ContactDetailScreen(contact: c)),
+        ),
+      ),
     );
   }
 
-  Widget _buildDrawer(BuildContext ctx, AppProvider provider) => Drawer(child: Column(children: [
-    UserAccountsDrawerHeader(accountName: const Text('Aeterna Vault'), accountEmail: const Text('Güvenli CRM & Kasa'), currentAccountPicture: CircleAvatar(backgroundColor: Colors.white, child: Icon(Icons.shield, color: provider.themeColor, size: 40)), decoration: BoxDecoration(color: provider.themeColor)),
-    ListTile(leading: const Icon(Icons.people), title: const Text('Kişiler'), onTap: () => Navigator.pop(ctx)),
-    ListTile(leading: Icon(provider.isVaultSetupComplete ? Icons.lock : Icons.security, color: provider.isVaultSetupComplete ? Colors.redAccent : Colors.green), title: Text(provider.isVaultSetupComplete ? 'Dijital Kasa' : 'Kasayı Aktif Et'), onTap: () { Navigator.pop(ctx); _handleVaultNavigation(ctx, provider); }),
-    const Divider(),
-    ListTile(leading: const Icon(Icons.security_update_good), title: const Text('Güvenlik Ayarları'), onTap: () { Navigator.pop(ctx); Navigator.push(ctx, MaterialPageRoute(builder: (_) => const SecuritySettingsScreen())); }),
-    ListTile(leading: const Icon(Icons.settings), title: const Text('Genel Ayarlar'), onTap: () { Navigator.pop(ctx); Navigator.push(ctx, MaterialPageRoute(builder: (_) => const SettingsScreen())); }),
-    const Spacer(),
-    const Divider(),
-    ListTile(leading: const Icon(Icons.info_outline), title: const Text('Hakkında'), onTap: () { Navigator.pop(ctx); Navigator.push(ctx, MaterialPageRoute(builder: (_) => const AboutScreen())); }),
-    const SizedBox(height: 16),
-  ]));
+  // ── Drawer ─────────────────────────────────────────────────
+  Widget _buildDrawer(AppProvider provider) {
+    final l = AppLocalizations.of(context);
+    return Drawer(
+      backgroundColor: AC.bgCard,
+      child: Column(children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(20, 56, 20, 24),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AC.navy, AC.navyMid],
+            ),
+          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Container(
+              width: 56, height: 56,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.12),
+                shape: BoxShape.circle,
+                border: Border.all(color: AC.gold.withOpacity(0.4), width: 2),
+              ),
+              child: const Icon(Icons.shield, color: AC.gold, size: 28),
+            ),
+            const SizedBox(height: 14),
+            const Text('Aeterna Vault', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
+            Text(l.appSubtitle, style: const TextStyle(color: AC.textSec, fontSize: 12)),
+          ]),
+        ),
+        const SizedBox(height: 8),
+        _drawerItem(Icons.people_outline, l.contacts, () => Navigator.pop(context)),
+        _drawerItem(
+          provider.isVaultSetupComplete ? Icons.lock_outline : Icons.security,
+          provider.isVaultSetupComplete ? l.digitalVault : l.activateVault,
+          () { Navigator.pop(context); _handleVaultNavigation(provider); },
+          color: provider.isVaultSetupComplete ? AC.gold : AC.success,
+        ),
+        Divider(height: 24, color: Colors.white.withOpacity(0.06)),
+        _drawerItem(Icons.security_outlined, l.securitySettings, () {
+          Navigator.pop(context);
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const SecuritySettingsScreen()));
+        }),
+        _drawerItem(Icons.settings_outlined, l.generalSettings, () {
+          Navigator.pop(context);
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+        }),
+        const Spacer(),
+        Divider(color: Colors.white.withOpacity(0.06)),
+        _drawerItem(Icons.info_outline, l.about, () {
+          Navigator.pop(context);
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutScreen()));
+        }),
+        const SizedBox(height: 16),
+      ]),
+    );
+  }
+
+  Widget _drawerItem(IconData icon, String label, VoidCallback onTap, {Color? color}) {
+    return ListTile(
+      leading: Icon(icon, color: color ?? Colors.white70, size: 20),
+      title: Text(label, style: TextStyle(color: color ?? Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
+      onTap: onTap,
+      dense: true,
+      horizontalTitleGap: 8,
+    );
+  }
+}
+
+// ── Contact Group Widget ──────────────────────────────────────
+class _ContactGroup extends StatefulWidget {
+  final String category;
+  final List<Contact> contacts;
+  final bool initiallyExpanded;
+  final void Function(Contact) onContactTap;
+
+  const _ContactGroup({
+    required this.category,
+    required this.contacts,
+    required this.initiallyExpanded,
+    required this.onContactTap,
+  });
+
+  @override
+  State<_ContactGroup> createState() => _ContactGroupState();
+}
+
+class _ContactGroupState extends State<_ContactGroup> {
+  late bool _open;
+
+  @override
+  void initState() {
+    super.initState();
+    _open = widget.initiallyExpanded;
+  }
+
+  static const _catColors = {
+    'İş': AC.navyLight,
+    'Aile': AC.gold,
+    'Arkadaş': AC.success,
+    'Work': AC.navyLight,
+    'Family': AC.gold,
+    'Friend': AC.success,
+    'Arbeit': AC.navyLight,
+    'Familie': AC.gold,
+    'Freund': AC.success,
+    'Lavoro': AC.navyLight,
+    'Famiglia': AC.gold,
+    'Amico': AC.success,
+  };
+
+  Color get _color => _catColors[widget.category] ?? AC.navyLight;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        GestureDetector(
+          onTap: () => setState(() => _open = !_open),
+          child: Row(children: [
+            Container(
+              width: 22, height: 22,
+              decoration: BoxDecoration(
+                color: _color.withOpacity(0.13),
+                borderRadius: BorderRadius.circular(7),
+                border: Border.all(color: _color.withOpacity(0.27)),
+              ),
+              child: Icon(Icons.folder_outlined, size: 12, color: _color),
+            ),
+            const SizedBox(width: 8),
+            Expanded(child: Text(widget.category,
+                style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w700))),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
+                color: _color.withOpacity(0.13),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: _color.withOpacity(0.27)),
+              ),
+              child: Text('${widget.contacts.length}',
+                  style: TextStyle(color: _color, fontSize: 10, fontWeight: FontWeight.w700)),
+            ),
+            const SizedBox(width: 4),
+            Icon(_open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                color: Colors.white30, size: 16),
+          ]),
+        ),
+
+        if (_open) ...[
+          const SizedBox(height: 6),
+          GlassCard(
+            child: Column(
+              children: List.generate(widget.contacts.length, (i) {
+                final c = widget.contacts[i];
+                return Column(children: [
+                  GestureDetector(
+                    onTap: () => widget.onContactTap(c),
+                    child: Container(
+                      color: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
+                      child: Row(children: [
+                        AeternaAvatar(name: '${c.firstName} ${c.lastName}', size: 38),
+                        const SizedBox(width: 12),
+                        Expanded(child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('${c.firstName} ${c.lastName}',
+                                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 2),
+                            Row(children: [
+                              const Icon(Icons.phone, size: 10, color: Colors.white30),
+                              const SizedBox(width: 4),
+                              Text(c.phone, style: const TextStyle(color: AC.textMuted, fontSize: 11)),
+                            ]),
+                          ],
+                        )),
+                        const Icon(Icons.chevron_right, size: 16, color: Colors.white24),
+                      ]),
+                    ),
+                  ),
+                  if (i < widget.contacts.length - 1)
+                    Divider(height: 1, color: Colors.white.withOpacity(0.04), indent: 63),
+                ]);
+              }),
+            ),
+          ),
+        ],
+      ]),
+    );
+  }
 }

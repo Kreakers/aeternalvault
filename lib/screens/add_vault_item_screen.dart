@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import '../models/vault_item.dart';
 import '../providers/app_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class AddVaultItemScreen extends StatefulWidget {
   final VaultItem? vaultItem;
@@ -20,15 +20,18 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _noteController;
-  
-  final _field1Controller = TextEditingController(); 
-  final _field2Controller = TextEditingController(); 
-  final _field3Controller = TextEditingController(); 
+
+  final _field1Controller = TextEditingController();
+  final _field2Controller = TextEditingController();
+  final _field3Controller = TextEditingController();
 
   String _category = 'Şifre';
   String? _filePath;
-  bool _obscurePassword = true; 
-  final List<String> _categories = ['Şifre', 'Banka', 'Belge', 'Gizli Not'];
+  bool _obscurePassword = true;
+  bool _decryptionFailed = false;
+
+  // Category keys that are stored in the database (Turkish keys kept for data compatibility)
+  final List<String> _categories = ['Şifre', 'Banka', 'Belge', 'Kripto Cüzdanı', 'Gizli Not'];
 
   @override
   void initState() {
@@ -36,7 +39,7 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
     _titleController = TextEditingController(text: widget.vaultItem?.title ?? '');
     _noteController = TextEditingController(text: widget.vaultItem?.note ?? '');
     _filePath = widget.vaultItem?.filePath;
-    
+
     if (widget.vaultItem != null) {
       _category = widget.vaultItem!.category;
       try {
@@ -45,7 +48,7 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
         _field2Controller.text = data['f2'] ?? '';
         _field3Controller.text = data['f3'] ?? '';
       } catch (e) {
-        _field1Controller.text = widget.vaultItem!.secretContent; 
+        _decryptionFailed = true;
       }
     }
   }
@@ -61,6 +64,7 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
   }
 
   Future<void> _pickFile() async {
+    final l = AppLocalizations.of(context);
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result != null) {
@@ -70,55 +74,79 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Dosya seçilemedi.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.filePickError)));
       }
     }
   }
 
   void _generateStrongPassword() {
+    final l = AppLocalizations.of(context);
     const chars = r'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
-    final rnd = Random.secure();
-    final pwd = String.fromCharCodes(Iterable.generate(16, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+    final rnd = Random();
+    final pwd = String.fromCharCodes(Iterable.generate(12, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
     setState(() {
       _field2Controller.text = pwd;
       _obscurePassword = false;
     });
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Güçlü şifre oluşturuldu!')));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.passwordGenerated)));
   }
 
-  void _saveItem() {
-    if (_formKey.currentState!.validate()) {
-      final Map<String, String> dynamicData = {
-        'f1': _field1Controller.text.trim(),
-        'f2': _field2Controller.text.trim(),
-        'f3': _field3Controller.text.trim(),
-      };
+  Future<void> _saveItem() async {
+    final l = AppLocalizations.of(context);
+    if (!_formKey.currentState!.validate()) return;
 
-      final item = VaultItem(
-        id: widget.vaultItem?.id,
-        title: _titleController.text.trim(),
-        category: _category,
-        secretContent: jsonEncode(dynamicData),
-        note: _noteController.text.trim(),
-        filePath: _filePath,
-      );
+    final Map<String, String> dynamicData = {
+      'f1': _field1Controller.text.trim(),
+      'f2': _field2Controller.text.trim(),
+      'f3': _field3Controller.text.trim(),
+    };
 
-      final provider = Provider.of<AppProvider>(context, listen: false);
+    final item = VaultItem(
+      id: widget.vaultItem?.id,
+      title: _titleController.text.trim(),
+      category: _category,
+      secretContent: jsonEncode(dynamicData),
+      note: _noteController.text.trim(),
+      filePath: _filePath,
+    );
+
+    final provider = Provider.of<AppProvider>(context, listen: false);
+    try {
       if (widget.vaultItem == null) {
-        provider.addVaultItem(item);
+        await provider.addVaultItem(item);
       } else {
-        provider.updateVaultItem(item);
+        await provider.updateVaultItem(item);
       }
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l.saveError(e.toString())),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
-      Navigator.pop(context);
+  String _localizedCategory(AppLocalizations l, String cat) {
+    switch (cat) {
+      case 'Şifre': return l.categoryPassword;
+      case 'Banka': return l.categoryBank;
+      case 'Belge': return l.categoryDocument;
+      case 'Kripto Cüzdanı': return l.categoryCrypto;
+      case 'Gizli Not': return l.categorySecretNote;
+      default: return cat;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.vaultItem == null ? 'Kasa Öğesi Ekle' : 'Öğeyi Düzenle'),
+        title: Text(widget.vaultItem == null ? l.addVaultItem : l.editVaultItem),
         backgroundColor: Theme.of(context).colorScheme.errorContainer,
       ),
       body: SingleChildScrollView(
@@ -128,12 +156,16 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildTextField(_titleController, 'Başlık (Örn: Pasaportum)', validator: (v) => v != null && v.isEmpty ? 'Gerekli' : null),
+              _buildTextField(_titleController, l.titleHint,
+                  validator: (v) => v != null && v.isEmpty ? l.required : null),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                initialValue: _category,
-                decoration: const InputDecoration(labelText: 'Kategori', border: OutlineInputBorder()),
-                items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                value: _category,
+                decoration: InputDecoration(labelText: l.category, border: const OutlineInputBorder()),
+                items: _categories.map((c) => DropdownMenuItem(
+                  value: c,
+                  child: Text(_localizedCategory(l, c)),
+                )).toList(),
                 onChanged: (val) {
                   if (val != null) {
                     setState(() => _category = val);
@@ -144,24 +176,44 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Gizli Veriler', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.redAccent)),
+                  Text(l.secretData, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.redAccent)),
                   if (_category == 'Şifre')
                     TextButton.icon(
                       icon: const Icon(Icons.generating_tokens, size: 18),
-                      label: const Text('Şifre Üret'),
+                      label: Text(l.generatePassword),
                       onPressed: _generateStrongPassword,
                     ),
                 ],
               ),
               const Divider(color: Colors.redAccent),
               const SizedBox(height: 12),
-              ..._buildDynamicFields(),
+              if (_decryptionFailed)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.orange.withOpacity(0.4)),
+                  ),
+                  child: Row(children: [
+                    const Icon(Icons.warning_amber, color: Colors.orange, size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        l.decryptionError,
+                        style: const TextStyle(color: Colors.orange, fontSize: 12),
+                      ),
+                    ),
+                  ]),
+                ),
+              ..._buildDynamicFields(l),
               const SizedBox(height: 24),
-              const Text('Dosya / Ek (PDF, Görsel vb.)', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+              Text(l.fileAttachment, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
               const SizedBox(height: 8),
-              _buildFilePickerArea(),
+              _buildFilePickerArea(l),
               const SizedBox(height: 24),
-              _buildTextField(_noteController, 'Ek Notlar', maxLines: 3),
+              _buildTextField(_noteController, l.additionalNotes, maxLines: 3),
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: _saveItem,
@@ -170,7 +222,7 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('ŞİFRELİ OLARAK KAYDET', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(l.saveEncrypted, style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 40),
             ],
@@ -180,7 +232,7 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
     );
   }
 
-  Widget _buildFilePickerArea() {
+  Widget _buildFilePickerArea(AppLocalizations l) {
     return InkWell(
       onTap: _pickFile,
       child: Container(
@@ -191,18 +243,18 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
           color: Colors.grey.withAlpha(25),
         ),
         child: _filePath == null
-            ? const Column(
+            ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.upload_file, size: 32, color: Colors.grey),
-                  SizedBox(height: 8),
-                  Text('Dosya Seç (PDF, Resim vb.)', style: TextStyle(color: Colors.grey)),
+                  const Icon(Icons.upload_file, size: 32, color: Colors.grey),
+                  const SizedBox(height: 8),
+                  Text(l.selectFile, style: const TextStyle(color: Colors.grey)),
                 ],
               )
             : ListTile(
                 leading: const Icon(Icons.file_present, color: Colors.redAccent),
                 title: Text(_filePath!.split('/').last, maxLines: 1, overflow: TextOverflow.ellipsis),
-                subtitle: const Text('Dosya Hazır', style: TextStyle(color: Colors.green, fontSize: 12)),
+                subtitle: Text(l.fileReady, style: const TextStyle(color: Colors.green, fontSize: 12)),
                 trailing: IconButton(
                   icon: const Icon(Icons.cancel, color: Colors.red),
                   onPressed: () => setState(() => _filePath = null),
@@ -212,55 +264,73 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
     );
   }
 
-  List<Widget> _buildDynamicFields() {
+  List<Widget> _buildDynamicFields(AppLocalizations l) {
     switch (_category) {
       case 'Şifre':
         return [
-          _buildTextField(_field1Controller, 'Kullanıcı Adı / E-posta', icon: Icons.person),
+          _buildTextField(_field1Controller, l.usernameEmail, icon: Icons.person),
           _buildTextField(
-            _field2Controller, 
-            'Şifre', 
-            icon: Icons.vpn_key, 
+            _field2Controller,
+            l.password,
+            icon: Icons.vpn_key,
             obscure: _obscurePassword,
             suffixIcon: IconButton(
               icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
               onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
             ),
           ),
-          _buildTextField(_field3Controller, 'Web Sitesi URL', icon: Icons.language),
+          _buildTextField(_field3Controller, l.websiteUrl, icon: Icons.language),
+        ];
+      case 'Kripto Cüzdanı':
+        return [
+          _buildTextField(_field1Controller, l.walletAddress, icon: Icons.wallet),
+          _buildTextField(
+            _field2Controller,
+            l.seedPhrase,
+            icon: Icons.security,
+            obscure: _obscurePassword,
+            maxLines: _obscurePassword ? 1 : 3,
+            suffixIcon: IconButton(
+              icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+            ),
+          ),
+          _buildTextField(_field3Controller, l.network, icon: Icons.lan),
         ];
       case 'Banka':
         return [
-          _buildTextField(_field1Controller, 'IBAN / Hesap No', icon: Icons.numbers),
-          _buildTextField(_field2Controller, 'Banka Adı', icon: Icons.account_balance),
-          _buildTextField(_field3Controller, 'Şube / Ek Bilgi', icon: Icons.location_city),
+          _buildTextField(_field1Controller, l.ibanAccount, icon: Icons.numbers),
+          _buildTextField(_field2Controller, l.bankName, icon: Icons.account_balance),
+          _buildTextField(_field3Controller, l.branchInfo, icon: Icons.location_city),
         ];
       case 'Belge':
         return [
-          _buildTextField(_field1Controller, 'Seri No / Kimlik No', icon: Icons.badge),
-          _buildTextField(_field2Controller, 'Belge Türü (Örn: Pasaport)', icon: Icons.description),
-          _buildTextField(_field3Controller, 'Son Kullanma Tarihi', icon: Icons.calendar_today),
+          _buildTextField(_field1Controller, l.serialId, icon: Icons.badge),
+          _buildTextField(_field2Controller, l.documentType, icon: Icons.description),
+          _buildTextField(_field3Controller, l.expiryDate, icon: Icons.calendar_today),
         ];
       default:
         return [
-          _buildTextField(_field1Controller, 'Not İçeriği', maxLines: 10),
+          _buildTextField(_field1Controller, l.noteContent, maxLines: 10),
         ];
     }
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, {IconData? icon, bool obscure = false, int maxLines = 1, String? Function(String?)? validator, Widget? suffixIcon}) => Padding(
-    padding: const EdgeInsets.only(bottom: 16),
-    child: TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-        prefixIcon: icon != null ? Icon(icon) : null,
-        suffixIcon: suffixIcon,
-      ),
-      obscureText: obscure,
-      maxLines: obscure ? 1 : (maxLines > 1 ? maxLines : 1),
-      validator: validator,
-    ),
-  );
+  Widget _buildTextField(TextEditingController controller, String label,
+      {IconData? icon, bool obscure = false, int maxLines = 1, String? Function(String?)? validator, Widget? suffixIcon}) =>
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: label,
+            border: const OutlineInputBorder(),
+            prefixIcon: icon != null ? Icon(icon) : null,
+            suffixIcon: suffixIcon,
+          ),
+          obscureText: obscure,
+          maxLines: obscure ? 1 : (maxLines > 1 ? maxLines : 1),
+          validator: validator,
+        ),
+      );
 }

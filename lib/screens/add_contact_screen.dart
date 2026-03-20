@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/contact.dart';
 import '../providers/app_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class AddContactScreen extends StatefulWidget {
   final Contact? contact;
@@ -18,7 +19,7 @@ class AddContactScreen extends StatefulWidget {
 
 class _AddContactScreenState extends State<AddContactScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
   late TextEditingController _phoneController;
@@ -30,13 +31,14 @@ class _AddContactScreenState extends State<AddContactScreen> {
   late TextEditingController _connectionSourceController;
   late TextEditingController _tagsController;
   late TextEditingController _notesController;
-  
+
   String _category = 'Müşteri';
   late bool _isPrivate;
   DateTime? _selectedBirthday;
   DateTime? _selectedAnniversary;
   String? _imagePath;
 
+  // Category keys kept in Turkish for data compatibility
   final List<String> _categories = ['Müşteri', 'Aile', 'Arkadaş', 'İş', 'Tedarikçi', 'Diğer'];
 
   @override
@@ -54,7 +56,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
     _connectionSourceController = TextEditingController(text: c?.connectionSource ?? '');
     _tagsController = TextEditingController(text: c?.tags ?? '');
     _notesController = TextEditingController(text: c?.notes ?? '');
-    
+
     _isPrivate = c?.isPrivate ?? widget.isInitiallyPrivate;
     _selectedBirthday = c?.birthday;
     _selectedAnniversary = c?.anniversary;
@@ -81,6 +83,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
   }
 
   Future<void> _pickImage() async {
+    final l = AppLocalizations.of(context);
     try {
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
@@ -91,7 +94,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Resim seçilemedi.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.imagePickError)));
       }
     }
   }
@@ -148,11 +151,33 @@ class _AddContactScreenState extends State<AddContactScreen> {
     }
   }
 
+  String _localizedCategory(AppLocalizations l, String cat) {
+    switch (cat) {
+      case 'Müşteri': return l.categoryCustomer;
+      case 'Aile': return l.categoryFamily;
+      case 'Arkadaş': return l.categoryFriend;
+      case 'İş': return l.categoryWork;
+      case 'Tedarikçi': return l.categorySupplier;
+      case 'Diğer': return l.categoryOther;
+      default: return cat;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    String title;
+    if (widget.contact != null) {
+      title = l.editContactTitle;
+    } else if (_isPrivate) {
+      title = l.addPrivateContactTitle;
+    } else {
+      title = l.addContactTitle;
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.contact == null ? (_isPrivate ? 'Gizli Kişi Ekle' : 'Yeni Kişi Ekle') : 'Kişiyi Düzenle'),
+        title: Text(title),
         backgroundColor: _isPrivate ? Theme.of(context).colorScheme.errorContainer : null,
       ),
       body: SingleChildScrollView(
@@ -187,37 +212,41 @@ class _AddContactScreenState extends State<AddContactScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              _buildSectionTitle('Temel Bilgiler'),
+              _buildSectionTitle(l.basicInfo),
               Row(
                 children: [
-                  Expanded(child: _buildTextField(_firstNameController, 'Ad', validator: (v) => v != null && v.isEmpty ? 'Gerekli' : null)),
+                  Expanded(child: _buildTextField(_firstNameController, l.firstName,
+                      validator: (v) => v != null && v.isEmpty ? l.required : null)),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildTextField(_lastNameController, 'Soyad')),
+                  Expanded(child: _buildTextField(_lastNameController, l.lastName)),
                 ],
               ),
-              _buildTextField(_phoneController, 'Telefon', icon: Icons.phone, keyboard: TextInputType.phone),
-              _buildTextField(_emailController, 'E-posta', icon: Icons.email, keyboard: TextInputType.emailAddress),
-              _buildTextField(_socialMediaController, 'Sosyal Medya Linki', icon: Icons.link),
+              _buildTextField(_phoneController, l.phone, icon: Icons.phone, keyboard: TextInputType.phone),
+              _buildTextField(_emailController, l.email, icon: Icons.email, keyboard: TextInputType.emailAddress),
+              _buildTextField(_socialMediaController, l.socialMedia, icon: Icons.link),
 
               const SizedBox(height: 24),
-              _buildSectionTitle('Profesyonel & Lokasyon'),
-              _buildTextField(_companyController, 'Şirket', icon: Icons.business),
-              _buildTextField(_jobTitleController, 'Unvan', icon: Icons.work),
-              _buildTextField(_addressController, 'Adres', icon: Icons.location_on, maxLines: 2),
+              _buildSectionTitle(l.professionalLocation),
+              _buildTextField(_companyController, l.company, icon: Icons.business),
+              _buildTextField(_jobTitleController, l.jobTitle, icon: Icons.work),
+              _buildTextField(_addressController, l.address, icon: Icons.location_on, maxLines: 2),
 
               const SizedBox(height: 24),
-              _buildSectionTitle('Önemli Günler'),
-              _buildDatePickerTile('Doğum Günü', _selectedBirthday, Icons.cake, true),
-              _buildDatePickerTile('Yıldönümü / Özel Gün', _selectedAnniversary, Icons.event, false),
+              _buildSectionTitle(l.importantDates),
+              _buildDatePickerTile(l.birthday, _selectedBirthday, Icons.cake, true, l),
+              _buildDatePickerTile(l.anniversary, _selectedAnniversary, Icons.event, false, l),
 
               const SizedBox(height: 24),
-              _buildSectionTitle('İlişki Yönetimi'),
-              _buildTextField(_connectionSourceController, 'Nereden Tanışıyoruz?', icon: Icons.handshake),
-              _buildTextField(_tagsController, 'Etiketler (#tag1 #tag2)', icon: Icons.tag),
+              _buildSectionTitle(l.relationshipManagement),
+              _buildTextField(_connectionSourceController, l.howWeKnow, icon: Icons.handshake),
+              _buildTextField(_tagsController, l.tags, icon: Icons.tag),
               DropdownButtonFormField<String>(
                 value: _category,
-                decoration: const InputDecoration(labelText: 'Kategori', border: OutlineInputBorder()),
-                items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                decoration: InputDecoration(labelText: l.category, border: const OutlineInputBorder()),
+                items: _categories.map((c) => DropdownMenuItem(
+                  value: c,
+                  child: Text(_localizedCategory(l, c)),
+                )).toList(),
                 onChanged: (val) {
                   if (val != null) {
                     setState(() => _category = val);
@@ -226,12 +255,12 @@ class _AddContactScreenState extends State<AddContactScreen> {
               ),
               const SizedBox(height: 16),
               SwitchListTile(
-                title: const Text('Gizli Olarak Kaydet (Kasa)'),
+                title: Text(l.saveAsPrivate),
                 value: _isPrivate,
                 onChanged: (val) => setState(() => _isPrivate = val),
                 secondary: Icon(Icons.security, color: _isPrivate ? Colors.red : Colors.grey),
               ),
-              _buildTextField(_notesController, 'Notlar', maxLines: 3),
+              _buildTextField(_notesController, l.notes, maxLines: 3),
 
               const SizedBox(height: 32),
               ElevatedButton(
@@ -241,7 +270,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
                   backgroundColor: _isPrivate ? Colors.red : null,
                   foregroundColor: _isPrivate ? Colors.white : null,
                 ),
-                child: const Text('KAYDET', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(l.save, style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 40),
             ],
@@ -256,22 +285,26 @@ class _AddContactScreenState extends State<AddContactScreen> {
     child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
   );
 
-  Widget _buildTextField(TextEditingController controller, String label, {IconData? icon, TextInputType? keyboard, String? Function(String?)? validator, int maxLines = 1}) => Padding(
-    padding: const EdgeInsets.only(bottom: 16),
-    child: TextFormField(
-      controller: controller,
-      decoration: InputDecoration(labelText: label, border: const OutlineInputBorder(), prefixIcon: icon != null ? Icon(icon) : null),
-      keyboardType: keyboard,
-      validator: validator,
-      maxLines: maxLines,
-    ),
-  );
+  Widget _buildTextField(TextEditingController controller, String label,
+      {IconData? icon, TextInputType? keyboard, String? Function(String?)? validator, int maxLines = 1}) =>
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+              labelText: label, border: const OutlineInputBorder(), prefixIcon: icon != null ? Icon(icon) : null),
+          keyboardType: keyboard,
+          validator: validator,
+          maxLines: maxLines,
+        ),
+      );
 
-  Widget _buildDatePickerTile(String label, DateTime? date, IconData icon, bool isBirthday) => ListTile(
-    title: Text(date == null ? label : '$label: ${DateFormat('dd MMMM yyyy', 'tr').format(date)}'),
-    leading: Icon(icon),
-    trailing: const Icon(Icons.calendar_today, size: 20),
-    shape: RoundedRectangleBorder(side: const BorderSide(color: Colors.grey), borderRadius: BorderRadius.circular(4)),
-    onTap: () => _selectDate(context, isBirthday),
-  );
+  Widget _buildDatePickerTile(String label, DateTime? date, IconData icon, bool isBirthday, AppLocalizations l) =>
+      ListTile(
+        title: Text(date == null ? label : '$label: ${DateFormat('dd MMMM yyyy', 'tr').format(date)}'),
+        leading: Icon(icon),
+        trailing: const Icon(Icons.calendar_today, size: 20),
+        shape: RoundedRectangleBorder(side: const BorderSide(color: Colors.grey), borderRadius: BorderRadius.circular(4)),
+        onTap: () => _selectDate(context, isBirthday),
+      );
 }

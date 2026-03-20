@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 import '../providers/app_provider.dart';
+import '../theme/app_theme.dart';
+import '../l10n/app_localizations.dart';
 
 class SecuritySettingsScreen extends StatefulWidget {
   const SecuritySettingsScreen({super.key});
@@ -12,37 +14,51 @@ class SecuritySettingsScreen extends StatefulWidget {
 }
 
 class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
-  final _keyController = TextEditingController();
+  final _keyController    = TextEditingController();
   final _newKeyController = TextEditingController();
   final _importController = TextEditingController();
+  bool _backupDone = false;
+
+  @override
+  void dispose() {
+    _keyController.dispose();
+    _newKeyController.dispose();
+    _importController.dispose();
+    super.dispose();
+  }
 
   void _generateRecoveryCode() {
+    final l = AppLocalizations.of(context);
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     final rnd = Random.secure();
-    final code = String.fromCharCodes(Iterable.generate(8, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
-    
+    final code = String.fromCharCodes(
+        Iterable.generate(8, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Kurtarma Kodu Oluşturuldu'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Şifrenizi unutursanız bu kodu kullanabilirsiniz. LÜTFEN GÜVENLİ BİR YERE NOT EDİN:'),
-            const SizedBox(height: 16),
-            SelectableText(
-              code,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2, color: Colors.deepPurple),
+      builder: (_) => AlertDialog(
+        title: Text(l.recoveryCodeGenerated),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text(l.saveNote),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            decoration: BoxDecoration(
+              color: AC.goldGlass(),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AC.goldBorder()),
             ),
-          ],
-        ),
+            child: SelectableText(code,
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700,
+                    letterSpacing: 3, color: AC.gold)),
+          ),
+        ]),
         actions: [
           TextButton(
             onPressed: () {
               Provider.of<AppProvider>(context, listen: false).updateRecoveryCode(code);
               Navigator.pop(context);
             },
-            child: const Text('KODU KAYDET VE KAPAT'),
+            child: Text(l.saveAndClose),
           ),
         ],
       ),
@@ -50,73 +66,142 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
   }
 
   void _exportData() async {
+    final l = AppLocalizations.of(context);
     final provider = Provider.of<AppProvider>(context, listen: false);
     final jsonString = await provider.generateBackup();
-    
-    if (mounted) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Veri Yedeği (JSON)'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Aşağıdaki metni kopyalayıp güvenli bir yerde saklayın:'),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 200,
-                child: SingleChildScrollView(
-                  child: SelectableText(jsonString, style: const TextStyle(fontSize: 10, fontFamily: 'monospace')),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: jsonString));
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Yedek panoya kopyalandı!')));
-                Navigator.pop(context);
-              },
-              child: const Text('KOPYALA VE KAPAT'),
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(l.dataBackupTitle),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text(l.backupInstructions),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 180,
+            child: SingleChildScrollView(
+              child: SelectableText(jsonString,
+                  style: const TextStyle(fontSize: 10, fontFamily: 'monospace', color: AC.textSec)),
             ),
-          ],
-        ),
-      );
-    }
+          ),
+        ]),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: jsonString));
+              setState(() => _backupDone = true);
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l.backupCopied)));
+              Navigator.pop(context);
+            },
+            child: Text(l.copyAndClose),
+          ),
+        ],
+      ),
+    );
   }
 
   void _importData() {
+    final l = AppLocalizations.of(context);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Yedekten Geri Yükle'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Daha önce aldığınız yedek metnini buraya yapıştırın. MEVCUT TÜM VERİLERİNİZ SİLİNECEKTİR!'),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _importController,
-              maxLines: 5,
-              decoration: const InputDecoration(border: OutlineInputBorder(), hintText: '{ "contacts": ... }'),
-            ),
-          ],
-        ),
+      builder: (_) => AlertDialog(
+        title: Text(l.restoreFromBackup),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text(l.restoreWarning,
+              style: const TextStyle(color: AC.danger)),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _importController,
+            maxLines: 5,
+            decoration: const InputDecoration(hintText: '{ "contacts": ... }'),
+          ),
+        ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('İptal')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l.cancel)),
           ElevatedButton(
             onPressed: () async {
               final provider = Provider.of<AppProvider>(context, listen: false);
-              final success = await provider.restoreBackup(_importController.text);
-              if (mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(success ? 'Veriler başarıyla yüklendi!' : 'Hata: Geçersiz yedek formatı.')),
-                );
-              }
+              final ok = await provider.restoreBackup(_importController.text);
+              if (!mounted) return;
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(ok ? l.restoreSuccess : l.restoreError),
+              ));
             },
-            child: const Text('GERİ YÜKLE'),
+            style: ElevatedButton.styleFrom(backgroundColor: AC.danger),
+            child: Text(l.restore),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showResetConfirm() {
+    final l = AppLocalizations.of(context);
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Row(children: [
+          const Icon(Icons.warning_amber_rounded, color: AC.danger),
+          const SizedBox(width: 8),
+          Text(l.factoryResetConfirmTitle, style: const TextStyle(color: AC.danger)),
+        ]),
+        content: Text(l.factoryResetConfirmContent),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l.cancel)),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(backgroundColor: AC.danger),
+            child: Text(l.confirmAndDelete),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showChangeKeyDialog() {
+    final l = AppLocalizations.of(context);
+    _keyController.clear();
+    _newKeyController.clear();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(l.changePassword),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          TextField(
+            controller: _keyController,
+            obscureText: true,
+            decoration: InputDecoration(labelText: l.oldPassword),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _newKeyController,
+            obscureText: true,
+            decoration: InputDecoration(labelText: l.newPassword),
+          ),
+        ]),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l.cancel)),
+          ElevatedButton(
+            onPressed: () async {
+              final provider = Provider.of<AppProvider>(context, listen: false);
+              final newKey = _newKeyController.text;
+              if (newKey.length < 8 ||
+                  !newKey.contains(RegExp(r'[A-Za-z]')) ||
+                  !newKey.contains(RegExp(r'[0-9]'))) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(l.passwordRequirements)));
+                return;
+              }
+              final ok = await provider.updateMasterKey(_keyController.text, newKey);
+              if (!mounted) return;
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(ok ? l.passwordUpdated : l.oldPasswordWrong)));
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AC.gold, foregroundColor: Colors.black),
+            child: Text(l.update),
           ),
         ],
       ),
@@ -125,123 +210,320 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Güvenlik Ayarları')),
-      body: Consumer<AppProvider>(
-        builder: (context, provider, child) {
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              _buildSectionTitle('Kasa Erişimi'),
-              SwitchListTile(
-                title: const Text('Biyometrik Doğrulama'),
-                subtitle: const Text('Parmak izi veya yüz tanıma kullan.'),
-                value: provider.useBiometrics,
-                onChanged: (val) => provider.updateBiometricPref(val),
+      backgroundColor: AC.bg,
+      body: Column(children: [
+        _buildHeader(l),
+        Expanded(child: Consumer<AppProvider>(builder: (_, provider, __) => ListView(
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 32),
+          children: [
+            _buildSecurityScore(provider, l),
+            const SizedBox(height: 16),
+
+            SectionLabel(l.passwordSecurity),
+            const SizedBox(height: 8),
+            GlassCard(child: Column(children: [
+              _settingRow(
+                icon: Icons.lock_outline,
+                iconColor: AC.gold,
+                title: l.masterKeyTitle,
+                subtitle: l.lastChangedDaysAgo,
+                badge: l.change,
+                badgeColor: AC.gold,
+                onTap: _showChangeKeyDialog,
               ),
-              ListTile(
-                leading: const Icon(Icons.password),
-                title: const Text('Kasa Şifresini Değiştir'),
-                onTap: () => _showChangeKeyDialog(context),
+              _divider(),
+              _settingRow(
+                icon: Icons.visibility_outlined,
+                iconColor: AC.navyLight,
+                title: l.passwordHints,
+                subtitle: l.showHintOnLogin,
+                toggle: false,
+                onToggle: () {},
               ),
-              const Divider(),
-              _buildSectionTitle('Yedekleme & Kurtarma'),
-              ListTile(
-                leading: const Icon(Icons.vibration),
-                title: const Text('Kurtarma Kodu Oluştur'),
-                subtitle: Text(provider.hasRecoveryCode ? 'Mevcut bir kodunuz var.' : 'Henüz kod oluşturulmadı.'),
-                trailing: const Icon(Icons.refresh),
+            ])),
+            const SizedBox(height: 12),
+
+            SectionLabel(l.biometricId),
+            const SizedBox(height: 8),
+            GlassCard(child: Column(children: [
+              _settingRow(
+                icon: Icons.fingerprint,
+                iconColor: AC.success,
+                title: l.fingerprint,
+                subtitle: provider.useBiometrics ? l.fingerprintEnabled : l.fingerprintDisabled,
+                toggle: provider.useBiometrics,
+                badge: provider.useBiometrics ? l.active : null,
+                badgeColor: AC.success,
+                onToggle: () => provider.updateBiometricPref(!provider.useBiometrics),
+              ),
+              _divider(),
+              _settingRow(
+                icon: Icons.timer_outlined,
+                iconColor: const Color(0xFF9C27B0),
+                title: l.autoLock,
+                subtitle: l.autoLockSubtitle,
+                toggle: true,
+                onToggle: () {},
+              ),
+            ])),
+            const SizedBox(height: 12),
+
+            SectionLabel(l.accountSecurity),
+            const SizedBox(height: 8),
+            GlassCard(child: Column(children: [
+              _settingRow(
+                icon: Icons.vpn_key_outlined,
+                iconColor: AC.gold,
+                title: l.recoveryCode,
+                subtitle: provider.hasRecoveryCode ? l.recoveryCodeExists : l.recoveryCodeHint,
+                arrow: true,
                 onTap: _generateRecoveryCode,
               ),
-              ListTile(
-                leading: const Icon(Icons.cloud_upload),
-                title: const Text('Verileri Yedekle (Export)'),
-                subtitle: const Text('Tüm verileri JSON formatında dışa aktar.'),
-                onTap: _exportData,
+              _divider(),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(13, 10, 13, 12),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(l.backupRestore,
+                      style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  Row(children: [
+                    Expanded(child: _actionBtn(
+                      label: _backupDone ? l.backupDone : l.backup,
+                      icon: Icons.cloud_upload_outlined,
+                      color: _backupDone ? AC.success : AC.navyLight,
+                      onTap: _exportData,
+                    )),
+                    const SizedBox(width: 8),
+                    Expanded(child: _actionBtn(
+                      label: l.restore,
+                      icon: Icons.restore,
+                      color: Colors.white54,
+                      onTap: _importData,
+                    )),
+                  ]),
+                ]),
               ),
-              ListTile(
-                leading: const Icon(Icons.cloud_download),
-                title: const Text('Yedekten Geri Yükle (Import)'),
-                subtitle: const Text('Dosya veya metin yedeğini içeri aktar.'),
-                onTap: _importData,
-              ),
-              const Divider(),
-              _buildSectionTitle('Gelişmiş'),
-              ListTile(
-                leading: const Icon(Icons.timer),
-                title: const Text('Otomatik Kilitleme'),
-                subtitle: const Text('Uygulama arka plandayken kilitleme süresi.'),
-                trailing: const Text('Anında'),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gelecek güncellemede eklenecek.')));
-                },
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple)),
-    );
-  }
-
-  void _showChangeKeyDialog(BuildContext context) {
-    _keyController.clear();
-    _newKeyController.clear();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Şifre Değiştir'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _keyController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Eski Şifre', border: OutlineInputBorder()),
-            ),
+            ])),
             const SizedBox(height: 12),
-            TextField(
-              controller: _newKeyController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Yeni Şifre (en az 8 karakter, harf+rakam)',
-                border: OutlineInputBorder(),
+
+            SectionLabel(l.dangerZone),
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(
+                color: AC.danger.withOpacity(0.04),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AC.danger.withOpacity(0.2)),
+              ),
+              child: _settingRow(
+                icon: Icons.warning_amber_rounded,
+                iconColor: AC.danger,
+                title: l.factoryReset,
+                subtitle: l.deleteAllPermanently,
+                danger: true,
+                arrow: true,
+                onTap: _showResetConfirm,
+              ),
+            ),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: _showResetConfirm,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                decoration: BoxDecoration(
+                  color: AC.danger.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AC.danger.withOpacity(0.28)),
+                ),
+                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  const Icon(Icons.warning_amber_rounded, color: AC.danger, size: 16),
+                  const SizedBox(width: 8),
+                  Text(l.doFactoryReset,
+                      style: const TextStyle(color: AC.danger, fontSize: 13, fontWeight: FontWeight.w700)),
+                ]),
               ),
             ),
           ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('İptal')),
-          ElevatedButton(
-            onPressed: () async {
-              final provider = Provider.of<AppProvider>(context, listen: false);
-              final newKey = _newKeyController.text;
-              final hasLetter = newKey.contains(RegExp(r'[A-Za-z]'));
-              final hasDigit = newKey.contains(RegExp(r'[0-9]'));
-              if (newKey.length < 8 || !hasLetter || !hasDigit) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Yeni şifre en az 8 karakter, harf ve rakam içermelidir.')),
-                );
-                return;
-              }
-              final success = await provider.updateMasterKey(_keyController.text, newKey);
-              if (mounted) Navigator.pop(context);
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(success ? 'Şifre başarıyla güncellendi.' : 'Eski şifre hatalı!')),
-                );
-              }
-            },
-            child: const Text('Güncelle'),
+        ))),
+      ]),
+    );
+  }
+
+  Widget _buildHeader(AppLocalizations l) {
+    return Container(
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 10,
+        left: 16, right: 16, bottom: 14,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xE60D0D1A),
+        border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.06))),
+      ),
+      child: Row(children: [
+        GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
+            child: const Icon(Icons.arrow_back, color: Colors.white70, size: 18),
           ),
-        ],
+        ),
+        const SizedBox(width: 12),
+        Container(
+          width: 34, height: 34,
+          decoration: BoxDecoration(
+            color: AC.navyGlass(0.4),
+            borderRadius: BorderRadius.circular(11),
+            border: Border.all(color: AC.navyBorder(0.6)),
+            boxShadow: [BoxShadow(color: AC.navy.withOpacity(0.4), blurRadius: 20)],
+          ),
+          child: const Icon(Icons.shield_outlined, color: AC.gold, size: 17),
+        ),
+        const SizedBox(width: 10),
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(l.securitySettingsTitle,
+              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
+          Text(l.appProtectionSettings,
+              style: const TextStyle(color: AC.textMuted, fontSize: 10)),
+        ]),
+      ]),
+    );
+  }
+
+  Widget _buildSecurityScore(AppProvider provider, AppLocalizations l) {
+    final score = provider.useBiometrics ? 94 : 72;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+            colors: [Color(0x1A00E676), Color(0x331A237E)]),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AC.success.withOpacity(0.18)),
+      ),
+      child: Row(children: [
+        Container(
+          width: 40, height: 40,
+          decoration: BoxDecoration(
+            color: AC.success.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(13),
+            border: Border.all(color: AC.success.withOpacity(0.3)),
+          ),
+          child: const Icon(Icons.check_circle_outline, color: AC.success, size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(l.securityScore(score),
+              style: const TextStyle(color: AC.success, fontSize: 13, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 2),
+          Text(score >= 90 ? l.securityVeryStrong : l.enableBiometric,
+              style: const TextStyle(color: AC.textMuted, fontSize: 10)),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(2),
+            child: LinearProgressIndicator(
+              value: score / 100,
+              backgroundColor: Colors.white.withOpacity(0.1),
+              valueColor: const AlwaysStoppedAnimation(AC.success),
+              minHeight: 4,
+            ),
+          ),
+        ])),
+      ]),
+    );
+  }
+
+  Widget _settingRow({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    bool? toggle,
+    VoidCallback? onToggle,
+    bool arrow = false,
+    String? badge,
+    Color? badgeColor,
+    bool danger = false,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap ?? onToggle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 13),
+        child: Row(children: [
+          Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              color: danger ? AC.danger.withOpacity(0.12) : iconColor.withOpacity(0.09),
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(
+                  color: danger ? AC.danger.withOpacity(0.25) : iconColor.withOpacity(0.17)),
+            ),
+            child: Icon(icon, color: danger ? AC.danger : iconColor, size: 17),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(title,
+                style: TextStyle(
+                    color: danger ? AC.danger : Colors.white,
+                    fontSize: 13, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 2),
+            Text(subtitle, style: const TextStyle(color: AC.textMuted, fontSize: 10)),
+          ])),
+          if (badge != null) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: (badgeColor ?? AC.success).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: (badgeColor ?? AC.success).withOpacity(0.2)),
+              ),
+              child: Text(badge,
+                  style: TextStyle(color: badgeColor ?? AC.success, fontSize: 10, fontWeight: FontWeight.w700)),
+            ),
+          ],
+          if (toggle != null) ...[
+            const SizedBox(width: 8),
+            Switch(value: toggle, onChanged: onToggle != null ? (_) => onToggle() : null),
+          ],
+          if (arrow) ...[
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_right, color: Colors.white24, size: 16),
+          ],
+        ]),
       ),
     );
   }
+
+  Widget _actionBtn({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) =>
+      GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withOpacity(0.2)),
+          ),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(icon, color: color, size: 14),
+            const SizedBox(width: 6),
+            Text(label, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600)),
+          ]),
+        ),
+      );
+
+  Widget _divider() => Divider(
+      height: 1, color: Colors.white.withOpacity(0.04), indent: 60, endIndent: 0);
 }

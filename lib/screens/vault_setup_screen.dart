@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class VaultSetupScreen extends StatefulWidget {
   const VaultSetupScreen({super.key});
@@ -13,7 +14,7 @@ class _VaultSetupScreenState extends State<VaultSetupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _keyController = TextEditingController();
   final _confirmKeyController = TextEditingController();
-  bool _useBiometrics = false; // Varsayılan olarak kapalı, kullanıcı açabilir
+  bool _useBiometrics = false;
 
   @override
   void dispose() {
@@ -23,23 +24,25 @@ class _VaultSetupScreenState extends State<VaultSetupScreen> {
   }
 
   void _completeSetup() async {
+    final l = AppLocalizations.of(context);
     if (_formKey.currentState!.validate()) {
       final provider = Provider.of<AppProvider>(context, listen: false);
       await provider.completeVaultSetup(_keyController.text, _useBiometrics);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Kasa şifreniz ve tercihleriniz kaydedildi!')),
+          SnackBar(content: Text(l.vaultPasswordSaved)),
         );
-        Navigator.pop(context); 
+        Navigator.pop(context);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Kasa Şifre Belirleme')),
+      appBar: AppBar(title: Text(l.vaultSetupTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Form(
@@ -49,31 +52,31 @@ class _VaultSetupScreenState extends State<VaultSetupScreen> {
             children: [
               const Icon(Icons.lock_outline, size: 80, color: Colors.deepPurple),
               const SizedBox(height: 24),
-              const Text(
-                'Güvenli Kasanızı Kurun',
+              Text(
+                l.setupVaultTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Bu şifre, kasanızdaki verileri korumak için kullanılacaktır. Lütfen güvenli bir şifre seçin.',
+              Text(
+                l.setupVaultSubtitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey),
+                style: const TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 32),
               TextFormField(
                 controller: _keyController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Master Key (Ana Şifre)',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.key),
+                decoration: InputDecoration(
+                  labelText: l.masterKeyLabel,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.key),
                 ),
                 validator: (value) {
-                  if (value == null || value.length < 8) return 'En az 8 karakter giriniz';
+                  if (value == null || value.length < 8) return l.minEightChars;
                   final hasLetter = value.contains(RegExp(r'[A-Za-z]'));
                   final hasDigit = value.contains(RegExp(r'[0-9]'));
-                  if (!hasLetter || !hasDigit) return 'Harf ve rakam içermelidir';
+                  if (!hasLetter || !hasDigit) return l.mustContainLetterDigit;
                   return null;
                 },
               ),
@@ -81,17 +84,17 @@ class _VaultSetupScreenState extends State<VaultSetupScreen> {
               TextFormField(
                 controller: _confirmKeyController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Şifreyi Onayla',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.check),
+                decoration: InputDecoration(
+                  labelText: l.confirmPassword,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.check),
                 ),
-                validator: (value) => value != _keyController.text ? 'Şifreler eşleşmiyor' : null,
+                validator: (value) => value != _keyController.text ? l.passwordsDoNotMatch : null,
               ),
               const SizedBox(height: 24),
               SwitchListTile(
-                title: const Text('Biyometrik Doğrulamayı Aktif Et'),
-                subtitle: const Text('Hızlı giriş için parmak izi kullan.'),
+                title: Text(l.enableBiometricAuth),
+                subtitle: Text(l.useFingerprintForQuickLogin),
                 value: _useBiometrics,
                 onChanged: (val) => setState(() => _useBiometrics = val),
               ),
@@ -103,7 +106,7 @@ class _VaultSetupScreenState extends State<VaultSetupScreen> {
                   backgroundColor: Colors.deepPurple,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('ŞİFREYİ KAYDET VE AKTİF ET', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(l.saveAndActivate, style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ),

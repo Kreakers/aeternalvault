@@ -1,44 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   // Profesyonel ve Ağırbaşlı Renk Paleti (Material 3 Seed Colors)
   final List<Color> _professionalColors = const [
-    Color(0xFF1A237E), // Midnight Navy (Güven ve Otorite)
-    Color(0xFF004D40), // Deep Teal (Huzur ve Stabilite)
-    Color(0xFF37474F), // Slate Grey (Modern ve Minimalist)
-    Color(0xFF4E342E), // Coffee Brown (Geleneksel ve Sağlam)
-    Color(0xFF880E4F), // Maroon (Lüks ve Gizlilik)
-    Color(0xFF311B92), // Deep Purple (Özgün ve Premium)
+    Color(0xFF1A237E), // Midnight Navy
+    Color(0xFF004D40), // Deep Teal
+    Color(0xFF37474F), // Slate Grey
+    Color(0xFF4E342E), // Coffee Brown
+    Color(0xFF880E4F), // Maroon
+    Color(0xFF311B92), // Deep Purple
+  ];
+
+  static const _languages = [
+    ('tr', '🇹🇷', 'Türkçe'),
+    ('en', '🇬🇧', 'English'),
+    ('de', '🇩🇪', 'Deutsch'),
+    ('it', '🇮🇹', 'Italiano'),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Genel Ayarlar')),
+      appBar: AppBar(title: Text(l.generalSettingsTitle)),
       body: Consumer<AppProvider>(
         builder: (context, provider, child) {
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              _buildSectionTitle('Görünüm Modu'),
+              _buildSectionTitle(l.appearanceMode),
               Card(
                 child: SwitchListTile(
-                  title: Text(provider.isDarkMode ? 'Karanlık Tema Aktif' : 'Aydınlık Tema Aktif'),
-                  subtitle: const Text('Göz yorgunluğunu azaltmak için mod değiştirin.'),
+                  title: Text(provider.isDarkMode ? l.darkModeActive : l.lightModeActive),
+                  subtitle: Text(l.themeModeTip),
                   secondary: Icon(provider.isDarkMode ? Icons.dark_mode : Icons.light_mode, color: provider.themeColor),
                   value: provider.isDarkMode,
                   onChanged: (val) => provider.toggleDarkMode(val),
                 ),
               ),
               const SizedBox(height: 24),
-              _buildSectionTitle('Uygulama Kimliği (Renk)'),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 12.0),
-                child: Text('Uygulamanın tüm tonları seçtiğiniz renge göre otomatik uyarlanır.', style: TextStyle(fontSize: 13, color: Colors.grey)),
+              _buildSectionTitle(l.appIdentityColor),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: Text(l.colorAutoAdapt, style: const TextStyle(fontSize: 13, color: Colors.grey)),
               ),
               GridView.builder(
                 shrinkWrap: true,
@@ -69,20 +78,38 @@ class SettingsScreen extends StatelessWidget {
                   );
                 },
               ),
-              const Divider(height: 60),
-              _buildSectionTitle('Veri ve Güvenlik'),
+              const Divider(height: 48),
+              _buildSectionTitle(l.language),
+              Card(
+                child: Column(
+                  children: _languages.map((lang) {
+                    final isSelected = provider.locale.languageCode == lang.$1;
+                    return ListTile(
+                      leading: Text(lang.$2, style: const TextStyle(fontSize: 24)),
+                      title: Text(lang.$3),
+                      trailing: isSelected
+                          ? Icon(Icons.check_circle, color: provider.themeColor)
+                          : const Icon(Icons.circle_outlined, color: Colors.grey),
+                      selected: isSelected,
+                      onTap: () => provider.setLocale(Locale(lang.$1)),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const Divider(height: 48),
+              _buildSectionTitle(l.dataSecurity),
               Card(
                 color: Colors.red.withOpacity(0.05),
                 child: ListTile(
                   leading: const Icon(Icons.delete_forever, color: Colors.red),
-                  title: const Text('Fabrika Ayarlarına Dön', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                  subtitle: const Text('Tüm rehber, kasa ve ayarları kalıcı olarak temizler.'),
+                  title: Text(l.factoryRestoreTitle, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  subtitle: Text(l.factoryRestoreSubtitle),
                   onTap: () => _showResetConfirm(context, provider),
                 ),
               ),
               const SizedBox(height: 40),
-              const Center(
-                child: Text('Aeterna Vault v1.0.3', style: TextStyle(color: Colors.grey, fontSize: 12)),
+              Center(
+                child: Text(l.versionInfo, style: const TextStyle(color: Colors.grey, fontSize: 12)),
               ),
             ],
           );
@@ -99,23 +126,24 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showResetConfirm(BuildContext context, AppProvider provider) {
+    final l = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Verileri Kalıcı Olarak Sil?'),
-        content: const Text('Bu işlem geri alınamaz. Kasanızdaki tüm gizli belgeler ve CRM kayıtlarınız yok olacaktır.'),
+        title: Text(l.permanentDeleteTitle),
+        content: Text(l.permanentDeleteContent),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('İPTAL')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l.cancelUpper)),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
             onPressed: () async {
               await provider.performFactoryReset();
               if (context.mounted) {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Uygulama başarıyla sıfırlandı.')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.appResetSuccess)));
               }
             },
-            child: const Text('SİL VE SIFIRLA'),
+            child: Text(l.deleteAndReset),
           ),
         ],
       ),

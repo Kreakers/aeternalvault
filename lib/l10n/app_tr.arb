@@ -1,0 +1,649 @@
+{
+  "@@locale": "tr",
+
+  "appTitle": "Aeterna Vault",
+  "@appTitle": {"description": "Uygulama başlığı"},
+
+  "appSubtitle": "Güvenli CRM & Kasa",
+  "@appSubtitle": {"description": "Uygulama alt başlığı"},
+
+  "contacts": "Kişiler",
+  "@contacts": {"description": "Kişiler menü öğesi"},
+
+  "digitalVault": "Dijital Kasa",
+  "@digitalVault": {"description": "Dijital kasa başlığı"},
+
+  "activateVault": "Kasayı Aktif Et",
+  "@activateVault": {"description": "Kasa aktivasyon butonu"},
+
+  "securitySettings": "Güvenlik Ayarları",
+  "@securitySettings": {"description": "Güvenlik ayarları menü öğesi"},
+
+  "generalSettings": "Genel Ayarlar",
+  "@generalSettings": {"description": "Genel ayarlar menü öğesi"},
+
+  "about": "Hakkında",
+  "@about": {"description": "Hakkında menü öğesi"},
+
+  "overview": "GENEL BAKIŞ",
+  "@overview": {"description": "Dashboard genel bakış başlığı"},
+
+  "personsCount": "{count} kişi",
+  "@personsCount": {"description": "Kişi sayısı", "placeholders": {"count": {"type": "int"}}},
+
+  "vaultCount": "{count} kasa",
+  "@vaultCount": {"description": "Kasa öğesi sayısı", "placeholders": {"count": {"type": "int"}}},
+
+  "totalContacts": "{count} Kişi",
+  "@totalContacts": {"description": "Toplam kişi sayısı etiketi", "placeholders": {"count": {"type": "int"}}},
+
+  "totalContactsSub": "Toplam rehber",
+  "@totalContactsSub": {"description": "Toplam rehber alt metni"},
+
+  "vaultItems": "{count} Kasa Öğesi",
+  "@vaultItems": {"description": "Kasa öğesi sayısı", "placeholders": {"count": {"type": "int"}}},
+
+  "encryptedRecord": "Şifreli kayıt",
+  "@encryptedRecord": {"description": "Şifreli kayıt alt metni"},
+
+  "contactNotFound": "Kişi bulunamadı.",
+  "@contactNotFound": {"description": "Boş durum mesajı"},
+
+  "vaultLock": "Kasa Kilidi",
+  "@vaultLock": {"description": "Kasa kilidi dialog başlığı"},
+
+  "masterKey": "Master Key",
+  "@masterKey": {"description": "Master key placeholder"},
+
+  "cancel": "İptal",
+  "@cancel": {"description": "İptal butonu"},
+
+  "login": "Giriş",
+  "@login": {"description": "Giriş butonu"},
+
+  "vaultUnlockFailed": "Kasa kilidi açılamadı!",
+  "@vaultUnlockFailed": {"description": "Kasa açma hata mesajı"},
+
+  "searchHint": "İsim veya telefon ara...",
+  "@searchHint": {"description": "Arama alanı placeholder"},
+
+  "birthdayAlert": "Bugün {name}'ın doğum günü! 🎂",
+  "@birthdayAlert": {"description": "Doğum günü uyarısı", "placeholders": {"name": {"type": "String"}}},
+
+  "meetingAlert": "{name} ile görüşme zamanı gelmiş. 📞",
+  "@meetingAlert": {"description": "Görüşme zamanı uyarısı", "placeholders": {"name": {"type": "String"}}},
+
+  "vaultScreenTitle": "Dijital Kasa",
+  "@vaultScreenTitle": {"description": "Vault ekranı başlığı"},
+
+  "encryptedRecordsCount": "{count} şifreli kayıt",
+  "@encryptedRecordsCount": {"description": "Şifreli kayıt sayısı", "placeholders": {"count": {"type": "int"}}},
+
+  "protected": "Korumalı",
+  "@protected": {"description": "Korumalı badge metni"},
+
+  "hiddenContacts": "Gizli Kişiler",
+  "@hiddenContacts": {"description": "Gizli kişiler tab başlığı"},
+
+  "documentsPasswords": "Belgeler & Şifreler",
+  "@documentsPasswords": {"description": "Belgeler ve şifreler tab başlığı"},
+
+  "noHiddenContacts": "Gizli kişi yok",
+  "@noHiddenContacts": {"description": "Gizli kişi yok mesajı"},
+
+  "addWithPlusButton": "Eklemek için + butonuna bas",
+  "@addWithPlusButton": {"description": "Ekleme yönergesi"},
+
+  "vaultEmpty": "Kasa boş",
+  "@vaultEmpty": {"description": "Kasa boş mesajı"},
+
+  "filterAll": "Tümü",
+  "@filterAll": {"description": "Tüm filtresi"},
+
+  "filterPasswords": "Şifreler",
+  "@filterPasswords": {"description": "Şifreler filtresi"},
+
+  "filterBank": "Banka",
+  "@filterBank": {"description": "Banka filtresi"},
+
+  "filterDocuments": "Belgeler",
+  "@filterDocuments": {"description": "Belgeler filtresi"},
+
+  "fileNotFound": "Dosya bulunamadı!",
+  "@fileNotFound": {"description": "Dosya bulunamadı hata mesajı"},
+
+  "fileOpenError": "Dosya açılamadı.",
+  "@fileOpenError": {"description": "Dosya açılamadı hata mesajı"},
+
+  "openFile": "Dosyayı Aç",
+  "@openFile": {"description": "Dosyayı aç butonu"},
+
+  "addVaultItem": "Kasa Öğesi Ekle",
+  "@addVaultItem": {"description": "Kasa öğesi ekleme başlığı"},
+
+  "editVaultItem": "Öğeyi Düzenle",
+  "@editVaultItem": {"description": "Kasa öğesi düzenleme başlığı"},
+
+  "titleHint": "Başlık (Örn: MetaMask Cüzdanım)",
+  "@titleHint": {"description": "Başlık placeholder"},
+
+  "required": "Gerekli",
+  "@required": {"description": "Zorunlu alan mesajı"},
+
+  "category": "Kategori",
+  "@category": {"description": "Kategori etiketi"},
+
+  "secretData": "Gizli Veriler",
+  "@secretData": {"description": "Gizli veriler bölüm başlığı"},
+
+  "generatePassword": "Şifre Üret",
+  "@generatePassword": {"description": "Şifre üret butonu"},
+
+  "passwordGenerated": "Güçlü şifre oluşturuldu!",
+  "@passwordGenerated": {"description": "Şifre oluşturuldu snackbar mesajı"},
+
+  "fileAttachment": "Dosya / Ek (PDF, Görsel vb.)",
+  "@fileAttachment": {"description": "Dosya ek bölüm başlığı"},
+
+  "additionalNotes": "Ek Notlar",
+  "@additionalNotes": {"description": "Ek notlar etiketi"},
+
+  "saveEncrypted": "ŞİFRELİ OLARAK KAYDET",
+  "@saveEncrypted": {"description": "Şifreli kaydet butonu"},
+
+  "selectFile": "Dosya Seç (PDF, Resim vb.)",
+  "@selectFile": {"description": "Dosya seç metni"},
+
+  "fileReady": "Dosya Hazır",
+  "@fileReady": {"description": "Dosya hazır metni"},
+
+  "filePickError": "Dosya seçilemedi.",
+  "@filePickError": {"description": "Dosya seçilemedi hata mesajı"},
+
+  "saveError": "Kayıt hatası: {error}",
+  "@saveError": {"description": "Kayıt hatası mesajı", "placeholders": {"error": {"type": "String"}}},
+
+  "decryptionError": "Bu kayıt okunamadı. Muhtemelen farklı bir master key ile şifrelendi. Alanları yeniden doldurup kaydedebilirsin.",
+  "@decryptionError": {"description": "Şifre çözme hatası mesajı"},
+
+  "usernameEmail": "Kullanıcı Adı / E-posta",
+  "@usernameEmail": {"description": "Kullanıcı adı / e-posta etiketi"},
+
+  "password": "Şifre",
+  "@password": {"description": "Şifre etiketi"},
+
+  "websiteUrl": "Web Sitesi URL",
+  "@websiteUrl": {"description": "Web sitesi URL etiketi"},
+
+  "walletAddress": "Cüzdan Adresi (Public Key)",
+  "@walletAddress": {"description": "Cüzdan adresi etiketi"},
+
+  "seedPhrase": "Seed Phrase (12/24 Kelime)",
+  "@seedPhrase": {"description": "Seed phrase etiketi"},
+
+  "network": "Ağ (Örn: Ethereum, BTC)",
+  "@network": {"description": "Ağ etiketi"},
+
+  "ibanAccount": "IBAN / Hesap No",
+  "@ibanAccount": {"description": "IBAN etiketi"},
+
+  "bankName": "Banka Adı",
+  "@bankName": {"description": "Banka adı etiketi"},
+
+  "branchInfo": "Şube / Ek Bilgi",
+  "@branchInfo": {"description": "Şube bilgisi etiketi"},
+
+  "serialId": "Seri No / Kimlik No",
+  "@serialId": {"description": "Seri no etiketi"},
+
+  "documentType": "Belge Türü (Örn: Pasaport)",
+  "@documentType": {"description": "Belge türü etiketi"},
+
+  "expiryDate": "Son Kullanma Tarihi",
+  "@expiryDate": {"description": "Son kullanma tarihi etiketi"},
+
+  "noteContent": "Not İçeriği",
+  "@noteContent": {"description": "Not içeriği etiketi"},
+
+  "categoryPassword": "Şifre",
+  "@categoryPassword": {"description": "Şifre kategorisi"},
+
+  "categoryBank": "Banka",
+  "@categoryBank": {"description": "Banka kategorisi"},
+
+  "categoryDocument": "Belge",
+  "@categoryDocument": {"description": "Belge kategorisi"},
+
+  "categoryCrypto": "Kripto Cüzdanı",
+  "@categoryCrypto": {"description": "Kripto cüzdanı kategorisi"},
+
+  "categorySecretNote": "Gizli Not",
+  "@categorySecretNote": {"description": "Gizli not kategorisi"},
+
+  "contactDetail": "Kişi Detayı",
+  "@contactDetail": {"description": "Kişi detayı başlığı"},
+
+  "contactInfo": "İletişim Bilgileri",
+  "@contactInfo": {"description": "İletişim bilgileri bölüm başlığı"},
+
+  "phone": "Telefon",
+  "@phone": {"description": "Telefon etiketi"},
+
+  "email": "E-posta",
+  "@email": {"description": "E-posta etiketi"},
+
+  "birthday": "Doğum Günü",
+  "@birthday": {"description": "Doğum günü etiketi"},
+
+  "lastContact": "Son Temas",
+  "@lastContact": {"description": "Son temas etiketi"},
+
+  "contactFrequency": "Görüşme Sıklığı",
+  "@contactFrequency": {"description": "Görüşme sıklığı etiketi"},
+
+  "everyNDays": "Her {count} günde bir",
+  "@everyNDays": {"description": "Her N günde bir", "placeholders": {"count": {"type": "int"}}},
+
+  "reminders": "Hatırlatıcılar",
+  "@reminders": {"description": "Hatırlatıcılar bölüm başlığı"},
+
+  "noPendingTasks": "Bekleyen görev yok.",
+  "@noPendingTasks": {"description": "Bekleyen görev yok mesajı"},
+
+  "activityLog": "Aktivite Günlüğü",
+  "@activityLog": {"description": "Aktivite günlüğü bölüm başlığı"},
+
+  "newTask": "Yeni Görev / Hatırlatıcı",
+  "@newTask": {"description": "Yeni görev dialog başlığı"},
+
+  "taskName": "Görev Adı",
+  "@taskName": {"description": "Görev adı etiketi"},
+
+  "add": "Ekle",
+  "@add": {"description": "Ekle butonu"},
+
+  "trackingLate": "Görüşme Zamanı Geçmiş!",
+  "@trackingLate": {"description": "Görüşme zamanı geçmiş mesajı"},
+
+  "trackingGood": "Takip Durumu İyi",
+  "@trackingGood": {"description": "Takip durumu iyi mesajı"},
+
+  "daysSinceLastContact": "Son görüşme üzerinden {days} gün geçti.",
+  "@daysSinceLastContact": {"description": "Son görüşmeden bu yana geçen gün", "placeholders": {"days": {"type": "int"}}},
+
+  "call": "Ara",
+  "@call": {"description": "Ara butonu"},
+
+  "write": "Yaz",
+  "@write": {"description": "Yaz butonu"},
+
+  "sms": "SMS",
+  "@sms": {"description": "SMS butonu"},
+
+  "shareContact": "Kişi Paylaşımı:\nAd Soyad: {name}\nTelefon: {phone}\nE-posta: {email}\n\nAeterna Vault üzerinden paylaşıldı.",
+  "@shareContact": {
+    "description": "Kişi paylaşım metni",
+    "placeholders": {
+      "name": {"type": "String"},
+      "phone": {"type": "String"},
+      "email": {"type": "String"}
+    }
+  },
+
+  "addContactTitle": "Yeni Kişi Ekle",
+  "@addContactTitle": {"description": "Yeni kişi ekleme başlığı"},
+
+  "addPrivateContactTitle": "Gizli Kişi Ekle",
+  "@addPrivateContactTitle": {"description": "Gizli kişi ekleme başlığı"},
+
+  "editContactTitle": "Kişiyi Düzenle",
+  "@editContactTitle": {"description": "Kişi düzenleme başlığı"},
+
+  "basicInfo": "Temel Bilgiler",
+  "@basicInfo": {"description": "Temel bilgiler bölüm başlığı"},
+
+  "firstName": "Ad",
+  "@firstName": {"description": "Ad etiketi"},
+
+  "lastName": "Soyad",
+  "@lastName": {"description": "Soyad etiketi"},
+
+  "socialMedia": "Sosyal Medya Linki",
+  "@socialMedia": {"description": "Sosyal medya etiketi"},
+
+  "professionalLocation": "Profesyonel & Lokasyon",
+  "@professionalLocation": {"description": "Profesyonel ve lokasyon bölüm başlığı"},
+
+  "company": "Şirket",
+  "@company": {"description": "Şirket etiketi"},
+
+  "jobTitle": "Unvan",
+  "@jobTitle": {"description": "Unvan etiketi"},
+
+  "address": "Adres",
+  "@address": {"description": "Adres etiketi"},
+
+  "importantDates": "Önemli Günler",
+  "@importantDates": {"description": "Önemli günler bölüm başlığı"},
+
+  "anniversary": "Yıldönümü / Özel Gün",
+  "@anniversary": {"description": "Yıldönümü etiketi"},
+
+  "relationshipManagement": "İlişki Yönetimi",
+  "@relationshipManagement": {"description": "İlişki yönetimi bölüm başlığı"},
+
+  "howWeKnow": "Nereden Tanışıyoruz?",
+  "@howWeKnow": {"description": "Nereden tanışıyoruz etiketi"},
+
+  "tags": "Etiketler (#tag1 #tag2)",
+  "@tags": {"description": "Etiketler etiketi"},
+
+  "saveAsPrivate": "Gizli Olarak Kaydet (Kasa)",
+  "@saveAsPrivate": {"description": "Gizli olarak kaydet etiketi"},
+
+  "notes": "Notlar",
+  "@notes": {"description": "Notlar etiketi"},
+
+  "save": "KAYDET",
+  "@save": {"description": "Kaydet butonu"},
+
+  "imagePickError": "Resim seçilemedi.",
+  "@imagePickError": {"description": "Resim seçilemedi hata mesajı"},
+
+  "securitySettingsTitle": "Güvenlik Ayarları",
+  "@securitySettingsTitle": {"description": "Güvenlik ayarları başlığı"},
+
+  "appProtectionSettings": "Uygulama koruma ayarları",
+  "@appProtectionSettings": {"description": "Uygulama koruma ayarları alt metni"},
+
+  "securityScore": "Güvenlik Skoru: {score}/100",
+  "@securityScore": {"description": "Güvenlik skoru", "placeholders": {"score": {"type": "int"}}},
+
+  "securityVeryStrong": "Çok güçlü — tüm korumalar aktif",
+  "@securityVeryStrong": {"description": "Çok güçlü güvenlik mesajı"},
+
+  "enableBiometric": "Biyometriği etkinleştir",
+  "@enableBiometric": {"description": "Biyometriği etkinleştir mesajı"},
+
+  "passwordSecurity": "Şifre Güvenliği",
+  "@passwordSecurity": {"description": "Şifre güvenliği bölüm başlığı"},
+
+  "masterKeyTitle": "Ana Şifre",
+  "@masterKeyTitle": {"description": "Ana şifre başlığı"},
+
+  "lastChangedDaysAgo": "Son değişiklik: 45 gün önce",
+  "@lastChangedDaysAgo": {"description": "Son değişiklik metni"},
+
+  "change": "Değiştir",
+  "@change": {"description": "Değiştir butonu"},
+
+  "passwordHints": "Şifre İpuçları",
+  "@passwordHints": {"description": "Şifre ipuçları başlığı"},
+
+  "showHintOnLogin": "Giriş ekranında ipucu göster",
+  "@showHintOnLogin": {"description": "Giriş ekranında ipucu göster metni"},
+
+  "biometricId": "Biyometrik Kimlik",
+  "@biometricId": {"description": "Biyometrik kimlik bölüm başlığı"},
+
+  "fingerprint": "Parmak İzi",
+  "@fingerprint": {"description": "Parmak izi başlığı"},
+
+  "fingerprintEnabled": "Etkin — hızlı giriş açık",
+  "@fingerprintEnabled": {"description": "Parmak izi etkin mesajı"},
+
+  "fingerprintDisabled": "Devre dışı",
+  "@fingerprintDisabled": {"description": "Parmak izi devre dışı mesajı"},
+
+  "active": "Aktif",
+  "@active": {"description": "Aktif badge metni"},
+
+  "autoLock": "Otomatik Kilit",
+  "@autoLock": {"description": "Otomatik kilit başlığı"},
+
+  "autoLockSubtitle": "1 dakika hareketsizlikte kilitle",
+  "@autoLockSubtitle": {"description": "Otomatik kilit alt metni"},
+
+  "accountSecurity": "Hesap Güvenliği",
+  "@accountSecurity": {"description": "Hesap güvenliği bölüm başlığı"},
+
+  "recoveryCode": "Kurtarma Kodu",
+  "@recoveryCode": {"description": "Kurtarma kodu başlığı"},
+
+  "recoveryCodeExists": "Mevcut bir kodunuz var.",
+  "@recoveryCodeExists": {"description": "Mevcut kurtarma kodu mesajı"},
+
+  "recoveryCodeHint": "12 kelimeli kurtarma anahtarı",
+  "@recoveryCodeHint": {"description": "Kurtarma kodu ipucu"},
+
+  "backupRestore": "Yedekleme & Geri Yükleme",
+  "@backupRestore": {"description": "Yedekleme ve geri yükleme başlığı"},
+
+  "backup": "Yedekle",
+  "@backup": {"description": "Yedekle butonu"},
+
+  "backupDone": "Yedeklendi ✓",
+  "@backupDone": {"description": "Yedeklendi mesajı"},
+
+  "restore": "Geri Yükle",
+  "@restore": {"description": "Geri yükle butonu"},
+
+  "dangerZone": "Tehlike Bölgesi",
+  "@dangerZone": {"description": "Tehlike bölgesi başlığı"},
+
+  "factoryReset": "Fabrika Sıfırlama",
+  "@factoryReset": {"description": "Fabrika sıfırlama başlığı"},
+
+  "deleteAllPermanently": "Tüm verileri kalıcı olarak sil",
+  "@deleteAllPermanently": {"description": "Tüm verileri sil alt metni"},
+
+  "doFactoryReset": "Fabrika Sıfırlama Yap",
+  "@doFactoryReset": {"description": "Fabrika sıfırlama yap butonu"},
+
+  "factoryResetConfirmTitle": "Fabrika Sıfırlama",
+  "@factoryResetConfirmTitle": {"description": "Fabrika sıfırlama onay başlığı"},
+
+  "factoryResetConfirmContent": "Tüm veriler kalıcı olarak silinecek. Bu işlem geri alınamaz!",
+  "@factoryResetConfirmContent": {"description": "Fabrika sıfırlama onay içeriği"},
+
+  "confirmAndDelete": "ONAYLA VE SİL",
+  "@confirmAndDelete": {"description": "Onayla ve sil butonu"},
+
+  "recoveryCodeGenerated": "Kurtarma Kodu Oluşturuldu",
+  "@recoveryCodeGenerated": {"description": "Kurtarma kodu oluşturuldu dialog başlığı"},
+
+  "saveNote": "Lütfen güvenli bir yere not edin:",
+  "@saveNote": {"description": "Güvenli not al metni"},
+
+  "saveAndClose": "KAYDET VE KAPAT",
+  "@saveAndClose": {"description": "Kaydet ve kapat butonu"},
+
+  "dataBackupTitle": "Veri Yedeği (JSON)",
+  "@dataBackupTitle": {"description": "Veri yedeği dialog başlığı"},
+
+  "backupInstructions": "Aşağıdaki metni kopyalayıp güvenli bir yerde saklayın:",
+  "@backupInstructions": {"description": "Yedek kopyalama talimatı"},
+
+  "copyAndClose": "KOPYALA VE KAPAT",
+  "@copyAndClose": {"description": "Kopyala ve kapat butonu"},
+
+  "backupCopied": "Yedek panoya kopyalandı!",
+  "@backupCopied": {"description": "Yedek kopyalandı snackbar mesajı"},
+
+  "restoreFromBackup": "Yedekten Geri Yükle",
+  "@restoreFromBackup": {"description": "Yedekten geri yükle dialog başlığı"},
+
+  "restoreWarning": "Yedek metni yapıştırın. MEVCUT VERİLER SİLİNECEK!",
+  "@restoreWarning": {"description": "Geri yükleme uyarısı"},
+
+  "restoreSuccess": "Veriler başarıyla yüklendi!",
+  "@restoreSuccess": {"description": "Geri yükleme başarı mesajı"},
+
+  "restoreError": "Hata: Geçersiz format.",
+  "@restoreError": {"description": "Geri yükleme hata mesajı"},
+
+  "changePassword": "Şifre Değiştir",
+  "@changePassword": {"description": "Şifre değiştir dialog başlığı"},
+
+  "oldPassword": "Eski Şifre",
+  "@oldPassword": {"description": "Eski şifre etiketi"},
+
+  "newPassword": "Yeni Şifre (en az 8 karakter)",
+  "@newPassword": {"description": "Yeni şifre etiketi"},
+
+  "update": "Güncelle",
+  "@update": {"description": "Güncelle butonu"},
+
+  "passwordUpdated": "Şifre güncellendi.",
+  "@passwordUpdated": {"description": "Şifre güncellendi mesajı"},
+
+  "oldPasswordWrong": "Eski şifre hatalı!",
+  "@oldPasswordWrong": {"description": "Eski şifre hatalı mesajı"},
+
+  "passwordRequirements": "Şifre en az 8 karakter, harf ve rakam içermelidir.",
+  "@passwordRequirements": {"description": "Şifre gereksinimleri mesajı"},
+
+  "generalSettingsTitle": "Genel Ayarlar",
+  "@generalSettingsTitle": {"description": "Genel ayarlar başlığı"},
+
+  "appearanceMode": "Görünüm Modu",
+  "@appearanceMode": {"description": "Görünüm modu bölüm başlığı"},
+
+  "darkModeActive": "Karanlık Tema Aktif",
+  "@darkModeActive": {"description": "Karanlık tema aktif metni"},
+
+  "lightModeActive": "Aydınlık Tema Aktif",
+  "@lightModeActive": {"description": "Aydınlık tema aktif metni"},
+
+  "themeModeTip": "Göz yorgunluğunu azaltmak için mod değiştirin.",
+  "@themeModeTip": {"description": "Tema modu ipucu"},
+
+  "appIdentityColor": "Uygulama Kimliği (Renk)",
+  "@appIdentityColor": {"description": "Uygulama renk başlığı"},
+
+  "colorAutoAdapt": "Uygulamanın tüm tonları seçtiğiniz renge göre otomatik uyarlanır.",
+  "@colorAutoAdapt": {"description": "Renk otomatik uyarlama açıklaması"},
+
+  "dataSecurity": "Veri ve Güvenlik",
+  "@dataSecurity": {"description": "Veri ve güvenlik bölüm başlığı"},
+
+  "factoryRestoreTitle": "Fabrika Ayarlarına Dön",
+  "@factoryRestoreTitle": {"description": "Fabrika ayarlarına dön başlığı"},
+
+  "factoryRestoreSubtitle": "Tüm rehber, kasa ve ayarları kalıcı olarak temizler.",
+  "@factoryRestoreSubtitle": {"description": "Fabrika ayarlarına dön alt metni"},
+
+  "permanentDeleteTitle": "Verileri Kalıcı Olarak Sil?",
+  "@permanentDeleteTitle": {"description": "Kalıcı silme onay başlığı"},
+
+  "permanentDeleteContent": "Bu işlem geri alınamaz. Kasanızdaki tüm gizli belgeler ve CRM kayıtlarınız yok olacaktır.",
+  "@permanentDeleteContent": {"description": "Kalıcı silme onay içeriği"},
+
+  "cancelUpper": "İPTAL",
+  "@cancelUpper": {"description": "İptal butonu (büyük harf)"},
+
+  "deleteAndReset": "SİL VE SIFIRLA",
+  "@deleteAndReset": {"description": "Sil ve sıfırla butonu"},
+
+  "appResetSuccess": "Uygulama başarıyla sıfırlandı.",
+  "@appResetSuccess": {"description": "Uygulama sıfırlama başarı mesajı"},
+
+  "versionInfo": "Aeterna Vault v1.0.3",
+  "@versionInfo": {"description": "Sürüm bilgisi"},
+
+  "language": "Dil",
+  "@language": {"description": "Dil bölüm başlığı"},
+
+  "languageTurkish": "Türkçe",
+  "@languageTurkish": {"description": "Türkçe dil seçeneği"},
+
+  "languageEnglish": "İngilizce",
+  "@languageEnglish": {"description": "İngilizce dil seçeneği"},
+
+  "languageGerman": "Almanca",
+  "@languageGerman": {"description": "Almanca dil seçeneği"},
+
+  "languageItalian": "İtalyanca",
+  "@languageItalian": {"description": "İtalyanca dil seçeneği"},
+
+  "aboutTitle": "Hakkında",
+  "@aboutTitle": {"description": "Hakkında başlığı"},
+
+  "version": "Sürüm 1.0.3",
+  "@version": {"description": "Sürüm metni"},
+
+  "dataSafetyTitle": "Veri Güvenliği",
+  "@dataSafetyTitle": {"description": "Veri güvenliği bölüm başlığı"},
+
+  "dataSafetyContent": "Aeterna Vault, verilerinizi asla herhangi bir sunucuya veya bulut servisine göndermez. Tüm rehber kayıtlarınız, şifreleriniz ve notlarınız sadece bu cihazda, şifrelenmiş bir veritabanında saklanır.",
+  "@dataSafetyContent": {"description": "Veri güvenliği içeriği"},
+
+  "developerTitle": "Geliştirici",
+  "@developerTitle": {"description": "Geliştirici bölüm başlığı"},
+
+  "developerContent": "Bu uygulama, kişisel verilerin gizliliği ve güvenli yönetimi hedeflenerek geliştirilmiştir.",
+  "@developerContent": {"description": "Geliştirici içeriği"},
+
+  "contactFeedbackTitle": "İletişim & Geri Bildirim",
+  "@contactFeedbackTitle": {"description": "İletişim ve geri bildirim bölüm başlığı"},
+
+  "contactFeedbackContent": "Herhangi bir hata bildirimi veya özellik önerisi için bize ulaşabilirsiniz:",
+  "@contactFeedbackContent": {"description": "İletişim ve geri bildirim içeriği"},
+
+  "copyright": "© 2024 Aeterna Vault. Tüm hakları saklıdır.",
+  "@copyright": {"description": "Telif hakkı metni"},
+
+  "vaultSetupTitle": "Kasa Şifre Belirleme",
+  "@vaultSetupTitle": {"description": "Kasa şifre belirleme başlığı"},
+
+  "setupVaultTitle": "Güvenli Kasanızı Kurun",
+  "@setupVaultTitle": {"description": "Kasayı kurma başlığı"},
+
+  "setupVaultSubtitle": "Bu şifre, kasanızdaki verileri korumak için kullanılacaktır. Lütfen güvenli bir şifre seçin.",
+  "@setupVaultSubtitle": {"description": "Kasayı kurma alt başlığı"},
+
+  "masterKeyLabel": "Master Key (Ana Şifre)",
+  "@masterKeyLabel": {"description": "Master key etiketi"},
+
+  "minEightChars": "En az 8 karakter giriniz",
+  "@minEightChars": {"description": "En az 8 karakter uyarısı"},
+
+  "mustContainLetterDigit": "Harf ve rakam içermelidir",
+  "@mustContainLetterDigit": {"description": "Harf ve rakam içermeli uyarısı"},
+
+  "confirmPassword": "Şifreyi Onayla",
+  "@confirmPassword": {"description": "Şifreyi onayla etiketi"},
+
+  "passwordsDoNotMatch": "Şifreler eşleşmiyor",
+  "@passwordsDoNotMatch": {"description": "Şifreler eşleşmiyor uyarısı"},
+
+  "enableBiometricAuth": "Biyometrik Doğrulamayı Aktif Et",
+  "@enableBiometricAuth": {"description": "Biyometrik doğrulama etiketi"},
+
+  "useFingerprintForQuickLogin": "Hızlı giriş için parmak izi kullan.",
+  "@useFingerprintForQuickLogin": {"description": "Parmak izi hızlı giriş alt metni"},
+
+  "saveAndActivate": "ŞİFREYİ KAYDET VE AKTİF ET",
+  "@saveAndActivate": {"description": "Şifreyi kaydet ve aktif et butonu"},
+
+  "vaultPasswordSaved": "Kasa şifreniz ve tercihleriniz kaydedildi!",
+  "@vaultPasswordSaved": {"description": "Kasa şifresi kaydedildi mesajı"},
+
+  "categoryWork": "İş",
+  "@categoryWork": {"description": "İş kategorisi"},
+
+  "categoryFamily": "Aile",
+  "@categoryFamily": {"description": "Aile kategorisi"},
+
+  "categoryFriend": "Arkadaş",
+  "@categoryFriend": {"description": "Arkadaş kategorisi"},
+
+  "categoryCustomer": "Müşteri",
+  "@categoryCustomer": {"description": "Müşteri kategorisi"},
+
+  "categorySupplier": "Tedarikçi",
+  "@categorySupplier": {"description": "Tedarikçi kategorisi"},
+
+  "categoryOther": "Diğer",
+  "@categoryOther": {"description": "Diğer kategorisi"}
+}

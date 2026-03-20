@@ -1,19 +1,16 @@
 import 'dart:convert';
-import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/contact.dart';
 import '../models/vault_item.dart';
 import '../models/reminder.dart';
+import '../models/log_entry.dart';
 import '../services/database_service.dart';
 import '../services/encryption_service.dart';
 
 class AppProvider with ChangeNotifier {
   final DatabaseService _dbService = DatabaseService();
   final EncryptionService _encryptionService = EncryptionService();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-
-  static const _secureStorageKeyId = 'aeterna_vault_master_key';
 
   List<Contact> _contacts = [];
   List<Contact> get contacts => _contacts;
@@ -21,14 +18,20 @@ class AppProvider with ChangeNotifier {
   List<VaultItem> _vaultItems = [];
   List<VaultItem> get vaultItems => _vaultItems;
 
+  List<Reminder> _allReminders = [];
+  List<Reminder> get allReminders => _allReminders;
+
+  List<LogEntry> _allLogs = [];
+  List<LogEntry> get allLogs => _allLogs;
+
   bool _isVaultUnlocked = false;
   bool get isVaultUnlocked => _isVaultUnlocked;
 
   bool _isVaultSetupComplete = false;
   bool get isVaultSetupComplete => _isVaultSetupComplete;
 
-  /// Veritabanında saklanan SHA-256 hash değeri (plaintext değil).
-  String? _vaultMasterKeyHash;
+  String? _vaultMasterKey;
+  String? get vaultMasterKey => _vaultMasterKey;
 
   bool _useBiometrics = false;
   bool get useBiometrics => _useBiometrics;
@@ -39,32 +42,19 @@ class AppProvider with ChangeNotifier {
   String? _recoveryCode;
   bool get hasRecoveryCode => _recoveryCode != null && _recoveryCode!.isNotEmpty;
 
-  /// SHA-256 ile master key'i hash'ler (hex string döner).
-  static String _hashKey(String key) {
-    final bytes = utf8.encode(key);
-    return sha256.convert(bytes).toString();
-  }
-
-  /// Girilen plaintext key'in hash'inin saklanana eşit olup olmadığını doğrular.
-  bool verifyMasterKey(String plainKey) {
-    if (_vaultMasterKeyHash == null) return false;
-    return _hashKey(plainKey) == _vaultMasterKeyHash;
-  }
-
-  /// Biyometrik kimlik doğrulaması sonrası kullanmak için secure storage'dan key'i alır.
-  Future<String?> getBiometricKey() async {
-    return await _secureStorage.read(key: _secureStorageKeyId);
-  }
-
-  // --- Theme Settings ---
-  Color _themeColor = const Color(0xFF673AB7); // Default DeepPurple
+  Color _themeColor = const Color(0xFF1A237E);
   Color get themeColor => _themeColor;
 
   bool _isDarkMode = true;
   bool get isDarkMode => _isDarkMode;
 
+  Locale _locale = const Locale('tr');
+  Locale get locale => _locale;
+
   Future<void> loadContacts() async {
     _contacts = await _dbService.getContacts();
+    _allReminders = await _dbService.getReminders();
+    _allLogs = await _dbService.getLogs();
     await checkVaultStatus();
     notifyListeners();
   }
@@ -73,32 +63,26 @@ class AppProvider with ChangeNotifier {
     final settings = await _dbService.getVaultSettings();
     if (settings != null) {
       _isVaultSetupComplete = settings['isSetupComplete'] == 1;
-      _vaultMasterKeyHash = settings['hashedMasterKey'];
+      _vaultMasterKey = settings['hashedMasterKey'];
       _useBiometrics = settings['useBiometrics'] == 1;
       _recoveryCode = settings['recoveryCode'];
-      _themeColor = Color(settings['themeColor'] ?? 4284572657);
-      _isDarkMode = settings['isDarkMode'] == 1;
+      _themeColor = Color(settings['themeColor'] ?? 4279935870);
+      _isDarkMode = (settings['isDarkMode'] ?? 1) == 1;
+      final localeCode = settings['locale'] as String? ?? 'tr';
+      _locale = Locale(localeCode);
       if (settings['lastUnlockTime'] != null) {
         _lastVaultUnlockTime = DateTime.tryParse(settings['lastUnlockTime']);
       }
     }
   }
 
-  Future<void> completeVaultSetup(String masterKey, bool useBio) async {
-    final keyHash = _hashKey(masterKey);
-    await _dbService.updateVaultSettings({
-      'isSetupComplete': 1,
-      'hashedMasterKey': keyHash,
-      'useBiometrics': useBio ? 1 : 0,
-    });
-    if (useBio) {
-      await _secureStorage.write(key: _secureStorageKeyId, value: masterKey);
-    }
-    await checkVaultStatus();
-    notifyListeners();
+  Future<void> _addLog(String action, {int? contactId}) async {
+    final log = LogEntry(contactId: contactId, action: action, timestamp: DateTime.now());
+    await _dbService.insertLog(log);
+    _allLogs = await _dbService.getLogs();
   }
 
-  // --- Theme Updates ---
+  // --- Theme ---
   Future<void> updateThemeColor(Color color) async {
     _themeColor = color;
     await _dbService.updateVaultSettings({'themeColor': color.value});
@@ -111,126 +95,49 @@ class AppProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // --- Security Updates ---
-
-  /// Master key'i değiştirir: eski key doğrulanır, vault item'lar yeni key ile yeniden şifrelenir.
-  Future<bool> updateMasterKey(String oldKey, String newKey) async {
-    if (!verifyMasterKey(oldKey)) return false;
-
-    // Kasanın açık olup olmadığından bağımsız olarak re-encryption yap:
-    // Eski key ile geçici encrypter başlat, tüm items'ı çöz, yeni key ile yeniden şifrele.
-    final oldEncrypter = EncryptionService()..init(oldKey);
-    final rawItems = await _dbService.getVaultItems();
-
-    final newHash = _hashKey(newKey);
-    await _dbService.updateVaultSettings({'hashedMasterKey': newHash});
-
-    _encryptionService.init(newKey);
-
-    for (final item in rawItems) {
-      try {
-        final decrypted = oldEncrypter.decryptData(item.secretContent);
-        final reEncrypted = _encryptionService.encryptData(decrypted);
-        await _dbService.updateVaultItem(item.copyWith(secretContent: reEncrypted));
-      } catch (_) {
-        // Çözülemeyen item'ı atla (bozuk veri)
-      }
-    }
-
-    if (_useBiometrics) {
-      await _secureStorage.write(key: _secureStorageKeyId, value: newKey);
-    }
-
-    await checkVaultStatus();
-    if (_isVaultUnlocked) await loadVaultItems();
+  // --- Locale ---
+  Future<void> setLocale(Locale locale) async {
+    _locale = locale;
+    await _dbService.updateVaultSettings({'locale': locale.languageCode});
     notifyListeners();
+  }
+
+  // --- Security ---
+  Future<bool> updateMasterKey(String oldKey, String newKey) async {
+    if (oldKey != _vaultMasterKey) return false;
+    await _dbService.updateVaultSettings({'hashedMasterKey': newKey});
+    await _addLog('Kasa ana şifresi değiştirildi');
+    await checkVaultStatus();
     return true;
   }
 
   Future<void> updateBiometricPref(bool useBio) async {
     await _dbService.updateVaultSettings({'useBiometrics': useBio ? 1 : 0});
-    if (!useBio) {
-      await _secureStorage.delete(key: _secureStorageKeyId);
-    }
     await checkVaultStatus();
     notifyListeners();
   }
 
   Future<void> updateRecoveryCode(String code) async {
     await _dbService.updateVaultSettings({'recoveryCode': code});
+    await _addLog('Kurtarma kodu güncellendi');
     await checkVaultStatus();
-    notifyListeners();
   }
 
-  Future<void> performFactoryReset() async {
-    await _dbService.factoryReset();
-    await _secureStorage.delete(key: _secureStorageKeyId);
-    _encryptionService.clear();
-    _isVaultUnlocked = false;
-    _isVaultSetupComplete = false;
-    _vaultMasterKeyHash = null;
-    _contacts = [];
-    _vaultItems = [];
-    notifyListeners();
-    await loadContacts();
-  }
-
-  // --- Backup & Restore ---
-  Future<String> generateBackup() async {
-    final allContacts = await _dbService.getContacts();
-    final allVaultItems = await _dbService.getVaultItems();
-    final allReminders = await _dbService.getAllReminders();
-
-    final backupData = {
-      'contacts': allContacts.map((c) => c.toMap()).toList(),
-      'vault_items': allVaultItems.map((v) => v.toMap()).toList(),
-      'reminders': allReminders.map((r) => r.toMap()).toList(),
-      'version': 1,
-      'export_date': DateTime.now().toIso8601String(),
-    };
-
-    return jsonEncode(backupData);
-  }
-
-  Future<bool> restoreBackup(String jsonString) async {
-    try {
-      final Map<String, dynamic> backupData = jsonDecode(jsonString);
-      await _dbService.clearAllData();
-      if (backupData['contacts'] != null) {
-        for (var item in backupData['contacts']) {
-          await _dbService.insertContact(Contact.fromMap(item));
-        }
-      }
-      if (backupData['vault_items'] != null) {
-        for (var item in backupData['vault_items']) {
-          await _dbService.insertVaultItem(VaultItem.fromMap(item));
-        }
-      }
-      if (backupData['reminders'] != null) {
-        for (var item in backupData['reminders']) {
-          await _dbService.insertReminder(Reminder.fromMap(item));
-        }
-      }
-      await loadContacts();
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // --- Dashboard Stats ---
+  // --- Stats ---
   int get totalContacts => _contacts.where((c) => !c.isPrivate).length;
   int get privateContactsCount => _contacts.where((c) => c.isPrivate).length;
   int get totalVaultItems => _vaultItems.length;
 
-  // --- Contacts CRUD ---
+  // --- CRM & Reminders ---
   Future<void> addContact(Contact contact) async {
-    await _dbService.insertContact(contact);
+    final id = await _dbService.insertContact(contact);
+    await _addLog('Kişi sisteme dahil edildi', contactId: id);
     await loadContacts();
   }
 
   Future<void> updateContact(Contact contact) async {
     await _dbService.updateContact(contact);
+    await _addLog('Kişi bilgileri güncellendi', contactId: contact.id);
     await loadContacts();
   }
 
@@ -239,48 +146,39 @@ class AppProvider with ChangeNotifier {
     await loadContacts();
   }
 
-  // --- Reminders Methods ---
-  Future<List<Reminder>> getRemindersForContact(int contactId) async {
-    return await _dbService.getRemindersForContact(contactId);
-  }
-
   Future<void> addReminder(Reminder reminder) async {
     await _dbService.insertReminder(reminder);
-    notifyListeners();
+    await _addLog('Yeni görev eklendi: ${reminder.title}', contactId: reminder.contactId);
+    await loadContacts();
   }
 
   Future<void> updateReminder(Reminder reminder) async {
     await _dbService.updateReminder(reminder);
-    notifyListeners();
+    if (reminder.isCompleted) {
+      await _addLog('Görev tamamlandı: ${reminder.title}', contactId: reminder.contactId);
+    }
+    await loadContacts();
   }
 
   Future<void> deleteReminder(int id) async {
     await _dbService.deleteReminder(id);
-    notifyListeners();
+    await loadContacts();
   }
 
-  // --- Vault Methods ---
+  // --- Vault ---
   Future<bool> unlockVault(String masterKey) async {
-    if (_isVaultSetupComplete && !verifyMasterKey(masterKey)) {
-      return false;
-    }
-
+    if (_isVaultSetupComplete && _vaultMasterKey != masterKey) return false;
     try {
       _encryptionService.init(masterKey);
       _isVaultUnlocked = true;
       final now = DateTime.now();
-      _lastVaultUnlockTime = now;
       await _dbService.updateVaultSettings({'lastUnlockTime': now.toIso8601String()});
       await loadVaultItems();
       return true;
-    } catch (_) {
-      _isVaultUnlocked = false;
-      return false;
-    }
+    } catch (e) { return false; }
   }
 
   void lockVault() {
-    _encryptionService.clear();
     _isVaultUnlocked = false;
     _vaultItems = [];
     notifyListeners();
@@ -294,7 +192,8 @@ class AppProvider with ChangeNotifier {
         final decryptedSecret = _encryptionService.decryptData(item.secretContent);
         return item.copyWith(secretContent: decryptedSecret);
       } catch (e) {
-        return item; 
+        debugPrint('⚠️ VaultItem #${item.id} ("${item.title}") çözülemedi: $e');
+        return item.copyWith(secretContent: '{"f1":"","f2":"","f3":"","_error":"decrypt_failed"}');
       }
     }).toList();
     notifyListeners();
@@ -305,6 +204,7 @@ class AppProvider with ChangeNotifier {
     final encryptedSecret = _encryptionService.encryptData(item.secretContent);
     final encryptedItem = item.copyWith(secretContent: encryptedSecret);
     await _dbService.insertVaultItem(encryptedItem);
+    await _addLog('Kasa öğesi eklendi: ${item.title}');
     await loadVaultItems();
   }
 
@@ -320,5 +220,55 @@ class AppProvider with ChangeNotifier {
     if (!_isVaultUnlocked) return;
     await _dbService.deleteVaultItem(id);
     await loadVaultItems();
+  }
+
+  // --- Reset & Backup ---
+  Future<void> completeVaultSetup(String masterKey, bool useBio) async {
+    await _dbService.updateVaultSettings({
+      'isSetupComplete': 1,
+      'hashedMasterKey': masterKey,
+      'useBiometrics': useBio ? 1 : 0,
+    });
+    await checkVaultStatus();
+    notifyListeners();
+  }
+
+  Future<void> performFactoryReset() async {
+    await _dbService.factoryReset();
+    _isVaultUnlocked = false;
+    _isVaultSetupComplete = false;
+    await loadContacts();
+  }
+
+  Future<String> generateBackup() async {
+    final allContacts = await _dbService.getContacts();
+    final allVaultItems = await _dbService.getVaultItems();
+    final allReminders = await _dbService.getReminders();
+    final backupData = {
+      'contacts': allContacts.map((c) => c.toMap()).toList(),
+      'vault_items': allVaultItems.map((v) => v.toMap()).toList(),
+      'reminders': allReminders.map((r) => r.toMap()).toList(),
+      'version': 1,
+      'export_date': DateTime.now().toIso8601String(),
+    };
+    return jsonEncode(backupData);
+  }
+
+  Future<bool> restoreBackup(String jsonString) async {
+    try {
+      final Map<String, dynamic> backupData = jsonDecode(jsonString);
+      await _dbService.clearAllData();
+      if (backupData['contacts'] != null) {
+        for (var item in backupData['contacts']) await _dbService.insertContact(Contact.fromMap(item));
+      }
+      if (backupData['vault_items'] != null) {
+        for (var item in backupData['vault_items']) await _dbService.insertVaultItem(VaultItem.fromMap(item));
+      }
+      if (backupData['reminders'] != null) {
+        for (var item in backupData['reminders']) await _dbService.insertReminder(Reminder.fromMap(item));
+      }
+      await loadContacts();
+      return true;
+    } catch (e) { return false; }
   }
 }

@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:open_filex/open_filex.dart';
 import '../providers/app_provider.dart';
 import '../models/contact.dart';
 import '../models/vault_item.dart';
+import '../theme/app_theme.dart';
+import '../l10n/app_localizations.dart';
 import 'add_vault_item_screen.dart';
 import 'contact_detail_screen.dart';
 import 'add_contact_screen.dart';
@@ -19,12 +22,15 @@ class VaultScreen extends StatefulWidget {
 
 class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final Map<int, bool> _visiblePasswords = {}; 
+  final Set<int> _visiblePasswords = {};
+  final Set<int> _copiedItems = {};
+  String _filter = 'all';
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() => setState(() {}));
   }
 
   @override
@@ -33,59 +39,57 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
     super.dispose();
   }
 
+  List<(String, String)> _getFilters(AppLocalizations l) => [
+    ('all', l.filterAll),
+    ('Şifre', l.filterPasswords),
+    ('Banka', l.filterBank),
+    ('Belge', l.filterDocuments),
+  ];
+
   Future<void> _openFile(String? path) async {
     if (path == null || path.isEmpty) return;
+    final l = AppLocalizations.of(context);
     try {
       final file = File(path);
       if (await file.exists()) {
         await OpenFilex.open(path);
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Dosya bulunamadı!')));
-        }
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.fileNotFound)));
       }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Dosya açılırken hata oluştu.')));
-      }
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.fileOpenError)));
     }
+  }
+
+  void _copyToClipboard(String value, int id) {
+    Clipboard.setData(ClipboardData(text: value));
+    setState(() => _copiedItems.add(id));
+    Future.delayed(const Duration(milliseconds: 1800), () {
+      if (mounted) setState(() => _copiedItems.remove(id));
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final filters = _getFilters(l);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dijital Kasa'),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-        foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.lock_reset),
-            onPressed: () {
-              Provider.of<AppProvider>(context, listen: false).lockVault();
-              Navigator.pop(context);
-            },
+      backgroundColor: AC.bg,
+      body: Column(children: [
+        _buildHeader(l),
+        _buildTabBar(l),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildPrivateContactsTab(l),
+              _buildVaultItemsTab(l, filters),
+            ],
           ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(icon: Icon(Icons.people_alt), text: 'Gizli Kişiler'),
-            Tab(icon: Icon(Icons.description), text: 'Belgeler & Şifreler'),
-          ],
-          indicatorColor: Colors.white,
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildCategorizedPrivateContacts(context),
-          _buildCategorizedVaultItems(context),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).colorScheme.error,
-        foregroundColor: Colors.white,
+      ]),
+      floatingActionButton: GoldFab(
+        icon: Icons.add,
         onPressed: () {
           if (_tabController.index == 0) {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const AddContactScreen(isInitiallyPrivate: true)));
@@ -93,145 +97,418 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
             Navigator.push(context, MaterialPageRoute(builder: (_) => const AddVaultItemScreen()));
           }
         },
-        child: const Icon(Icons.add),
       ),
     );
   }
 
-  Widget _buildCategorizedPrivateContacts(BuildContext context) {
-    return Consumer<AppProvider>(
-      builder: (context, provider, child) {
-        final privateContacts = provider.contacts.where((c) => c.isPrivate).toList();
-        if (privateContacts.isEmpty) return const Center(child: Text('Gizli kişi yok.'));
+  // ── Header ────────────────────────────────────────────────
+  Widget _buildHeader(AppLocalizations l) {
+    return Container(
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 12,
+        left: 16, right: 16, bottom: 14,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xCC0D0D1A),
+        border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.06))),
+      ),
+      child: Row(children: [
+        GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
+            child: const Icon(Icons.arrow_back, color: Colors.white70, size: 18),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Container(
+          width: 34, height: 34,
+          decoration: BoxDecoration(
+            color: AC.goldGlass(),
+            borderRadius: BorderRadius.circular(11),
+            border: Border.all(color: AC.goldBorder()),
+            boxShadow: [BoxShadow(color: AC.gold.withOpacity(0.2), blurRadius: 20)],
+          ),
+          child: const Icon(Icons.lock_outline, color: AC.gold, size: 17),
+        ),
+        const SizedBox(width: 10),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(l.vaultScreenTitle,
+              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
+          Consumer<AppProvider>(builder: (_, p, __) =>
+              Text(l.encryptedRecordsCount(p.vaultItems.length),
+                  style: const TextStyle(color: AC.textMuted, fontSize: 10))),
+        ])),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: AC.success.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AC.success.withOpacity(0.25)),
+          ),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              width: 6, height: 6,
+              decoration: BoxDecoration(
+                color: AC.success,
+                shape: BoxShape.circle,
+                boxShadow: [BoxShadow(color: AC.success, blurRadius: 6)],
+              ),
+            ),
+            const SizedBox(width: 5),
+            Text(l.protected, style: const TextStyle(color: AC.success, fontSize: 10, fontWeight: FontWeight.w700)),
+          ]),
+        ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: () {
+            Provider.of<AppProvider>(context, listen: false).lockVault();
+            Navigator.pop(context);
+          },
+          child: Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              color: AC.danger.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(color: AC.danger.withOpacity(0.2)),
+            ),
+            child: const Icon(Icons.lock_reset, color: AC.danger, size: 18),
+          ),
+        ),
+      ]),
+    );
+  }
 
-        final Map<String, List<Contact>> grouped = {};
-        for (var c in privateContacts) {
-          grouped.putIfAbsent(c.category, () => []).add(c);
-        }
-        final cats = grouped.keys.toList()..sort();
+  Widget _buildTabBar(AppLocalizations l) {
+    return Container(
+      color: const Color(0xCC0D0D1A),
+      child: TabBar(
+        controller: _tabController,
+        tabs: [
+          Tab(icon: const Icon(Icons.people_alt, size: 18), text: l.hiddenContacts),
+          Tab(icon: const Icon(Icons.description, size: 18), text: l.documentsPasswords),
+        ],
+        labelColor: AC.gold,
+        unselectedLabelColor: Colors.white38,
+        indicatorColor: AC.gold,
+        indicatorSize: TabBarIndicatorSize.label,
+        labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+        dividerColor: Colors.white.withOpacity(0.06),
+      ),
+    );
+  }
 
-        return ListView.builder(
-          itemCount: cats.length,
-          itemBuilder: (context, index) {
-            final cat = cats[index];
-            final items = grouped[cat]!;
-            return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  // ── Private Contacts Tab ──────────────────────────────────
+  Widget _buildPrivateContactsTab(AppLocalizations l) {
+    return Consumer<AppProvider>(builder: (context, provider, _) {
+      final privateContacts = provider.contacts.where((c) => c.isPrivate).toList();
+      if (privateContacts.isEmpty) {
+        return _emptyState(Icons.people_outline, l.noHiddenContacts, l.addWithPlusButton);
+      }
+
+      final Map<String, List<Contact>> grouped = {};
+      for (var c in privateContacts) {
+        grouped.putIfAbsent(c.category, () => []).add(c);
+      }
+      final cats = grouped.keys.toList()..sort();
+
+      return ListView.builder(
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 80),
+        itemCount: cats.length,
+        itemBuilder: (_, i) {
+          final cat = cats[i];
+          final items = grouped[cat]!;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: GlassCard(
               child: ExpansionTile(
-                title: Text(cat, style: const TextStyle(fontWeight: FontWeight.bold)),
-                leading: const Icon(Icons.folder_shared, color: Colors.orange),
+                leading: const Icon(Icons.folder_shared, color: AC.gold, size: 20),
+                title: Text(cat, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
+                iconColor: Colors.white38,
+                collapsedIconColor: Colors.white38,
                 children: items.map((c) => ListTile(
-                  leading: CircleAvatar(child: Text(c.firstName[0])),
-                  title: Text('${c.firstName} ${c.lastName}'),
+                  leading: AeternaAvatar(name: '${c.firstName} ${c.lastName}', size: 36),
+                  title: Text('${c.firstName} ${c.lastName}',
+                      style: const TextStyle(color: Colors.white, fontSize: 13)),
+                  trailing: const Icon(Icons.chevron_right, color: Colors.white24, size: 16),
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ContactDetailScreen(contact: c))),
                 )).toList(),
               ),
-            );
-          },
-        );
-      },
-    );
+            ),
+          );
+        },
+      );
+    });
   }
 
-  Widget _buildCategorizedVaultItems(BuildContext context) {
-    return Consumer<AppProvider>(
-      builder: (context, provider, child) {
-        final items = provider.vaultItems;
-        if (items.isEmpty) return const Center(child: Text('Kasa boş.'));
+  // ── Vault Items Tab ───────────────────────────────────────
+  Widget _buildVaultItemsTab(AppLocalizations l, List<(String, String)> filters) {
+    return Consumer<AppProvider>(builder: (context, provider, _) {
+      var items = provider.vaultItems;
+      if (items.isEmpty) {
+        return _emptyState(Icons.enhanced_encryption, l.vaultEmpty, l.addWithPlusButton);
+      }
 
-        final Map<String, List<VaultItem>> grouped = {};
-        for (var item in items) {
-          grouped.putIfAbsent(item.category, () => []).add(item);
-        }
-        final cats = grouped.keys.toList()..sort();
+      final displayed = _filter == 'all' ? items : items.where((i) => i.category == _filter).toList();
 
-        return ListView.builder(
-          itemCount: cats.length,
-          itemBuilder: (context, index) {
-            final cat = cats[index];
-            final catItems = grouped[cat]!;
-            return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: ExpansionTile(
-                title: Text(cat, style: const TextStyle(fontWeight: FontWeight.bold)),
-                leading: const Icon(Icons.enhanced_encryption, color: Colors.redAccent),
-                children: catItems.map((item) {
-                  final isPassword = item.category == 'Şifre';
-                  final bool isVisible = _visiblePasswords[item.id] ?? false;
-                  
-                  Map<String, dynamic> data = {};
-                  try {
-                    data = jsonDecode(item.secretContent);
-                  } catch (e) {
-                    data = {'f1': item.secretContent};
-                  }
-
-                  return ExpansionTile(
-                    leading: Icon(_getIconForCategory(item.category)),
-                    title: Text(item.title),
-                    subtitle: Text(item.category, style: const TextStyle(fontSize: 11)),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit, size: 20),
-                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AddVaultItemScreen(vaultItem: item))),
+      return Column(children: [
+        SizedBox(
+          height: 48,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            children: filters.map((f) {
+              final active = _filter == f.$1;
+              return Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: GestureDetector(
+                  onTap: () => setState(() => _filter = f.$1),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: active ? AC.gold.withOpacity(0.15) : Colors.white.withOpacity(0.04),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                          color: active ? AC.gold : Colors.white.withOpacity(0.1)),
                     ),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildDetailRow(context, 'Bilgi 1:', data['f1'] ?? '-', false),
-                            if (data['f2'] != null)
-                              _buildDetailRow(context, isPassword ? 'Şifre:' : 'Bilgi 2:', data['f2'], isPassword && !isVisible),
-                            if (data['f3'] != null)
-                              _buildDetailRow(context, 'Bilgi 3:', data['f3'], false),
-                            if (item.note.isNotEmpty)
-                              _buildDetailRow(context, 'Not:', item.note, false),
-                            if (item.filePath != null)
-                              ListTile(
-                                leading: const Icon(Icons.file_present, color: Colors.blue),
-                                title: const Text('Ekli Dosyayı Aç', style: TextStyle(color: Colors.blue)),
-                                onTap: () => _openFile(item.filePath),
-                              ),
-                            if (isPassword)
-                              TextButton.icon(
-                                icon: Icon(isVisible ? Icons.visibility_off : Icons.visibility),
-                                label: Text(isVisible ? 'Şifreyi Gizle' : 'Şifreyi Göster'),
-                                onPressed: () => setState(() => _visiblePasswords[item.id!] = !isVisible),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-            );
-          },
-        );
-      },
-    );
+                    child: Text(f.$2,
+                        style: TextStyle(
+                          color: active ? AC.gold : Colors.white54,
+                          fontSize: 11,
+                          fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+                        )),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+
+        Expanded(
+          child: GridView.builder(
+            padding: const EdgeInsets.fromLTRB(14, 4, 14, 80),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 0.82,
+            ),
+            itemCount: displayed.length,
+            itemBuilder: (_, i) => _VaultCard(
+              item: displayed[i],
+              isVisible: _visiblePasswords.contains(displayed[i].id),
+              isCopied: _copiedItems.contains(displayed[i].id),
+              openFileLabel: l.openFile,
+              onToggleVisible: () => setState(() {
+                if (_visiblePasswords.contains(displayed[i].id)) {
+                  _visiblePasswords.remove(displayed[i].id);
+                } else {
+                  _visiblePasswords.add(displayed[i].id!);
+                }
+              }),
+              onCopy: (val) => _copyToClipboard(val, displayed[i].id!),
+              onEdit: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => AddVaultItemScreen(vaultItem: displayed[i]))),
+              onOpenFile: () => _openFile(displayed[i].filePath),
+            ),
+          ),
+        ),
+      ]);
+    });
   }
 
-  Widget _buildDetailRow(BuildContext context, String label, String value, bool obscure) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-          const SizedBox(width: 8),
-          Expanded(child: SelectableText(obscure ? '●●●●●●●●' : value, style: const TextStyle(fontFamily: 'monospace'))),
-        ],
+  Widget _emptyState(IconData icon, String title, String sub) {
+    return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+      Icon(icon, color: Colors.white12, size: 56),
+      const SizedBox(height: 12),
+      Text(title, style: const TextStyle(color: Colors.white38, fontSize: 15, fontWeight: FontWeight.w600)),
+      const SizedBox(height: 4),
+      Text(sub, style: const TextStyle(color: AC.textMuted, fontSize: 12)),
+    ]));
+  }
+}
+
+// ── Vault Card ────────────────────────────────────────────────
+class _VaultCard extends StatelessWidget {
+  final VaultItem item;
+  final bool isVisible;
+  final bool isCopied;
+  final String openFileLabel;
+  final VoidCallback onToggleVisible;
+  final void Function(String) onCopy;
+  final VoidCallback onEdit;
+  final VoidCallback onOpenFile;
+
+  const _VaultCard({
+    required this.item,
+    required this.isVisible,
+    required this.isCopied,
+    required this.openFileLabel,
+    required this.onToggleVisible,
+    required this.onCopy,
+    required this.onEdit,
+    required this.onOpenFile,
+  });
+
+  static const _catMeta = {
+    'Şifre':  (Icons.password,     Color(0xFFEA4335), Color(0x3FEA4335)),
+    'Banka':  (Icons.account_balance, Color(0xFF1A73E8), Color(0x3F1A73E8)),
+    'Belge':  (Icons.description,  AC.gold,           Color(0x3FFFB300)),
+    'Kimlik': (Icons.person,       Color(0xFF00BCD4), Color(0x3F00BCD4)),
+  };
+
+  (IconData, Color, Color) get _meta {
+    final m = _catMeta[item.category];
+    return m ?? (Icons.security, AC.navyLight, AC.navyLight.withOpacity(0.25));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final (icon, color, glow) = _meta;
+
+    Map<String, dynamic> data = {};
+    try { data = jsonDecode(item.secretContent); } catch (_) { data = {'f1': item.secretContent}; }
+
+    final secret = data['f2'] ?? data['f1'] ?? '';
+    final isPassword = item.category == 'Şifre';
+
+    return GestureDetector(
+      onTap: onEdit,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AC.navyGlass(0.22), AC.bg.withOpacity(0.5)],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withOpacity(0.19)),
+        ),
+        child: Stack(children: [
+          Positioned(
+            top: -20, right: -20,
+            child: Container(
+              width: 70, height: 70,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(colors: [glow, Colors.transparent]),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 0, left: 14, right: 14,
+            child: Container(
+              height: 1,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [
+                  Colors.transparent, color.withOpacity(0.5), Colors.transparent,
+                ]),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                Container(
+                  width: 36, height: 36,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(color: color.withOpacity(0.22)),
+                    boxShadow: [BoxShadow(color: glow, blurRadius: 12)],
+                  ),
+                  child: Icon(icon, color: color, size: 17),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.09),
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(color: color.withOpacity(0.16)),
+                  ),
+                  child: Text(item.category.toUpperCase(),
+                      style: TextStyle(color: color, fontSize: 7, fontWeight: FontWeight.w700, letterSpacing: 0.6)),
+                ),
+              ]),
+              const SizedBox(height: 10),
+              Text(item.title,
+                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+                  maxLines: 1, overflow: TextOverflow.ellipsis),
+              Text(data['f1'] ?? '-',
+                  style: const TextStyle(color: AC.textMuted, fontSize: 10),
+                  maxLines: 1, overflow: TextOverflow.ellipsis),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(children: [
+                  Expanded(
+                    child: Text(
+                      isVisible ? secret : '••••••••••',
+                      style: TextStyle(
+                        color: isVisible ? Colors.white : Colors.white54,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: isVisible ? 0 : 1,
+                        fontFamily: 'monospace',
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (isPassword || secret.isNotEmpty) ...[
+                    _iconBtn(
+                      isVisible ? Icons.visibility_off : Icons.visibility,
+                      Colors.white54, onToggleVisible,
+                    ),
+                    const SizedBox(width: 4),
+                    _iconBtn(
+                      isCopied ? Icons.check : Icons.copy,
+                      isCopied ? AC.success : Colors.white54,
+                      () => onCopy(secret),
+                    ),
+                  ],
+                ]),
+              ),
+              if (item.filePath != null) ...[
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: onOpenFile,
+                  child: Row(children: [
+                    const Icon(Icons.file_present, color: Colors.blue, size: 12),
+                    const SizedBox(width: 4),
+                    Text(openFileLabel, style: const TextStyle(color: Colors.blue, fontSize: 10)),
+                  ]),
+                ),
+              ],
+            ]),
+          ),
+        ]),
       ),
     );
   }
 
-  IconData _getIconForCategory(String category) {
-    switch (category) {
-      case 'Şifre': return Icons.password;
-      case 'Banka': return Icons.account_balance;
-      case 'Belge': return Icons.description;
-      default: return Icons.security;
-    }
-  }
+  Widget _iconBtn(IconData icon, Color color, VoidCallback onTap) =>
+      GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 22, height: 22,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.07),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Icon(icon, size: 11, color: color),
+        ),
+      );
 }

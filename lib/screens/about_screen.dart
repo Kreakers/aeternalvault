@@ -1,47 +1,49 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Hakkında')),
+      appBar: AppBar(title: Text(l.aboutTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Center(
+            Center(
               child: Column(
                 children: [
-                  Icon(Icons.shield, size: 80, color: Colors.deepPurple),
-                  SizedBox(height: 16),
-                  Text(
+                  const Icon(Icons.shield, size: 80, color: Colors.deepPurple),
+                  const SizedBox(height: 16),
+                  const Text(
                     'Aeterna Vault',
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
-                  Text('Sürüm 1.0.3', style: TextStyle(color: Colors.grey)),
+                  Text(l.version, style: const TextStyle(color: Colors.grey)),
                 ],
               ),
             ),
             const SizedBox(height: 40),
-            _buildSectionTitle('Veri Güvenliği'),
-            const Text(
-              'Aeterna Vault, verilerinizi asla herhangi bir sunucuya veya bulut servisine göndermez. Tüm rehber kayıtlarınız, şifreleriniz ve notlarınız sadece bu cihazda, şifrelenmiş bir veritabanında saklanır.',
-              style: TextStyle(fontSize: 16, height: 1.5),
+            _buildSectionTitle(l.dataSafetyTitle),
+            Text(
+              l.dataSafetyContent,
+              style: const TextStyle(fontSize: 16, height: 1.5),
             ),
             const SizedBox(height: 24),
-            _buildSectionTitle('Geliştirici'),
-            const Text(
-              'Bu uygulama, kişisel verilerin gizliliği ve güvenli yönetimi hedeflenerek geliştirilmiştir.',
-              style: TextStyle(fontSize: 16, height: 1.5),
+            _buildSectionTitle(l.developerTitle),
+            Text(
+              l.developerContent,
+              style: const TextStyle(fontSize: 16, height: 1.5),
             ),
             const SizedBox(height: 24),
-            _buildSectionTitle('İletişim & Geri Bildirim'),
-            const Text(
-              'Herhangi bir hata bildirimi veya özellik önerisi için bize ulaşabilirsiniz:',
-              style: TextStyle(fontSize: 16, height: 1.5),
+            _buildSectionTitle(l.contactFeedbackTitle),
+            Text(
+              l.contactFeedbackContent,
+              style: const TextStyle(fontSize: 16, height: 1.5),
             ),
             const SizedBox(height: 12),
             Card(
@@ -54,10 +56,10 @@ class AboutScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 40),
-            const Center(
+            Center(
               child: Text(
-                '© 2024 Aeterna Vault. Tüm hakları saklıdır.',
-                style: TextStyle(color: Colors.grey, fontSize: 12),
+                l.copyright,
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
               ),
             ),
           ],

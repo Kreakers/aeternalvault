@@ -1,14 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'l10n/app_localizations.dart';
 import 'providers/app_provider.dart';
 import 'screens/home_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('tr', null);
-  
+  await initializeDateFormatting('en', null);
+  await initializeDateFormatting('de', null);
+  await initializeDateFormatting('it', null);
+
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarIconBrightness: Brightness.light,
+  ));
+
   runApp(
     MultiProvider(
       providers: [
@@ -25,23 +39,26 @@ class AeternaVaultApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<AppProvider>(
-      builder: (context, provider, child) {
+      builder: (context, provider, _) {
         return MaterialApp(
           title: 'Aeterna Vault',
           debugShowCheckedModeBanner: false,
           themeMode: provider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          theme: ThemeData(
-            useMaterial3: true,
-            brightness: Brightness.light,
-            colorSchemeSeed: provider.themeColor,
-            appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
-          ),
-          darkTheme: ThemeData(
-            useMaterial3: true,
-            brightness: Brightness.dark,
-            colorSchemeSeed: provider.themeColor,
-            appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
-          ),
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          locale: provider.locale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('tr'),
+            Locale('en'),
+            Locale('de'),
+            Locale('it'),
+          ],
           home: const HomeScreen(),
         );
       },

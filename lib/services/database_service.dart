@@ -24,10 +24,16 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 11, // Versiyon 11: Logs tablosu
+      version: 12,
+      onConfigure: _onConfigure,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
+  }
+
+  // SQLite Yabancı Anahtar desteğini aktif ediyoruz
+  Future _onConfigure(Database db) async {
+    await db.execute('PRAGMA foreign_keys = ON');
   }
 
   Future _createDB(Database db, int version) async {
@@ -76,7 +82,8 @@ class DatabaseService {
         recoveryCode TEXT,
         autoLockMinutes INTEGER DEFAULT 0,
         themeColor INTEGER DEFAULT 4284572657,
-        isDarkMode INTEGER DEFAULT 1
+        isDarkMode INTEGER DEFAULT 1,
+        locale TEXT DEFAULT 'tr'
       )
     ''');
 
@@ -96,53 +103,40 @@ class DatabaseService {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         contactId INTEGER,
         action TEXT NOT NULL,
-        timestamp TEXT NOT NULL
+        timestamp TEXT NOT NULL,
+        FOREIGN KEY (contactId) REFERENCES contacts (id) ON DELETE CASCADE
       )
     ''');
     
     await db.insert('vault_settings', {
-      'id': 1, 
-      'isSetupComplete': 0, 
+      'id': 1,
+      'isSetupComplete': 0,
       'autoLockMinutes': 0,
       'themeColor': 4284572657,
-      'isDarkMode': 1
+      'isDarkMode': 1,
+      'locale': 'tr',
     });
   }
 
   Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 10) {
+    if (oldVersion < 11) {
       await db.execute('DROP TABLE IF EXISTS contacts');
       await db.execute('DROP TABLE IF EXISTS vault_items');
       await db.execute('DROP TABLE IF EXISTS vault_settings');
       await db.execute('DROP TABLE IF EXISTS reminders');
       await db.execute('DROP TABLE IF EXISTS logs');
       await _createDB(db, newVersion);
-    }
-    if (oldVersion < 11) {
-      await db.execute('''
-        CREATE TABLE IF NOT EXISTS logs (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          contactId INTEGER,
-          action TEXT NOT NULL,
-          timestamp TEXT NOT NULL
-        )
-      ''');
+    } else if (oldVersion < 12) {
+      // Add locale column to existing vault_settings table
+      try {
+        await db.execute("ALTER TABLE vault_settings ADD COLUMN locale TEXT DEFAULT 'tr'");
+      } catch (_) {
+        // Column may already exist
+      }
     }
   }
 
-  // --- Logs ---
-  Future<int> insertLog(LogEntry log) async {
-    final db = await database;
-    return await db.insert('logs', log.toMap());
-  }
-
-  Future<List<LogEntry>> getLogsForContact(int contactId) async {
-    final db = await database;
-    final result = await db.query('logs', where: 'contactId = ?', whereArgs: [contactId], orderBy: 'timestamp DESC');
-    return result.map((map) => LogEntry.fromMap(map)).toList();
-  }
-
-  // --- Diğer Metodlar (Contacts, Reminders, VaultItems, Settings) Aynen Kalıyor...
+  // --- Ayarlar ---
   Future<Map<String, dynamic>?> getVaultSettings() async {
     final db = await database;
     final maps = await db.query('vault_settings', where: 'id = ?', whereArgs: [1]);
@@ -154,6 +148,7 @@ class DatabaseService {
     await db.update('vault_settings', settings, where: 'id = ?', whereArgs: [1]);
   }
 
+  // --- Kişiler ---
   Future<int> insertContact(Contact contact) async {
     final db = await database;
     return await db.insert('contacts', contact.toMap());
@@ -175,20 +170,21 @@ class DatabaseService {
     return await db.delete('contacts', where: 'id = ?', whereArgs: [id]);
   }
 
+  // --- Hatırlatıcılar ---
   Future<int> insertReminder(Reminder reminder) async {
     final db = await database;
     return await db.insert('reminders', reminder.toMap());
   }
 
-  Future<List<Reminder>> getRemindersForContact(int contactId) async {
+  Future<List<Reminder>> getReminders() async {
     final db = await database;
-    final result = await db.query('reminders', where: 'contactId = ?', whereArgs: [contactId], orderBy: 'dateTime ASC');
+    final result = await db.query('reminders', orderBy: 'dateTime ASC');
     return result.map((map) => Reminder.fromMap(map)).toList();
   }
 
-  Future<List<Reminder>> getAllReminders() async {
+  Future<List<Reminder>> getRemindersForContact(int contactId) async {
     final db = await database;
-    final result = await db.query('reminders');
+    final result = await db.query('reminders', where: 'contactId = ?', whereArgs: [contactId], orderBy: 'dateTime ASC');
     return result.map((map) => Reminder.fromMap(map)).toList();
   }
 
@@ -202,6 +198,25 @@ class DatabaseService {
     return await db.delete('reminders', where: 'id = ?', whereArgs: [id]);
   }
 
+  // --- Logs ---
+  Future<int> insertLog(LogEntry log) async {
+    final db = await database;
+    return await db.insert('logs', log.toMap());
+  }
+
+  Future<List<LogEntry>> getLogs() async {
+    final db = await database;
+    final result = await db.query('logs', orderBy: 'timestamp DESC');
+    return result.map((map) => LogEntry.fromMap(map)).toList();
+  }
+
+  Future<List<LogEntry>> getLogsForContact(int contactId) async {
+    final db = await database;
+    final result = await db.query('logs', where: 'contactId = ?', whereArgs: [contactId], orderBy: 'timestamp DESC');
+    return result.map((map) => LogEntry.fromMap(map)).toList();
+  }
+
+  // --- Kasa Öğeleri ---
   Future<int> insertVaultItem(VaultItem item) async {
     final db = await database;
     return await db.insert('vault_items', item.toMap());
@@ -223,6 +238,7 @@ class DatabaseService {
     return await db.delete('vault_items', where: 'id = ?', whereArgs: [id]);
   }
 
+  // --- Veri Yönetimi ---
   Future<void> clearAllData() async {
     final db = await database;
     await db.delete('contacts');
