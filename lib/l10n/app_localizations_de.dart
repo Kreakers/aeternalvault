@@ -751,4 +751,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get manualNote => 'Notiz';
+
+  @override
+  String get comingSoon => 'Diese Funktion kommt bald';
 }

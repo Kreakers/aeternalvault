@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import '../l10n/app_localizations.dart';
+import '../theme/app_theme.dart';
 
 class VaultSetupScreen extends StatefulWidget {
   const VaultSetupScreen({super.key});
@@ -50,7 +51,7 @@ class _VaultSetupScreenState extends State<VaultSetupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(Icons.lock_outline, size: 80, color: Colors.deepPurple),
+              const Icon(Icons.lock_outline, size: 80, color: AC.gold),
               const SizedBox(height: 24),
               Text(
                 l.setupVaultTitle,
@@ -103,8 +104,8 @@ class _VaultSetupScreenState extends State<VaultSetupScreen> {
                 onPressed: _completeSetup,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
+                  backgroundColor: AC.gold,
+                  foregroundColor: Colors.black,
                 ),
                 child: Text(l.saveAndActivate, style: const TextStyle(fontWeight: FontWeight.bold)),
               ),

@@ -95,11 +95,11 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
           Container(
             width: 32, height: 32,
             decoration: BoxDecoration(
-              color: const Color(0xFF00BCD4).withOpacity(0.15),
+              color: AC.cyan.withOpacity(0.15),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFF00BCD4).withOpacity(0.3)),
+              border: Border.all(color: AC.cyan.withOpacity(0.3)),
             ),
-            child: const Icon(Icons.edit_note, color: Color(0xFF00BCD4), size: 16),
+            child: const Icon(Icons.edit_note, color: AC.cyan, size: 16),
           ),
           const SizedBox(width: 10),
           Text(l.addNote),
@@ -121,7 +121,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
               }
             },
             style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00BCD4), foregroundColor: Colors.white),
+                backgroundColor: AC.cyan, foregroundColor: Colors.white),
             child: Text(l.save),
           ),
         ],
@@ -223,7 +223,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
                   const SizedBox(height: 8),
                   _infoCard(Icons.phone, l.phone, c.phone.isEmpty ? '-' : c.phone, AC.success),
                   const SizedBox(height: 7),
-                  _infoCard(Icons.email_outlined, l.email, c.email.isEmpty ? '-' : c.email, const Color(0xFF00BCD4)),
+                  _infoCard(Icons.email_outlined, l.email, c.email.isEmpty ? '-' : c.email, AC.cyan),
                   const SizedBox(height: 7),
                   if (c.birthday != null)
                     _infoCard(Icons.cake_outlined, l.birthday,
@@ -388,12 +388,12 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
                   width: 52, height: 52,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                        colors: [Color(0xFF00BCD4), Color(0xFF0097A7)],
+                        colors: [AC.cyan, Color(0xFF0097A7)],
                         begin: Alignment.topLeft, end: Alignment.bottomRight),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF00BCD4).withOpacity(0.35)),
+                    border: Border.all(color: AC.cyan.withOpacity(0.35)),
                     boxShadow: [BoxShadow(
-                        color: const Color(0xFF00BCD4).withOpacity(0.35),
+                        color: AC.cyan.withOpacity(0.35),
                         blurRadius: 20, offset: const Offset(0, 6))],
                   ),
                   child: const Icon(Icons.edit_note, color: Colors.white, size: 22),
@@ -522,7 +522,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           _quickAction(Icons.phone, l.call, AC.success, () => _callContact(c)),
           const SizedBox(width: 8),
-          _quickAction(Icons.email_outlined, l.sendEmail, const Color(0xFF00BCD4), () => _emailContact(c)),
+          _quickAction(Icons.email_outlined, l.sendEmail, AC.cyan, () => _emailContact(c)),
           const SizedBox(width: 8),
           _quickAction(Icons.message_outlined, l.sendSms, AC.gold, () => _smsContact(c)),
           const SizedBox(width: 8),

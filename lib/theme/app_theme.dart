@@ -14,6 +14,7 @@ class AC {
   static const success   = Color(0xFF00E676);
   static const danger    = Color(0xFFFF1744);
   static const warning   = Color(0xFFFF9100);
+  static const cyan      = Color(0xFF00BCD4);
 
   static const textSec   = Color(0x99FFFFFF); // 60%
   static const textMuted = Color(0x59FFFFFF); // 35%
@@ -39,6 +40,7 @@ class AL {
   static const success   = Color(0xFF00C853);
   static const danger    = Color(0xFFD32F2F);
   static const warning   = Color(0xFFE65100);
+  static const cyan      = Color(0xFF00BCD4);
   static const divider   = Color(0xFFE0E4FF);
 
   static const textPrimary = Color(0xFF0D0D1A);

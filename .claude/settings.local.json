@@ -14,7 +14,9 @@
       "Bash(flutter analyze:*)",
       "Bash(flutter build:*)",
       "Bash(flutter gen-l10n:*)",
-      "Bash(dart run:*)"
+      "Bash(dart run:*)",
+      "Bash(sed -i 's/const Color\\(0xFF00BCD4\\)/AC.cyan/g; s/Color\\(0xFF00BCD4\\)/AC.cyan/g' lib/screens/contact_detail_screen.dart)",
+      "Bash(sed -i 's/Color\\(0xFF00BCD4\\)/AC.cyan/g' lib/screens/vault_screen.dart)"
     ]
   }
 }

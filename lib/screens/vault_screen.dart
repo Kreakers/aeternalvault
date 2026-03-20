@@ -423,7 +423,7 @@ class _VaultCard extends StatelessWidget {
     'Şifre':  (Icons.password,     Color(0xFFEA4335), Color(0x3FEA4335)),
     'Banka':  (Icons.account_balance, Color(0xFF1A73E8), Color(0x3F1A73E8)),
     'Belge':  (Icons.description,  AC.gold,           Color(0x3FFFB300)),
-    'Kimlik': (Icons.person,       Color(0xFF00BCD4), Color(0x3F00BCD4)),
+    'Kimlik': (Icons.person,       AC.cyan, Color(0x3F00BCD4)),
   };
 
   (IconData, Color, Color) get _meta {

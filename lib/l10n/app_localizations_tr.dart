@@ -748,4 +748,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get manualNote => 'Not';
+
+  @override
+  String get comingSoon => 'Bu özellik yakında gelecek';
 }

@@ -61,8 +61,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Future<void> _unlockAndGo(String key) async {
     final provider = Provider.of<AppProvider>(context, listen: false);
     final l = AppLocalizations.of(context);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(color: AC.gold),
+      ),
+    );
     final unlocked = await provider.unlockVault(key);
     if (!mounted) return;
+    Navigator.pop(context);
     if (unlocked) {
       Navigator.push(context, MaterialPageRoute(builder: (_) => const VaultScreen()));
     } else {

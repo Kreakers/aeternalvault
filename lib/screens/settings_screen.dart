@@ -111,7 +111,7 @@ class SettingsScreen extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Backup hatası: $e'),
+            content: Text(l.saveError(e.toString())),
             backgroundColor: Colors.red,
           ),
         );

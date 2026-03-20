@@ -51,8 +51,9 @@ class BackupService {
       // 2. JSON'u Parse Et
       final Map<String, dynamic> backupData = jsonDecode(decryptedJson);
 
-      // TODO: Veritabanına yazma stratejisi (clearAllData + insert) eklenecek
-      assert(backupData.containsKey('exportDate'));
+      if (!backupData.containsKey('exportDate')) {
+        throw Exception('Geçersiz yedek dosyası: exportDate alanı eksik');
+      }
       
     } catch (e) {
       throw Exception('Yedek geri yüklenirken hata oluştu: $e');

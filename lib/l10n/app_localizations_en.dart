@@ -749,4 +749,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manualNote => 'Note';
+
+  @override
+  String get comingSoon => 'This feature is coming soon';
 }

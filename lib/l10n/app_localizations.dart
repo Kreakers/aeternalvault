@@ -1505,6 +1505,12 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Not'**
   String get manualNote;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu özellik yakında gelecek'**
+  String get comingSoon;
 }
 
 class _AppLocalizationsDelegate
