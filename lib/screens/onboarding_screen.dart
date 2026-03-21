@@ -77,13 +77,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ],
           ),
 
-          // Atla butonu
-          if (_currentPage < 2)
+          // Geri butonu
+          if (_currentPage > 0)
             Positioned(
               top: 52,
-              right: 20,
+              left: 20,
               child: GestureDetector(
-                onTap: _skip,
+                onTap: () => _pageController.previousPage(
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeInOut,
+                ),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                   decoration: BoxDecoration(
@@ -91,11 +94,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.white.withOpacity(0.15)),
                   ),
-                  child: Text(AppLocalizations.of(context).onbSkip,
-                      style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                  child: const Icon(Icons.arrow_back, color: Colors.white70, size: 16),
                 ),
               ),
             ),
+
+          // Atla butonu (her zaman görünür)
+          Positioned(
+            top: 52,
+            right: 20,
+            child: GestureDetector(
+              onTap: _skip,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withOpacity(0.15)),
+                ),
+                child: Text(AppLocalizations.of(context).onbSkip,
+                    style: const TextStyle(color: Colors.white70, fontSize: 13)),
+              ),
+            ),
+          ),
 
           // Alt kontroller: dots + buton
           Positioned(

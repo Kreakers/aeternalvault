@@ -84,6 +84,8 @@
   "everyNDays": "Alle {count} Tage",
   "reminders": "Erinnerungen",
   "noPendingTasks": "Keine ausstehenden Aufgaben.",
+  "archiveTitle": "Archiv",
+  "noArchivedReminders": "Keine archivierten Erinnerungen.",
   "activityLog": "Aktivitätsprotokoll",
   "newTask": "Neue Aufgabe / Erinnerung",
   "taskName": "Aufgabenname",
@@ -263,5 +265,13 @@
   "autofillServiceDesc": "Passwörter in anderen Apps automatisch ausfüllen",
   "autofillServiceEnable": "Aktivieren",
   "autofillServiceEnabled": "Aktiv — Aeterna Vault ist Ihr Autofill-Anbieter",
-  "autofillServiceDisabled": "Deaktiviert — Zum Aktivieren tippen"
+  "autofillServiceDisabled": "Deaktiviert — Zum Aktivieren tippen",
+
+  "passwordLength": "Passwortlänge",
+  "secNeverChanged": "Nie geändert",
+  "secLastChangedToday": "Heute geändert",
+  "secLastChangedYesterday": "Gestern geändert",
+  "secLastChangedDaysAgo": "Vor {days} Tagen geändert",
+  "@secLastChangedDaysAgo": {"placeholders": {"days": {"type": "int"}}},
+  "backupDesc": "Sicherung als verschlüsselte JSON-Datei teilen"
 }

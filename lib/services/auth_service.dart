@@ -13,7 +13,7 @@ class AuthService {
       final bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
       final bool isDeviceSupported = await _localAuth.isDeviceSupported();
 
-      if (!canCheckBiometrics && !isDeviceSupported) {
+      if (!canCheckBiometrics || !isDeviceSupported) {
         return false;
       }
 

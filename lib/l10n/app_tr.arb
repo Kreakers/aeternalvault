@@ -250,6 +250,12 @@
   "noPendingTasks": "Bekleyen görev yok.",
   "@noPendingTasks": {"description": "Bekleyen görev yok mesajı"},
 
+  "archiveTitle": "Arşiv",
+  "@archiveTitle": {"description": "Arşiv bölüm başlığı"},
+
+  "noArchivedReminders": "Arşivde hatırlatıcı yok.",
+  "@noArchivedReminders": {"description": "Arşiv boş mesajı"},
+
   "activityLog": "Aktivite Günlüğü",
   "@activityLog": {"description": "Aktivite günlüğü bölüm başlığı"},
 
@@ -746,5 +752,13 @@
   "@autofillServiceEnabled": {"description": "Otomatik doldurma etkin durum mesajı"},
 
   "autofillServiceDisabled": "Devre dışı — Etkinleştirmek için dokunun",
-  "@autofillServiceDisabled": {"description": "Otomatik doldurma devre dışı durum mesajı"}
+  "@autofillServiceDisabled": {"description": "Otomatik doldurma devre dışı durum mesajı"},
+
+  "passwordLength": "Şifre Uzunluğu",
+  "secNeverChanged": "Hiç değiştirilmedi",
+  "secLastChangedToday": "Bugün değiştirildi",
+  "secLastChangedYesterday": "Dün değiştirildi",
+  "secLastChangedDaysAgo": "{days} gün önce değiştirildi",
+  "@secLastChangedDaysAgo": {"placeholders": {"days": {"type": "int"}}},
+  "backupDesc": "Şifreli JSON dosyası olarak yedek paylaş"
 }

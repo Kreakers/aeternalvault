@@ -22,6 +22,15 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
     super.dispose();
   }
 
+  String _lastChangedSubtitle(AppProvider provider, AppLocalizations l) {
+    final changed = provider.masterKeyChangedAt;
+    if (changed == null) return l.secNeverChanged;
+    final days = DateTime.now().difference(changed).inDays;
+    if (days == 0) return l.secLastChangedToday;
+    if (days == 1) return l.secLastChangedYesterday;
+    return l.secLastChangedDaysAgo(days);
+  }
+
   void _showResetConfirm() {
     final l = AppLocalizations.of(context);
     showDialog(
@@ -126,7 +135,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 icon: Icons.lock_outline,
                 iconColor: AC.gold,
                 title: l.masterKeyTitle,
-                subtitle: l.lastChangedDaysAgo,
+                subtitle: _lastChangedSubtitle(provider, l),
                 badge: l.change,
                 badgeColor: AC.gold,
                 onTap: _showChangeKeyDialog,
@@ -154,10 +163,35 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 icon: Icons.timer_outlined,
                 iconColor: const Color(0xFF9C27B0),
                 title: l.autoLock,
-                subtitle: provider.autoLockEnabled ? l.autoLockEnabled : l.autoLockDisabled,
+                subtitle: provider.autoLockEnabled
+                    ? '${l.autoLockEnabled} — ${provider.autoLockMinutes} min'
+                    : l.autoLockDisabled,
                 toggle: provider.autoLockEnabled,
                 onToggle: () => provider.updateAutoLock(!provider.autoLockEnabled),
               ),
+              if (provider.autoLockEnabled) ...[
+                _divider(isDark),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(13, 4, 13, 8),
+                  child: Row(children: [
+                    Icon(Icons.access_time, size: 16, color: const Color(0xFF9C27B0).withOpacity(0.7)),
+                    const SizedBox(width: 8),
+                    Text('1 min', style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 10)),
+                    Expanded(
+                      child: Slider(
+                        value: provider.autoLockMinutes.toDouble(),
+                        min: 1,
+                        max: 60,
+                        divisions: 59,
+                        activeColor: const Color(0xFF9C27B0),
+                        label: '${provider.autoLockMinutes} min',
+                        onChanged: (v) => provider.updateAutoLock(true, minutes: v.round()),
+                      ),
+                    ),
+                    Text('60 min', style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 10)),
+                  ]),
+                ),
+              ],
             ])),
             const SizedBox(height: 12),
 

@@ -25,6 +25,8 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
   final Set<int> _visiblePasswords = {};
   final Set<int> _copiedItems = {};
   String _filter = 'all';
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -36,6 +38,7 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -308,9 +311,50 @@ class _VaultScreenState extends State<VaultScreen> with SingleTickerProviderStat
         return _emptyState(Icons.enhanced_encryption, l.vaultEmpty, l.addWithPlusButton);
       }
 
-      final displayed = _filter == 'all' ? items : items.where((i) => i.category == _filter).toList();
+      var displayed = _filter == 'all' ? items : items.where((i) => i.category == _filter).toList();
+      if (_searchQuery.isNotEmpty) {
+        final q = _searchQuery.toLowerCase();
+        displayed = displayed.where((i) => i.title.toLowerCase().contains(q)).toList();
+      }
 
       return Column(children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 10, 14, 0),
+          child: TextField(
+            controller: _searchController,
+            onChanged: (v) => setState(() => _searchQuery = v),
+            decoration: InputDecoration(
+              hintText: l.searchHint,
+              hintStyle: TextStyle(color: isDark ? Colors.white38 : AL.textMuted, fontSize: 13),
+              prefixIcon: Icon(Icons.search, color: isDark ? Colors.white38 : AL.textMuted, size: 18),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? GestureDetector(
+                      onTap: () {
+                        _searchController.clear();
+                        setState(() => _searchQuery = '');
+                      },
+                      child: Icon(Icons.clear, color: isDark ? Colors.white38 : AL.textMuted, size: 16),
+                    )
+                  : null,
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              filled: true,
+              fillColor: isDark ? Colors.white.withOpacity(0.05) : AL.bg,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: isDark ? Colors.white.withOpacity(0.1) : AL.divider),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: isDark ? Colors.white.withOpacity(0.1) : AL.divider),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AC.gold, width: 1.2),
+              ),
+            ),
+          ),
+        ),
         SizedBox(
           height: 48,
           child: ListView(

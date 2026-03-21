@@ -12,13 +12,20 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
   bool _initialized = false;
 
-  static const _channel = AndroidNotificationDetails(
-    'aeterna_reminders',
+  // v4: özel ses dosyası (aeterna_alert.wav) ile kanal — ses garantili çalışır.
+  static final _channel = AndroidNotificationDetails(
+    'aeterna_reminders_v4',
     'Hatırlatıcılar',
     channelDescription: 'Aeterna Vault kişi hatırlatıcıları',
-    importance: Importance.high,
-    priority: Priority.high,
+    importance: Importance.max,
+    priority: Priority.max,
     icon: '@mipmap/ic_launcher',
+    sound: const RawResourceAndroidNotificationSound('aeterna_alert'),
+    playSound: true,
+    enableVibration: true,
+    vibrationPattern: Int64List.fromList([0, 500, 200, 500, 200, 800]),
+    ticker: 'Aeterna Vault Hatırlatıcı',
+    channelShowBadge: true,
   );
 
   static const _iosDetails = DarwinNotificationDetails(
@@ -47,16 +54,20 @@ class NotificationService {
       const settings = InitializationSettings(android: androidSettings, iOS: iosSettings);
 
       await _plugin.initialize(settings);
-
-      final androidImpl = _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-      await androidImpl?.requestNotificationsPermission();
-      await androidImpl?.requestExactAlarmsPermission();
-
       _initialized = true;
       debugPrint('✅ NotificationService initialized');
     } catch (e) {
       debugPrint('❌ NotificationService init failed: $e');
     }
+  }
+
+  /// Android izinlerini iste — Activity hazır olduktan SONRA çağrılmalı
+  Future<void> requestPermissions() async {
+    if (!_initialized) await init();
+    final androidImpl = _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    await androidImpl?.requestNotificationsPermission();
+    await androidImpl?.requestExactAlarmsPermission();
+    debugPrint('✅ Bildirim izinleri istendi');
   }
 
   /// Anında bildirim göster (test ve onay amaçlı)
@@ -70,7 +81,7 @@ class NotificationService {
       id,
       title,
       body,
-      const NotificationDetails(android: _channel, iOS: _iosDetails),
+      NotificationDetails(android: _channel, iOS: _iosDetails),
     );
   }
 
@@ -90,40 +101,19 @@ class NotificationService {
         : scheduledDate;
 
     final tzDate = tz.TZDateTime.from(effectiveDate, tz.local);
-    const details = NotificationDetails(android: _channel, iOS: _iosDetails);
+    final details = NotificationDetails(android: _channel, iOS: _iosDetails);
 
-    // Önce inexact dene (tüm cihazlarda çalışır), başarısız olursa exact dene
-    try {
-      await _plugin.zonedSchedule(
-        id,
-        title,
-        body,
-        tzDate,
-        details,
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-      );
-      debugPrint('✅ Bildirim zamanlandı (inexact): $tzDate');
-    } catch (e) {
-      debugPrint('⚠️ inexact zamanlama başarısız: $e, exact deneniyor...');
-      try {
-        await _plugin.zonedSchedule(
-          id,
-          title,
-          body,
-          tzDate,
-          details,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-        );
-        debugPrint('✅ Bildirim zamanlandı (exact): $tzDate');
-      } catch (e2) {
-        debugPrint('❌ Bildirim zamanlanamadı: $e2');
-        rethrow;
-      }
-    }
+    await _plugin.zonedSchedule(
+      id,
+      title,
+      body,
+      tzDate,
+      details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+    debugPrint('✅ Bildirim zamanlandı (exact): $tzDate');
   }
 
   Future<void> cancelReminder(int id) async {

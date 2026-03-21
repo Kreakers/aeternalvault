@@ -277,6 +277,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get noPendingTasks => 'Keine ausstehenden Aufgaben.';
 
   @override
+  String get archiveTitle => 'Archiv';
+
+  @override
+  String get noArchivedReminders => 'Keine archivierten Erinnerungen.';
+
+  @override
   String get activityLog => 'Aktivitätsprotokoll';
 
   @override
@@ -825,4 +831,22 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get autofillServiceDisabled => 'Deaktiviert — Zum Aktivieren tippen';
+
+  @override
+  String get passwordLength => 'Passwortlänge';
+
+  @override
+  String get secNeverChanged => 'Nie geändert';
+
+  @override
+  String get secLastChangedToday => 'Heute geändert';
+
+  @override
+  String get secLastChangedYesterday => 'Gestern geändert';
+
+  @override
+  String secLastChangedDaysAgo(int days) => 'Vor $days Tagen geändert';
+
+  @override
+  String get backupDesc => 'Sicherung als verschlüsselte JSON-Datei teilen';
 }

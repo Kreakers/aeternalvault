@@ -64,6 +64,9 @@ class AppProvider with ChangeNotifier {
   bool _onboardingDone = false;
   bool get onboardingDone => _onboardingDone;
 
+  DateTime? _masterKeyChangedAt;
+  DateTime? get masterKeyChangedAt => _masterKeyChangedAt;
+
   Future<void> loadContacts() async {
     _contacts = await _dbService.getContacts();
     _allReminders = await _dbService.getReminders();
@@ -94,6 +97,9 @@ class AppProvider with ChangeNotifier {
       _autoLockMinutes = settings['autoLockMinutes'] ?? 1;
       if (settings['lastUnlockTime'] != null) {
         _lastVaultUnlockTime = DateTime.tryParse(settings['lastUnlockTime']);
+      }
+      if (settings['masterKeyChangedAt'] != null) {
+        _masterKeyChangedAt = DateTime.tryParse(settings['masterKeyChangedAt']);
       }
     }
   }
@@ -152,8 +158,10 @@ class AppProvider with ChangeNotifier {
     final hashedOld = _hashKey(oldKey);
     if (_vaultMasterKey != hashedOld && _vaultMasterKey != oldKey) return false;
     final hashedNew = _hashKey(newKey);
-    await _dbService.updateVaultSettings({'hashedMasterKey': hashedNew});
+    final now = DateTime.now().toIso8601String();
+    await _dbService.updateVaultSettings({'hashedMasterKey': hashedNew, 'masterKeyChangedAt': now});
     _vaultMasterKey = hashedNew;
+    _masterKeyChangedAt = DateTime.now();
     if (_useBiometrics) {
       await _secureStorage.write(key: 'vault_master_key', value: newKey);
     }
@@ -349,10 +357,12 @@ class AppProvider with ChangeNotifier {
 
   // --- Reset & Backup ---
   Future<void> completeVaultSetup(String masterKey, bool useBio) async {
+    final now = DateTime.now().toIso8601String();
     await _dbService.updateVaultSettings({
       'isSetupComplete': 1,
       'hashedMasterKey': _hashKey(masterKey),
       'useBiometrics': useBio ? 1 : 0,
+      'masterKeyChangedAt': now,
     });
     if (useBio) {
       await _secureStorage.write(key: 'vault_master_key', value: masterKey);

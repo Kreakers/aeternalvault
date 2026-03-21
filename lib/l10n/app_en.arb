@@ -84,6 +84,8 @@
   "everyNDays": "Every {count} days",
   "reminders": "Reminders",
   "noPendingTasks": "No pending tasks.",
+  "archiveTitle": "Archive",
+  "noArchivedReminders": "No archived reminders.",
   "activityLog": "Activity Log",
   "newTask": "New Task / Reminder",
   "taskName": "Task Name",
@@ -263,5 +265,13 @@
   "autofillServiceDesc": "Auto-fill your passwords in other apps",
   "autofillServiceEnable": "Enable",
   "autofillServiceEnabled": "Active — Aeterna Vault is your autofill provider",
-  "autofillServiceDisabled": "Disabled — Tap to enable"
+  "autofillServiceDisabled": "Disabled — Tap to enable",
+
+  "passwordLength": "Password Length",
+  "secNeverChanged": "Never changed",
+  "secLastChangedToday": "Last changed today",
+  "secLastChangedYesterday": "Last changed yesterday",
+  "secLastChangedDaysAgo": "Last changed {days} days ago",
+  "@secLastChangedDaysAgo": {"placeholders": {"days": {"type": "int"}}},
+  "backupDesc": "Share backup as encrypted JSON file"
 }

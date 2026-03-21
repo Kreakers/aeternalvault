@@ -28,7 +28,7 @@ class Reminder {
       id: map['id'],
       contactId: map['contactId'],
       title: map['title'] ?? '',
-      dateTime: DateTime.parse(map['dateTime']),
+      dateTime: DateTime.tryParse(map['dateTime'] ?? '') ?? DateTime.now(),
       isCompleted: (map['isCompleted'] ?? 0) == 1,
     );
   }

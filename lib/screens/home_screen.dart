@@ -7,6 +7,7 @@ import '../providers/app_provider.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
+import '../services/notification_service.dart';
 import 'add_contact_screen.dart';
 import 'contact_detail_screen.dart';
 import 'vault_screen.dart';
@@ -34,7 +35,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkOnboarding());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkOnboarding();
+      NotificationService().requestPermissions();
+    });
   }
 
   void _checkOnboarding() {

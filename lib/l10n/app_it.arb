@@ -84,6 +84,8 @@
   "everyNDays": "Ogni {count} giorni",
   "reminders": "Promemoria",
   "noPendingTasks": "Nessun compito in sospeso.",
+  "archiveTitle": "Archivio",
+  "noArchivedReminders": "Nessun promemoria archiviato.",
   "activityLog": "Registro Attività",
   "newTask": "Nuovo Compito / Promemoria",
   "taskName": "Nome Compito",
@@ -264,5 +266,13 @@
   "autofillServiceDesc": "Compila automaticamente le password in altre app",
   "autofillServiceEnable": "Attiva",
   "autofillServiceEnabled": "Attivo — Aeterna Vault è il tuo provider",
-  "autofillServiceDisabled": "Disabilitato — Tocca per attivare"
+  "autofillServiceDisabled": "Disabilitato — Tocca per attivare",
+
+  "passwordLength": "Lunghezza Password",
+  "secNeverChanged": "Mai cambiata",
+  "secLastChangedToday": "Cambiata oggi",
+  "secLastChangedYesterday": "Cambiata ieri",
+  "secLastChangedDaysAgo": "Cambiata {days} giorni fa",
+  "@secLastChangedDaysAgo": {"placeholders": {"days": {"type": "int"}}},
+  "backupDesc": "Condividi backup come file JSON crittografato"
 }

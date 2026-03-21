@@ -28,7 +28,7 @@ class LogEntry {
       id: map['id'],
       contactId: map['contactId'],
       action: map['action'] ?? '',
-      timestamp: DateTime.parse(map['timestamp']),
+      timestamp: DateTime.tryParse(map['timestamp'] ?? '') ?? DateTime.now(),
       isManual: (map['isManual'] ?? 0) == 1,
     );
   }

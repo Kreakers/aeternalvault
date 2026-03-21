@@ -256,50 +256,10 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
                     const SizedBox(height: 16),
                   ],
 
-                  if (reminders.isNotEmpty || true) ...[
+                  ...[
                     _sectionLabel(l.reminders),
                     const SizedBox(height: 8),
-                    GlassCard(
-                      child: Column(children: [
-                        if (reminders.isEmpty)
-                          Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Text(l.noPendingTasks, style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 12)),
-                          ),
-                        ...List.generate(reminders.length, (i) {
-                          final r = reminders[i];
-                          return Column(children: [
-                            GestureDetector(
-                              onTap: () {
-                                final updated = Reminder(
-                                    id: r.id, contactId: r.contactId, title: r.title,
-                                    dateTime: r.dateTime, isCompleted: !r.isCompleted);
-                                provider.updateReminder(updated);
-                              },
-                              child: Container(
-                                color: Colors.transparent,
-                                padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
-                                child: Row(children: [
-                                  Icon(r.isCompleted ? Icons.check_box : Icons.check_box_outline_blank,
-                                      color: r.isCompleted ? AC.success : (isDark ? const Color(0x40FFFFFF) : AL.textMuted), size: 18),
-                                  const SizedBox(width: 10),
-                                  Expanded(child: Text(r.title, style: TextStyle(
-                                      color: r.isCompleted ? (isDark ? Colors.white38 : AL.textMuted) : (isDark ? Colors.white : AL.textPrimary),
-                                      fontSize: 12, fontWeight: FontWeight.w500,
-                                      decoration: r.isCompleted ? TextDecoration.lineThrough : null))),
-                                  Text(DateFormat('dd MMM').format(r.dateTime),
-                                      style: TextStyle(
-                                          color: r.isCompleted ? (isDark ? Colors.white24 : AL.textMuted) : AC.gold,
-                                          fontSize: 10, fontWeight: FontWeight.w600)),
-                                ]),
-                              ),
-                            ),
-                            if (i < reminders.length - 1)
-                              Divider(height: 1, color: isDark ? Colors.white.withOpacity(0.04) : AL.divider),
-                          ]);
-                        }),
-                      ]),
-                    ),
+                    _buildReminderSection(context, provider, reminders, isDark, l),
                     const SizedBox(height: 16),
                   ],
 
@@ -474,7 +434,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
                 BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 24, offset: const Offset(0, 8)),
               ],
             ),
-            child: hasImage
+            child: hasImage && File(c.imagePath!).existsSync()
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(24),
                     child: Image.file(File(c.imagePath!), fit: BoxFit.cover))
@@ -609,6 +569,171 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
             return Icon(Icons.chevron_right, color: isDark ? Colors.white24 : AL.textMuted, size: 16);
           }),
         ]),
+      ),
+    );
+  }
+
+  // ─── Reminder section: aktif liste + arşiv ────────────────────────────────
+
+  Widget _buildReminderSection(
+    BuildContext context,
+    AppProvider provider,
+    List<Reminder> reminders,
+    bool isDark,
+    AppLocalizations l,
+  ) {
+    final now = DateTime.now();
+    final active   = reminders.where((r) => !r.isCompleted && r.dateTime.isAfter(now)).toList()
+      ..sort((a, b) => a.dateTime.compareTo(b.dateTime));
+    final archived = reminders.where((r) =>  r.isCompleted || !r.dateTime.isAfter(now)).toList()
+      ..sort((a, b) => b.dateTime.compareTo(a.dateTime)); // yeniden eskiye
+
+    // Arşivi ay/yıl gruplarına ayır
+    final Map<String, List<Reminder>> groups = {};
+    for (final r in archived) {
+      final key = DateFormat('MMMM yyyy').format(r.dateTime);
+      groups.putIfAbsent(key, () => []).add(r);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Aktif hatırlatıcılar ──
+        GlassCard(
+          child: Column(children: [
+            if (active.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(l.noPendingTasks,
+                    style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 12)),
+              ),
+            ...List.generate(active.length, (i) {
+              final r = active[i];
+              return Column(children: [
+                _reminderTile(r, provider, isDark, showDelete: false),
+                if (i < active.length - 1)
+                  Divider(height: 1, color: isDark ? Colors.white.withOpacity(0.04) : AL.divider),
+              ]);
+            }),
+          ]),
+        ),
+
+        // ── Arşiv (açılır/kapanır) ──
+        if (archived.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Theme(
+              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+                childrenPadding: EdgeInsets.zero,
+                leading: Icon(Icons.archive_outlined,
+                    size: 16, color: isDark ? const Color(0x60FFFFFF) : AL.textMuted),
+                title: Text(
+                  '${l.archiveTitle}  (${archived.length})',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? const Color(0x80FFFFFF) : AL.textMuted,
+                      letterSpacing: 0.4),
+                ),
+                backgroundColor:
+                    isDark ? const Color(0x14FFFFFF) : Colors.black.withOpacity(0.03),
+                collapsedBackgroundColor:
+                    isDark ? const Color(0x0DFFFFFF) : Colors.black.withOpacity(0.02),
+                children: groups.entries.map((entry) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Ay başlığı
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(14, 10, 14, 4),
+                        child: Text(
+                          entry.key.toUpperCase(),
+                          style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.0,
+                              color: isDark ? const Color(0x50FFFFFF) : AL.textMuted),
+                        ),
+                      ),
+                      ...List.generate(entry.value.length, (i) {
+                        final r = entry.value[i];
+                        return Column(children: [
+                          _reminderTile(r, provider, isDark, showDelete: true),
+                          if (i < entry.value.length - 1)
+                            Divider(height: 1,
+                                color: isDark ? Colors.white.withOpacity(0.04) : AL.divider),
+                        ]);
+                      }),
+                      Divider(height: 1,
+                          color: isDark ? Colors.white.withOpacity(0.06) : AL.divider),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _reminderTile(
+    Reminder r,
+    AppProvider provider,
+    bool isDark, {
+    required bool showDelete,
+  }) {
+    return Dismissible(
+      key: ValueKey(r.id),
+      direction: showDelete ? DismissDirection.endToStart : DismissDirection.none,
+      background: Container(
+        color: Colors.red.withOpacity(0.75),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 18),
+        child: const Icon(Icons.delete_outline, color: Colors.white, size: 20),
+      ),
+      onDismissed: (_) => provider.deleteReminder(r.id!),
+      child: GestureDetector(
+        onTap: () {
+          final updated = Reminder(
+              id: r.id, contactId: r.contactId, title: r.title,
+              dateTime: r.dateTime, isCompleted: !r.isCompleted);
+          provider.updateReminder(updated);
+        },
+        child: Container(
+          color: Colors.transparent,
+          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
+          child: Row(children: [
+            Icon(
+              r.isCompleted ? Icons.check_box : Icons.check_box_outline_blank,
+              color: r.isCompleted ? AC.success : (isDark ? const Color(0x40FFFFFF) : AL.textMuted),
+              size: 18,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(r.title,
+                  style: TextStyle(
+                      color: r.isCompleted
+                          ? (isDark ? Colors.white38 : AL.textMuted)
+                          : (isDark ? Colors.white : AL.textPrimary),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      decoration: r.isCompleted ? TextDecoration.lineThrough : null)),
+            ),
+            Text(
+              DateFormat('dd MMM').format(r.dateTime),
+              style: TextStyle(
+                  color: r.isCompleted
+                      ? (isDark ? Colors.white24 : AL.textMuted)
+                      : AC.gold,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600),
+            ),
+          ]),
+        ),
       ),
     );
   }

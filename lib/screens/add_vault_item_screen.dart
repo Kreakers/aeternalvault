@@ -30,6 +30,7 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
   String? _filePath;
   bool _obscurePassword = true;
   bool _decryptionFailed = false;
+  int _passwordLength = 16;
 
   // Category keys that are stored in the database (Turkish keys kept for data compatibility)
   final List<String> _categories = ['Şifre', 'Banka', 'Belge', 'Kripto Cüzdanı', 'Gizli Not'];
@@ -68,10 +69,13 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
     final l = AppLocalizations.of(context);
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles();
-      if (result != null) {
-        setState(() {
-          _filePath = result.files.single.path;
-        });
+      if (result != null && result.files.isNotEmpty) {
+        final path = result.files.single.path;
+        if (path != null) {
+          setState(() {
+            _filePath = path;
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -80,11 +84,92 @@ class _AddVaultItemScreenState extends State<AddVaultItemScreen> {
     }
   }
 
-  void _generateStrongPassword() {
+  void _generateStrongPassword() async {
     final l = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    int selectedLength = _passwordLength;
+
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: isDark ? AC.bgCard : AL.bgCard,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              width: 36, height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white24 : AL.divider,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(children: [
+              const Icon(Icons.generating_tokens, color: AC.gold, size: 20),
+              const SizedBox(width: 8),
+              Text(l.generatePassword,
+                  style: TextStyle(
+                      color: isDark ? Colors.white : AL.textPrimary,
+                      fontSize: 15, fontWeight: FontWeight.w700)),
+            ]),
+            const SizedBox(height: 20),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Text(l.passwordLength,
+                  style: TextStyle(color: isDark ? Colors.white70 : AL.textPrimary, fontSize: 13)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AC.goldGlass(),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AC.goldBorder()),
+                ),
+                child: Text('$selectedLength',
+                    style: const TextStyle(color: AC.gold, fontSize: 14, fontWeight: FontWeight.w800)),
+              ),
+            ]),
+            Slider(
+              value: selectedLength.toDouble(),
+              min: 8,
+              max: 32,
+              divisions: 24,
+              activeColor: AC.gold,
+              label: '$selectedLength',
+              onChanged: (v) => setSheetState(() => selectedLength = v.round()),
+            ),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Text('8', style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 11)),
+              Text('32', style: TextStyle(color: isDark ? AC.textMuted : AL.textMuted, fontSize: 11)),
+            ]),
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: () => Navigator.pop(ctx, true),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [AC.gold, Color(0xFFFFB300)]),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text(l.generatePassword,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        color: Colors.black, fontSize: 14, fontWeight: FontWeight.w800)),
+              ),
+            ),
+          ]),
+        ),
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _passwordLength = selectedLength);
     const chars = r'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
     final rnd = Random.secure();
-    final pwd = String.fromCharCodes(Iterable.generate(12, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+    final pwd = String.fromCharCodes(
+        Iterable.generate(_passwordLength, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
     setState(() {
       _field2Controller.text = pwd;
       _obscurePassword = false;

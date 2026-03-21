@@ -206,7 +206,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
                             borderRadius: BorderRadius.circular(26),
                             border: Border.all(color: AC.gold.withOpacity(0.35), width: 2.5),
                           ),
-                          child: _imagePath != null
+                          child: _imagePath != null && File(_imagePath!).existsSync()
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(24),
                                   child: Image.file(File(_imagePath!), fit: BoxFit.cover))
@@ -470,7 +470,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
           Icon(icon, color: AC.gold, size: 18),
           const SizedBox(width: 12),
           Expanded(child: Text(
-            date == null ? label : '$label: ${DateFormat('dd MMMM yyyy', 'tr').format(date)}',
+            date == null ? label : '$label: ${DateFormat('dd MMMM yyyy', Localizations.localeOf(context).languageCode).format(date)}',
             style: TextStyle(color: date == null ? (isDark ? Colors.white38 : AL.textMuted) : (isDark ? Colors.white : AL.textPrimary), fontSize: 13),
           )),
           Icon(Icons.calendar_today, color: isDark ? Colors.white38 : AL.textMuted, size: 16),

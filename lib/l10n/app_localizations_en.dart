@@ -277,6 +277,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noPendingTasks => 'No pending tasks.';
 
   @override
+  String get archiveTitle => 'Archive';
+
+  @override
+  String get noArchivedReminders => 'No archived reminders.';
+
+  @override
   String get activityLog => 'Activity Log';
 
   @override
@@ -822,4 +828,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get autofillServiceDisabled => 'Disabled — Tap to enable';
+
+  @override
+  String get passwordLength => 'Password Length';
+
+  @override
+  String get secNeverChanged => 'Never changed';
+
+  @override
+  String get secLastChangedToday => 'Last changed today';
+
+  @override
+  String get secLastChangedYesterday => 'Last changed yesterday';
+
+  @override
+  String secLastChangedDaysAgo(int days) => 'Last changed $days days ago';
+
+  @override
+  String get backupDesc => 'Share backup as encrypted JSON file';
 }

@@ -277,6 +277,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get noPendingTasks => 'Bekleyen görev yok.';
 
   @override
+  String get archiveTitle => 'Arşiv';
+
+  @override
+  String get noArchivedReminders => 'Arşivde hatırlatıcı yok.';
+
+  @override
   String get activityLog => 'Aktivite Günlüğü';
 
   @override
@@ -823,4 +829,22 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get autofillServiceDisabled =>
       'Devre dışı — Etkinleştirmek için dokunun';
+
+  @override
+  String get passwordLength => 'Şifre Uzunluğu';
+
+  @override
+  String get secNeverChanged => 'Hiç değiştirilmedi';
+
+  @override
+  String get secLastChangedToday => 'Bugün değiştirildi';
+
+  @override
+  String get secLastChangedYesterday => 'Dün değiştirildi';
+
+  @override
+  String secLastChangedDaysAgo(int days) => '$days gün önce değiştirildi';
+
+  @override
+  String get backupDesc => 'Şifreli JSON dosyası olarak yedek paylaş';
 }

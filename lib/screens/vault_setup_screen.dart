@@ -30,15 +30,25 @@ class _VaultSetupScreenState extends State<VaultSetupScreen> {
     if (_formKey.currentState!.validate()) {
       final provider = Provider.of<AppProvider>(context, listen: false);
       await provider.completeVaultSetup(_keyController.text, _useBiometrics);
-      await provider.unlockVault(_keyController.text);
+      final success = await provider.unlockVault(_keyController.text);
 
-      if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-          (_) => false,
+      if (!mounted) return;
+
+      if (!success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l.vaultUnlockFailed),
+            backgroundColor: Colors.red,
+          ),
         );
+        return;
       }
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        (_) => false,
+      );
     }
   }
 

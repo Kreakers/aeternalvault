@@ -24,7 +24,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 14,
+      version: 15,
       onConfigure: _onConfigure,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
@@ -84,7 +84,8 @@ class DatabaseService {
         autoLockMinutes INTEGER DEFAULT 1,
         themeColor INTEGER DEFAULT 4284572657,
         isDarkMode INTEGER DEFAULT 1,
-        locale TEXT DEFAULT 'tr'
+        locale TEXT DEFAULT 'tr',
+        masterKeyChangedAt TEXT
       )
     ''');
 
@@ -122,11 +123,14 @@ class DatabaseService {
 
   Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 11) {
-      await db.execute('DROP TABLE IF EXISTS contacts');
-      await db.execute('DROP TABLE IF EXISTS vault_items');
-      await db.execute('DROP TABLE IF EXISTS vault_settings');
-      await db.execute('DROP TABLE IF EXISTS reminders');
-      await db.execute('DROP TABLE IF EXISTS logs');
+      // Full schema reset — pre-v11 schema is incompatible; all data is cleared.
+      await db.transaction((txn) async {
+        await txn.execute('DROP TABLE IF EXISTS contacts');
+        await txn.execute('DROP TABLE IF EXISTS vault_items');
+        await txn.execute('DROP TABLE IF EXISTS vault_settings');
+        await txn.execute('DROP TABLE IF EXISTS reminders');
+        await txn.execute('DROP TABLE IF EXISTS logs');
+      });
       await _createDB(db, newVersion);
       return;
     }
@@ -146,6 +150,11 @@ class DatabaseService {
       } catch (_) {}
       try {
         await db.execute('ALTER TABLE vault_settings ADD COLUMN autoLockMinutes INTEGER DEFAULT 1');
+      } catch (_) {}
+    }
+    if (oldVersion < 15) {
+      try {
+        await db.execute('ALTER TABLE vault_settings ADD COLUMN masterKeyChangedAt TEXT');
       } catch (_) {}
     }
   }

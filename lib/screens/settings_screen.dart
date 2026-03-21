@@ -100,7 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: const Icon(Icons.save_alt),
                     title: Text(l.backup),
-                    subtitle: Text(l.backupSaved),
+                    subtitle: Text(l.backupDesc),
                     onTap: () => _saveBackupToFile(context, provider, l),
                   ),
                   const Divider(height: 1),

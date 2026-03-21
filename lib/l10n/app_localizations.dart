@@ -600,6 +600,18 @@ abstract class AppLocalizations {
   /// **'Bekleyen görev yok.'**
   String get noPendingTasks;
 
+  /// Arşiv bölüm başlığı
+  ///
+  /// In tr, this message translates to:
+  /// **'Arşiv'**
+  String get archiveTitle;
+
+  /// Arşiv boş mesajı
+  ///
+  /// In tr, this message translates to:
+  /// **'Arşivde hatırlatıcı yok.'**
+  String get noArchivedReminders;
+
   /// Aktivite günlüğü bölüm başlığı
   ///
   /// In tr, this message translates to:
@@ -1643,6 +1655,42 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Devre dışı — Etkinleştirmek için dokunun'**
   String get autofillServiceDisabled;
+
+  /// Şifre uzunluğu etiketi
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifre Uzunluğu'**
+  String get passwordLength;
+
+  /// Hiç değiştirilmedi metni
+  ///
+  /// In tr, this message translates to:
+  /// **'Hiç değiştirilmedi'**
+  String get secNeverChanged;
+
+  /// Bugün değiştirildi metni
+  ///
+  /// In tr, this message translates to:
+  /// **'Bugün değiştirildi'**
+  String get secLastChangedToday;
+
+  /// Dün değiştirildi metni
+  ///
+  /// In tr, this message translates to:
+  /// **'Dün değiştirildi'**
+  String get secLastChangedYesterday;
+
+  /// N gün önce değiştirildi metni
+  ///
+  /// In tr, this message translates to:
+  /// **'{days} gün önce değiştirildi'**
+  String secLastChangedDaysAgo(int days);
+
+  /// Yedek açıklama metni
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifreli JSON dosyası olarak yedek paylaş'**
+  String get backupDesc;
 }
 
 class _AppLocalizationsDelegate
