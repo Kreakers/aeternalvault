@@ -32,4 +32,14 @@ class Reminder {
       isCompleted: (map['isCompleted'] ?? 0) == 1,
     );
   }
+
+  Reminder copyWith({int? id, bool? isCompleted}) {
+    return Reminder(
+      id: id ?? this.id,
+      contactId: contactId,
+      title: title,
+      dateTime: dateTime,
+      isCompleted: isCompleted ?? this.isCompleted,
+    );
+  }
 }

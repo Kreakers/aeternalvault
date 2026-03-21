@@ -131,7 +131,8 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
 
   Future<void> _showAddReminderDialog(BuildContext context, AppLocalizations l) async {
     final ctrl = TextEditingController();
-    DateTime selected = DateTime.now().add(const Duration(hours: 1));
+    final now = DateTime.now().add(const Duration(minutes: 5));
+    DateTime selected = DateTime(now.year, now.month, now.day, now.hour, now.minute);
     await showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(

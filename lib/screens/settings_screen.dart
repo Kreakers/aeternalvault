@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:share_plus/share_plus.dart';
 import '../providers/app_provider.dart';
 import '../l10n/app_localizations.dart';
 
@@ -56,12 +58,21 @@ class SettingsScreen extends StatelessWidget {
               const Divider(height: 48),
               _buildSectionTitle(l.backupRestore),
               Card(
-                child: ListTile(
-                  leading: const Icon(Icons.save_alt),
-                  title: Text(l.backup),
-                  subtitle: Text(l.backupSaved),
-                  onTap: () => _saveBackupToFile(context, provider, l),
-                ),
+                child: Column(children: [
+                  ListTile(
+                    leading: const Icon(Icons.save_alt),
+                    title: Text(l.backup),
+                    subtitle: Text(l.backupSaved),
+                    onTap: () => _saveBackupToFile(context, provider, l),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.restore, color: Colors.orange),
+                    title: Text(l.restore),
+                    subtitle: const Text('aeterna_backup_*.json'),
+                    onTap: () => _showRestoreDialog(context, provider, l),
+                  ),
+                ]),
               ),
               const SizedBox(height: 40),
               Center(
@@ -81,32 +92,54 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _showRestoreDialog(BuildContext context, AppProvider provider, AppLocalizations l) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.single.path == null) return;
+    final jsonStr = await File(result.files.single.path!).readAsString();
+    if (!context.mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.restoreFromBackup),
+        content: Text(l.restoreWarning, style: const TextStyle(color: Colors.orange)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.cancel)),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+            child: Text(l.restore),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final ok = await provider.restoreBackup(jsonStr);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(ok ? l.restoreSuccess : l.restoreError),
+        backgroundColor: ok ? Colors.green : Colors.red,
+      ));
+    }
+  }
+
   Future<void> _saveBackupToFile(BuildContext context, AppProvider provider, AppLocalizations l) async {
     try {
       final json = await provider.generateBackup();
       final now = DateTime.now();
-      final dateStr =
-          '${now.day.toString().padLeft(2, '0')}${now.month.toString().padLeft(2, '0')}${now.year}';
+      final dateStr = '${now.day.toString().padLeft(2, '0')}${now.month.toString().padLeft(2, '0')}${now.year}';
       final fileName = 'aeterna_backup_$dateStr.json';
 
-      Directory? dir;
-      if (Platform.isAndroid) {
-        dir = Directory('/storage/emulated/0/Download');
-        if (!await dir.exists()) {
-          dir = await getExternalStorageDirectory();
-        }
-      } else {
-        dir = await getApplicationDocumentsDirectory();
-      }
-
-      final file = File('${dir!.path}/$fileName');
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/$fileName');
       await file.writeAsString(json);
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l.backupSaved}: $fileName')),
-        );
-      }
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        subject: fileName,
+      );
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

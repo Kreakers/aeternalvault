@@ -548,7 +548,7 @@
   "appResetSuccess": "Uygulama başarıyla sıfırlandı.",
   "@appResetSuccess": {"description": "Uygulama sıfırlama başarı mesajı"},
 
-  "versionInfo": "Aeterna Vault v1.0.3",
+  "versionInfo": "Aeterna Vault v1.0",
   "@versionInfo": {"description": "Sürüm bilgisi"},
 
   "language": "Dil",
@@ -569,7 +569,7 @@
   "aboutTitle": "Hakkında",
   "@aboutTitle": {"description": "Hakkında başlığı"},
 
-  "version": "Sürüm 1.0.3",
+  "version": "Sürüm 1.0",
   "@version": {"description": "Sürüm metni"},
 
   "dataSafetyTitle": "Veri Güvenliği",
@@ -590,7 +590,7 @@
   "contactFeedbackContent": "Herhangi bir hata bildirimi veya özellik önerisi için bize ulaşabilirsiniz:",
   "@contactFeedbackContent": {"description": "İletişim ve geri bildirim içeriği"},
 
-  "copyright": "© 2024 Aeterna Vault. Tüm hakları saklıdır.",
+  "copyright": "© 2026 Aeterna Vault. Tüm hakları saklıdır.",
   "@copyright": {"description": "Telif hakkı metni"},
 
   "vaultSetupTitle": "Kasa Şifre Belirleme",
@@ -710,5 +710,20 @@
   "manualNote": "Not",
   "@manualNote": {"description": "Manuel not etiketi"},
 
-  "comingSoon": "Bu özellik yakında gelecek"
+  "comingSoon": "Bu özellik yakında gelecek",
+  "onbSkip": "Atla",
+  "onbContinue": "Devam Et",
+  "onbStart": "Başla",
+  "onbTitle1": "Aeterna Vault",
+  "onbDesc1": "Kişisel CRM'iniz ve dijital kasanız. Verileriniz yalnızca sizin elinizde.",
+  "onbTitle2": "Askeri Düzey Şifreleme",
+  "onbDesc2": "Tüm verileriniz AES-256-CBC şifreleme ile korunur. Ana şifreniz olmadan hiç kimse erişemez.",
+  "onbTitle3": "Gizli Kişi Yönetimi",
+  "onbDesc3": "Özel kişilerinizi, şifrelerinizi ve hassas belgelerinizi tek bir güvenli yerde saklayın.",
+  "onbFeat2a": "AES-256 Şifreleme",
+  "onbFeat2b": "Biyometrik Kilit",
+  "onbFeat2c": "Veri Paylaşımı Yok",
+  "onbFeat3a": "Özel Kişi Listesi",
+  "onbFeat3b": "Akıllı Hatırlatıcılar",
+  "onbFeat3c": "Güvenli Yedekleme"
 }

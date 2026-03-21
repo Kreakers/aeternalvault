@@ -32,4 +32,14 @@ class LogEntry {
       isManual: (map['isManual'] ?? 0) == 1,
     );
   }
+
+  LogEntry copyWith({int? id}) {
+    return LogEntry(
+      id: id ?? this.id,
+      contactId: contactId,
+      action: action,
+      timestamp: timestamp,
+      isManual: isManual,
+    );
+  }
 }

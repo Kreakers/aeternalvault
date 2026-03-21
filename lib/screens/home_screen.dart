@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../models/contact.dart';
@@ -13,6 +14,7 @@ import 'vault_setup_screen.dart';
 import 'security_settings_screen.dart';
 import 'settings_screen.dart';
 import 'about_screen.dart';
+import 'onboarding_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,6 +34,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkOnboarding());
+  }
+
+  void _checkOnboarding() {
+    final provider = Provider.of<AppProvider>(context, listen: false);
+    if (!provider.onboardingDone) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+      );
+    }
   }
 
   @override
@@ -89,11 +102,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       final l = AppLocalizations.of(context);
       final authenticated = await AuthService().authenticate(reason: l.biometricReason);
       if (!mounted) return;
-      if (authenticated && provider.vaultMasterKey != null) {
-        await _unlockAndGo(provider.vaultMasterKey!);
-      } else {
-        _showUnlockDialog();
+      if (authenticated) {
+        final storedKey = await const FlutterSecureStorage().read(key: 'vault_master_key');
+        if (storedKey != null) {
+          await _unlockAndGo(storedKey);
+          return;
+        }
       }
+      _showUnlockDialog();
     } else {
       _showUnlockDialog();
     }
@@ -197,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         ),
                         onChanged: (v) => setState(() => _searchQuery = v.toLowerCase()),
                       )
-                    : Text('Aeterna CRM',
+                    : Text('Aeterna Vault',
                         style: TextStyle(color: isDark ? Colors.white : AL.textPrimary, fontSize: 17, fontWeight: FontWeight.w700, letterSpacing: -0.3)),
               ),
               const SizedBox(width: 6),

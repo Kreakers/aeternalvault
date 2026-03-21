@@ -581,7 +581,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get appResetSuccess => 'Uygulama başarıyla sıfırlandı.';
 
   @override
-  String get versionInfo => 'Aeterna Vault v1.0.3';
+  String get versionInfo => 'Aeterna Vault v1.0';
 
   @override
   String get language => 'Dil';
@@ -602,7 +602,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get aboutTitle => 'Hakkında';
 
   @override
-  String get version => 'Sürüm 1.0.3';
+  String get version => 'Sürüm 1.0';
 
   @override
   String get dataSafetyTitle => 'Veri Güvenliği';
@@ -626,7 +626,7 @@ class AppLocalizationsTr extends AppLocalizations {
       'Herhangi bir hata bildirimi veya özellik önerisi için bize ulaşabilirsiniz:';
 
   @override
-  String get copyright => '© 2024 Aeterna Vault. Tüm hakları saklıdır.';
+  String get copyright => '© 2026 Aeterna Vault. Tüm hakları saklıdır.';
 
   @override
   String get vaultSetupTitle => 'Kasa Şifre Belirleme';
@@ -751,4 +751,52 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get comingSoon => 'Bu özellik yakında gelecek';
+
+  @override
+  String get onbSkip => 'Atla';
+
+  @override
+  String get onbContinue => 'Devam Et';
+
+  @override
+  String get onbStart => 'Başla';
+
+  @override
+  String get onbTitle1 => 'Aeterna Vault';
+
+  @override
+  String get onbDesc1 =>
+      'Kişisel CRM\'iniz ve dijital kasanız. Verileriniz yalnızca sizin elinizde.';
+
+  @override
+  String get onbTitle2 => 'Askeri Düzey Şifreleme';
+
+  @override
+  String get onbDesc2 =>
+      'Tüm verileriniz AES-256-CBC şifreleme ile korunur. Ana şifreniz olmadan hiç kimse erişemez.';
+
+  @override
+  String get onbTitle3 => 'Gizli Kişi Yönetimi';
+
+  @override
+  String get onbDesc3 =>
+      'Özel kişilerinizi, şifrelerinizi ve hassas belgelerinizi tek bir güvenli yerde saklayın.';
+
+  @override
+  String get onbFeat2a => 'AES-256 Şifreleme';
+
+  @override
+  String get onbFeat2b => 'Biyometrik Kilit';
+
+  @override
+  String get onbFeat2c => 'Veri Paylaşımı Yok';
+
+  @override
+  String get onbFeat3a => 'Özel Kişi Listesi';
+
+  @override
+  String get onbFeat3b => 'Akıllı Hatırlatıcılar';
+
+  @override
+  String get onbFeat3c => 'Güvenli Yedekleme';
 }

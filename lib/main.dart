@@ -23,10 +23,13 @@ void main() async {
     systemNavigationBarColor: Colors.transparent,
   ));
 
+  final appProvider = AppProvider();
+  await appProvider.loadContacts();
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AppProvider()..loadContacts()),
+        ChangeNotifierProvider.value(value: appProvider),
       ],
       child: const AeternaVaultApp(),
     ),

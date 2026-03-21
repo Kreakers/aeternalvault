@@ -1,9 +1,5 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:path_provider/path_provider.dart';
 import '../providers/app_provider.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
@@ -18,124 +14,12 @@ class SecuritySettingsScreen extends StatefulWidget {
 class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
   final _keyController    = TextEditingController();
   final _newKeyController = TextEditingController();
-  final _importController = TextEditingController();
-  bool _backupDone = false;
-  bool _isLoading = false;
 
   @override
   void dispose() {
     _keyController.dispose();
     _newKeyController.dispose();
-    _importController.dispose();
     super.dispose();
-  }
-
-  void _exportData() async {
-    final l = AppLocalizations.of(context);
-    final provider = Provider.of<AppProvider>(context, listen: false);
-    setState(() => _isLoading = true);
-    final jsonString = await provider.generateBackup();
-    setState(() => _isLoading = false);
-    if (!mounted) return;
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(l.dataBackupTitle),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(l.backupInstructions),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 180,
-            child: SingleChildScrollView(
-              child: SelectableText(jsonString,
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontFamily: 'monospace',
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? AC.textSec
-                          : AL.textSec)),
-            ),
-          ),
-        ]),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: jsonString));
-              setState(() => _backupDone = true);
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l.backupCopied)));
-              Navigator.pop(context);
-            },
-            child: Text(l.copyAndClose),
-          ),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.share, size: 16),
-            label: Text(l.shareBackup),
-            style: ElevatedButton.styleFrom(backgroundColor: AC.navyLight, foregroundColor: Colors.white),
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                final dir = await getTemporaryDirectory();
-                final file = File('${dir.path}/aeterna_backup_${DateTime.now().millisecondsSinceEpoch}.json');
-                await file.writeAsString(jsonString);
-                await Share.shareXFiles(
-                  [XFile(file.path)],
-                  subject: 'Aeterna Vault Backup',
-                );
-                setState(() => _backupDone = true);
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l.backupShared)));
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l.saveError(e.toString()))));
-                }
-              }
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _importData() {
-    final l = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(l.restoreFromBackup),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(l.restoreWarning,
-              style: const TextStyle(color: AC.danger)),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _importController,
-            maxLines: 5,
-            decoration: const InputDecoration(hintText: '{ "contacts": ... }'),
-          ),
-        ]),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(l.cancel)),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              setState(() => _isLoading = true);
-              final provider = Provider.of<AppProvider>(context, listen: false);
-              final ok = await provider.restoreBackup(_importController.text);
-              if (!mounted) return;
-              setState(() => _isLoading = false);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(ok ? l.restoreSuccess : l.restoreError),
-              ));
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AC.danger),
-            child: Text(l.restore),
-          ),
-        ],
-      ),
-    );
   }
 
   void _showResetConfirm() {
@@ -247,20 +131,6 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 badgeColor: AC.gold,
                 onTap: _showChangeKeyDialog,
               ),
-              _divider(isDark),
-              _settingRow(
-                isDark: isDark,
-                icon: Icons.visibility_outlined,
-                iconColor: AC.navyLight,
-                title: l.passwordHints,
-                subtitle: l.showHintOnLogin,
-                toggle: false,
-                onToggle: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l.comingSoon)),
-                  );
-                },
-              ),
             ])),
             const SizedBox(height: 12),
 
@@ -291,35 +161,6 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
             ])),
             const SizedBox(height: 12),
 
-            SectionLabel(l.accountSecurity),
-            const SizedBox(height: 8),
-            GlassCard(child: Padding(
-              padding: const EdgeInsets.fromLTRB(13, 10, 13, 12),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(l.backupRestore,
-                    style: TextStyle(
-                        color: isDark ? Colors.white70 : AL.textSec,
-                        fontSize: 11, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 8),
-                Row(children: [
-                  Expanded(child: _actionBtn(
-                    label: _backupDone ? l.backupDone : l.backup,
-                    icon: Icons.cloud_upload_outlined,
-                    color: _backupDone ? AC.success : AC.navyLight,
-                    onTap: _exportData,
-                  )),
-                  const SizedBox(width: 8),
-                  Expanded(child: _actionBtn(
-                    label: l.restore,
-                    icon: Icons.restore,
-                    color: isDark ? Colors.white54 : AL.textSec,
-                    onTap: _importData,
-                  )),
-                ]),
-              ]),
-            )),
-            const SizedBox(height: 12),
-
             SectionLabel(l.dangerZone),
             const SizedBox(height: 8),
             GestureDetector(
@@ -343,11 +184,6 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
           ],
         ))),
         ]),
-        if (_isLoading)
-          Container(
-            color: Colors.black45,
-            child: const Center(child: CircularProgressIndicator(color: AC.gold)),
-          ),
       ]),
     );
   }

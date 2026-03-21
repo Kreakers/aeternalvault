@@ -24,7 +24,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 13,
+      version: 14,
       onConfigure: _onConfigure,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
@@ -80,7 +80,8 @@ class DatabaseService {
         useBiometrics INTEGER DEFAULT 0,
         lastUnlockTime TEXT,
         recoveryCode TEXT,
-        autoLockMinutes INTEGER DEFAULT 0,
+        autoLockEnabled INTEGER DEFAULT 0,
+        autoLockMinutes INTEGER DEFAULT 1,
         themeColor INTEGER DEFAULT 4284572657,
         isDarkMode INTEGER DEFAULT 1,
         locale TEXT DEFAULT 'tr'
@@ -112,7 +113,7 @@ class DatabaseService {
     await db.insert('vault_settings', {
       'id': 1,
       'isSetupComplete': 0,
-      'autoLockMinutes': 0,
+      'autoLockMinutes': 1,
       'themeColor': 4284572657,
       'isDarkMode': 1,
       'locale': 'tr',
@@ -127,16 +128,24 @@ class DatabaseService {
       await db.execute('DROP TABLE IF EXISTS reminders');
       await db.execute('DROP TABLE IF EXISTS logs');
       await _createDB(db, newVersion);
-    } else if (oldVersion < 12) {
-      // Add locale column to existing vault_settings table
+      return;
+    }
+    if (oldVersion < 12) {
       try {
         await db.execute("ALTER TABLE vault_settings ADD COLUMN locale TEXT DEFAULT 'tr'");
-      } catch (_) {
-        // Column may already exist
-      }
-    } else if (oldVersion < 13) {
+      } catch (_) {}
+    }
+    if (oldVersion < 13) {
       try {
         await db.execute('ALTER TABLE logs ADD COLUMN isManual INTEGER DEFAULT 0');
+      } catch (_) {}
+    }
+    if (oldVersion < 14) {
+      try {
+        await db.execute('ALTER TABLE vault_settings ADD COLUMN autoLockEnabled INTEGER DEFAULT 0');
+      } catch (_) {}
+      try {
+        await db.execute('ALTER TABLE vault_settings ADD COLUMN autoLockMinutes INTEGER DEFAULT 1');
       } catch (_) {}
     }
   }
@@ -261,7 +270,7 @@ class DatabaseService {
       'useBiometrics': 0,
       'lastUnlockTime': null,
       'recoveryCode': null,
-      'autoLockMinutes': 0,
+      'autoLockMinutes': 1,
       'themeColor': 4284572657,
       'isDarkMode': 1
     }, where: 'id = ?', whereArgs: [1]);

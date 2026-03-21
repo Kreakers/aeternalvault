@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/contact.dart';
 import '../models/vault_item.dart';
 import '../models/reminder.dart';
@@ -12,6 +15,7 @@ import '../services/notification_service.dart';
 class AppProvider with ChangeNotifier {
   final DatabaseService _dbService = DatabaseService();
   final EncryptionService _encryptionService = EncryptionService();
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   List<Contact> _contacts = [];
   List<Contact> get contacts => _contacts;
@@ -32,7 +36,9 @@ class AppProvider with ChangeNotifier {
   bool get isVaultSetupComplete => _isVaultSetupComplete;
 
   String? _vaultMasterKey;
-  String? get vaultMasterKey => _vaultMasterKey;
+
+  int _failedUnlockAttempts = 0;
+  DateTime? _lastFailedAttempt;
 
   bool _useBiometrics = false;
   bool get useBiometrics => _useBiometrics;
@@ -55,11 +61,22 @@ class AppProvider with ChangeNotifier {
   Locale _locale = const Locale('tr');
   Locale get locale => _locale;
 
+  bool _onboardingDone = false;
+  bool get onboardingDone => _onboardingDone;
+
   Future<void> loadContacts() async {
     _contacts = await _dbService.getContacts();
     _allReminders = await _dbService.getReminders();
     _allLogs = await _dbService.getLogs();
     await checkVaultStatus();
+    final done = await _secureStorage.read(key: 'onboarding_done');
+    _onboardingDone = done == 'true';
+    notifyListeners();
+  }
+
+  Future<void> completeOnboarding() async {
+    _onboardingDone = true;
+    await _secureStorage.write(key: 'onboarding_done', value: 'true');
     notifyListeners();
   }
 
@@ -71,8 +88,8 @@ class AppProvider with ChangeNotifier {
       _useBiometrics = settings['useBiometrics'] == 1;
       _themeColor = Color(settings['themeColor'] ?? 4279935870);
       _isDarkMode = (settings['isDarkMode'] ?? 1) == 1;
-      final localeCode = settings['locale'] as String? ?? 'tr';
-      _locale = Locale(localeCode);
+      final savedLocale = settings['locale'] as String?;
+      _locale = Locale(_resolveLocale(savedLocale));
       _autoLockEnabled = (settings['autoLockEnabled'] ?? 0) == 1;
       _autoLockMinutes = settings['autoLockMinutes'] ?? 1;
       if (settings['lastUnlockTime'] != null) {
@@ -81,10 +98,18 @@ class AppProvider with ChangeNotifier {
     }
   }
 
+  static const _supportedLocales = ['tr', 'en', 'de', 'it'];
+
+  String _resolveLocale(String? saved) {
+    if (saved != null && _supportedLocales.contains(saved)) return saved;
+    final systemLang = Platform.localeName.split('_').first;
+    return _supportedLocales.contains(systemLang) ? systemLang : 'en';
+  }
+
   Future<void> _addLog(String action, {int? contactId}) async {
     final log = LogEntry(contactId: contactId, action: action, timestamp: DateTime.now());
-    await _dbService.insertLog(log);
-    _allLogs = await _dbService.getLogs();
+    final id = await _dbService.insertLog(log);
+    _allLogs.insert(0, log.copyWith(id: id));
   }
 
   Future<void> addManualNote(int contactId, String note) async {
@@ -94,8 +119,8 @@ class AppProvider with ChangeNotifier {
       timestamp: DateTime.now(),
       isManual: true,
     );
-    await _dbService.insertLog(log);
-    _allLogs = await _dbService.getLogs();
+    final id = await _dbService.insertLog(log);
+    _allLogs.insert(0, log.copyWith(id: id));
     notifyListeners();
   }
 
@@ -120,16 +145,27 @@ class AppProvider with ChangeNotifier {
   }
 
   // --- Security ---
+  static String _hashKey(String key) => sha256.convert(utf8.encode(key)).toString();
+
   Future<bool> updateMasterKey(String oldKey, String newKey) async {
-    if (_vaultMasterKey == null || oldKey != _vaultMasterKey) return false;
-    await _dbService.updateVaultSettings({'hashedMasterKey': newKey});
+    if (_vaultMasterKey == null) return false;
+    final hashedOld = _hashKey(oldKey);
+    if (_vaultMasterKey != hashedOld && _vaultMasterKey != oldKey) return false;
+    final hashedNew = _hashKey(newKey);
+    await _dbService.updateVaultSettings({'hashedMasterKey': hashedNew});
+    _vaultMasterKey = hashedNew;
+    if (_useBiometrics) {
+      await _secureStorage.write(key: 'vault_master_key', value: newKey);
+    }
     await _addLog('Kasa ana şifresi değiştirildi');
-    await checkVaultStatus();
     return true;
   }
 
   Future<void> updateBiometricPref(bool useBio) async {
     await _dbService.updateVaultSettings({'useBiometrics': useBio ? 1 : 0});
+    if (!useBio) {
+      await _secureStorage.delete(key: 'vault_master_key');
+    }
     await checkVaultStatus();
     notifyListeners();
   }
@@ -152,60 +188,111 @@ class AppProvider with ChangeNotifier {
   // --- CRM & Reminders ---
   Future<void> addContact(Contact contact) async {
     final id = await _dbService.insertContact(contact);
+    final saved = contact.copyWith(id: id);
+    _contacts.add(saved);
     await _addLog('Kişi sisteme dahil edildi', contactId: id);
-    await loadContacts();
+    notifyListeners();
   }
 
   Future<void> updateContact(Contact contact) async {
     await _dbService.updateContact(contact);
+    final idx = _contacts.indexWhere((c) => c.id == contact.id);
+    if (idx != -1) _contacts[idx] = contact;
     await _addLog('Kişi bilgileri güncellendi', contactId: contact.id);
-    await loadContacts();
+    notifyListeners();
   }
 
   Future<void> deleteContact(int id) async {
     await _dbService.deleteContact(id);
-    await loadContacts();
+    _contacts.removeWhere((c) => c.id == id);
+    _allReminders.removeWhere((r) => r.contactId == id);
+    _allLogs.removeWhere((l) => l.contactId == id);
+    notifyListeners();
   }
 
   Future<void> addReminder(Reminder reminder) async {
     final id = await _dbService.insertReminder(reminder);
+    final saved = reminder.copyWith(id: id);
+    _allReminders.add(saved);
+    notifyListeners();
     await _addLog('Yeni görev eklendi: ${reminder.title}', contactId: reminder.contactId);
-
-    // Bildirim planla
-    await NotificationService().scheduleReminder(
-      id: id,
-      title: '⏰ Hatırlatıcı',
-      body: reminder.title,
-      scheduledDate: reminder.dateTime,
-    );
-
-    await loadContacts();
+    try {
+      await NotificationService().scheduleReminder(
+        id: id,
+        title: '⏰ Hatırlatıcı',
+        body: reminder.title,
+        scheduledDate: reminder.dateTime,
+      );
+      // Onay bildirimi — kullanıcı bildirim sisteminin çalıştığını görsün
+      await NotificationService().showNow(
+        id: id + 100000,
+        title: '✅ Hatırlatıcı Ayarlandı',
+        body: reminder.title,
+      );
+    } catch (e) {
+      debugPrint('⚠️ Bildirim zamanlanamadı: $e');
+    }
   }
 
   Future<void> updateReminder(Reminder reminder) async {
+    final idx = _allReminders.indexWhere((r) => r.id == reminder.id);
+    if (idx != -1) _allReminders[idx] = reminder;
+    notifyListeners();
     await _dbService.updateReminder(reminder);
     if (reminder.isCompleted && reminder.id != null) {
-      await NotificationService().cancelReminder(reminder.id!);
+      try { await NotificationService().cancelReminder(reminder.id!); } catch (_) {}
       await _addLog('Görev tamamlandı: ${reminder.title}', contactId: reminder.contactId);
     }
-    await loadContacts();
   }
 
   Future<void> deleteReminder(int id) async {
+    _allReminders.removeWhere((r) => r.id == id);
+    notifyListeners();
     await _dbService.deleteReminder(id);
-    await NotificationService().cancelReminder(id);
-    await loadContacts();
+    try { await NotificationService().cancelReminder(id); } catch (_) {}
   }
 
   // --- Vault ---
   Future<bool> unlockVault(String masterKey) async {
-    if (!_isVaultSetupComplete) return false;
-    if (_vaultMasterKey == null || _vaultMasterKey != masterKey) return false;
+    if (!_isVaultSetupComplete || _vaultMasterKey == null) return false;
+
+    // Rate limiting: 3 başarısız denemeden sonra bekleme süresi
+    if (_failedUnlockAttempts >= 3 && _lastFailedAttempt != null) {
+      const waits = [5, 10, 20, 40, 60];
+      final waitSec = waits[(_failedUnlockAttempts - 3).clamp(0, 4)];
+      if (DateTime.now().difference(_lastFailedAttempt!).inSeconds < waitSec) {
+        return false;
+      }
+    }
+
+    final hashedInput = _hashKey(masterKey);
+    bool isValid = false;
+
+    if (_vaultMasterKey == hashedInput) {
+      isValid = true;
+    } else if (_vaultMasterKey == masterKey) {
+      // Legacy plaintext → hash'e migrate et
+      await _dbService.updateVaultSettings({'hashedMasterKey': hashedInput});
+      _vaultMasterKey = hashedInput;
+      isValid = true;
+    }
+
+    if (!isValid) {
+      _failedUnlockAttempts++;
+      _lastFailedAttempt = DateTime.now();
+      return false;
+    }
+
+    _failedUnlockAttempts = 0;
+    _lastFailedAttempt = null;
+
     try {
       _encryptionService.init(masterKey);
       _isVaultUnlocked = true;
-      final now = DateTime.now();
-      await _dbService.updateVaultSettings({'lastUnlockTime': now.toIso8601String()});
+      await _dbService.updateVaultSettings({'lastUnlockTime': DateTime.now().toIso8601String()});
+      if (_useBiometrics) {
+        await _secureStorage.write(key: 'vault_master_key', value: masterKey);
+      }
       await loadVaultItems();
       return true;
     } catch (e) { return false; }
@@ -214,6 +301,7 @@ class AppProvider with ChangeNotifier {
   void lockVault() {
     _isVaultUnlocked = false;
     _vaultItems = [];
+    _encryptionService.clear();
     notifyListeners();
   }
 
@@ -236,9 +324,10 @@ class AppProvider with ChangeNotifier {
     if (!_isVaultUnlocked) return;
     final encryptedSecret = _encryptionService.encryptData(item.secretContent);
     final encryptedItem = item.copyWith(secretContent: encryptedSecret);
-    await _dbService.insertVaultItem(encryptedItem);
+    final id = await _dbService.insertVaultItem(encryptedItem);
+    _vaultItems.add(item.copyWith(id: id));
     await _addLog('Kasa öğesi eklendi: ${item.title}');
-    await loadVaultItems();
+    notifyListeners();
   }
 
   Future<void> updateVaultItem(VaultItem item) async {
@@ -246,22 +335,28 @@ class AppProvider with ChangeNotifier {
     final encryptedSecret = _encryptionService.encryptData(item.secretContent);
     final encryptedItem = item.copyWith(secretContent: encryptedSecret);
     await _dbService.updateVaultItem(encryptedItem);
-    await loadVaultItems();
+    final idx = _vaultItems.indexWhere((v) => v.id == item.id);
+    if (idx != -1) _vaultItems[idx] = item;
+    notifyListeners();
   }
 
   Future<void> deleteVaultItem(int id) async {
     if (!_isVaultUnlocked) return;
     await _dbService.deleteVaultItem(id);
-    await loadVaultItems();
+    _vaultItems.removeWhere((v) => v.id == id);
+    notifyListeners();
   }
 
   // --- Reset & Backup ---
   Future<void> completeVaultSetup(String masterKey, bool useBio) async {
     await _dbService.updateVaultSettings({
       'isSetupComplete': 1,
-      'hashedMasterKey': masterKey,
+      'hashedMasterKey': _hashKey(masterKey),
       'useBiometrics': useBio ? 1 : 0,
     });
+    if (useBio) {
+      await _secureStorage.write(key: 'vault_master_key', value: masterKey);
+    }
     await checkVaultStatus();
     notifyListeners();
   }

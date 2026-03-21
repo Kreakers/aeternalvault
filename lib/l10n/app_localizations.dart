@@ -1185,7 +1185,7 @@ abstract class AppLocalizations {
   /// Sürüm bilgisi
   ///
   /// In tr, this message translates to:
-  /// **'Aeterna Vault v1.0.3'**
+  /// **'Aeterna Vault v1.0'**
   String get versionInfo;
 
   /// Dil bölüm başlığı
@@ -1227,7 +1227,7 @@ abstract class AppLocalizations {
   /// Sürüm metni
   ///
   /// In tr, this message translates to:
-  /// **'Sürüm 1.0.3'**
+  /// **'Sürüm 1.0'**
   String get version;
 
   /// Veri güvenliği bölüm başlığı
@@ -1269,7 +1269,7 @@ abstract class AppLocalizations {
   /// Telif hakkı metni
   ///
   /// In tr, this message translates to:
-  /// **'© 2024 Aeterna Vault. Tüm hakları saklıdır.'**
+  /// **'© 2026 Aeterna Vault. Tüm hakları saklıdır.'**
   String get copyright;
 
   /// Kasa şifre belirleme başlığı
@@ -1511,6 +1511,96 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Bu özellik yakında gelecek'**
   String get comingSoon;
+
+  /// No description provided for @onbSkip.
+  ///
+  /// In tr, this message translates to:
+  /// **'Atla'**
+  String get onbSkip;
+
+  /// No description provided for @onbContinue.
+  ///
+  /// In tr, this message translates to:
+  /// **'Devam Et'**
+  String get onbContinue;
+
+  /// No description provided for @onbStart.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başla'**
+  String get onbStart;
+
+  /// No description provided for @onbTitle1.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aeterna Vault'**
+  String get onbTitle1;
+
+  /// No description provided for @onbDesc1.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kişisel CRM\'iniz ve dijital kasanız. Verileriniz yalnızca sizin elinizde.'**
+  String get onbDesc1;
+
+  /// No description provided for @onbTitle2.
+  ///
+  /// In tr, this message translates to:
+  /// **'Askeri Düzey Şifreleme'**
+  String get onbTitle2;
+
+  /// No description provided for @onbDesc2.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm verileriniz AES-256-CBC şifreleme ile korunur. Ana şifreniz olmadan hiç kimse erişemez.'**
+  String get onbDesc2;
+
+  /// No description provided for @onbTitle3.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gizli Kişi Yönetimi'**
+  String get onbTitle3;
+
+  /// No description provided for @onbDesc3.
+  ///
+  /// In tr, this message translates to:
+  /// **'Özel kişilerinizi, şifrelerinizi ve hassas belgelerinizi tek bir güvenli yerde saklayın.'**
+  String get onbDesc3;
+
+  /// No description provided for @onbFeat2a.
+  ///
+  /// In tr, this message translates to:
+  /// **'AES-256 Şifreleme'**
+  String get onbFeat2a;
+
+  /// No description provided for @onbFeat2b.
+  ///
+  /// In tr, this message translates to:
+  /// **'Biyometrik Kilit'**
+  String get onbFeat2b;
+
+  /// No description provided for @onbFeat2c.
+  ///
+  /// In tr, this message translates to:
+  /// **'Veri Paylaşımı Yok'**
+  String get onbFeat2c;
+
+  /// No description provided for @onbFeat3a.
+  ///
+  /// In tr, this message translates to:
+  /// **'Özel Kişi Listesi'**
+  String get onbFeat3a;
+
+  /// No description provided for @onbFeat3b.
+  ///
+  /// In tr, this message translates to:
+  /// **'Akıllı Hatırlatıcılar'**
+  String get onbFeat3b;
+
+  /// No description provided for @onbFeat3c.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güvenli Yedekleme'**
+  String get onbFeat3c;
 }
 
 class _AppLocalizationsDelegate

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
+import 'home_screen.dart';
 
 class VaultSetupScreen extends StatefulWidget {
   const VaultSetupScreen({super.key});
@@ -29,12 +30,14 @@ class _VaultSetupScreenState extends State<VaultSetupScreen> {
     if (_formKey.currentState!.validate()) {
       final provider = Provider.of<AppProvider>(context, listen: false);
       await provider.completeVaultSetup(_keyController.text, _useBiometrics);
+      await provider.unlockVault(_keyController.text);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.vaultPasswordSaved)),
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (_) => false,
         );
-        Navigator.pop(context);
       }
     }
   }

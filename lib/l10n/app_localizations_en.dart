@@ -581,7 +581,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appResetSuccess => 'App successfully reset.';
 
   @override
-  String get versionInfo => 'Aeterna Vault v1.0.3';
+  String get versionInfo => 'Aeterna Vault v1.0';
 
   @override
   String get language => 'Language';
@@ -602,7 +602,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutTitle => 'About';
 
   @override
-  String get version => 'Version 1.0.3';
+  String get version => 'Version 1.0';
 
   @override
   String get dataSafetyTitle => 'Data Security';
@@ -626,7 +626,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'For bug reports or feature suggestions, you can reach us:';
 
   @override
-  String get copyright => '© 2024 Aeterna Vault. All rights reserved.';
+  String get copyright => '© 2026 Aeterna Vault. All rights reserved.';
 
   @override
   String get vaultSetupTitle => 'Vault Password Setup';
@@ -752,4 +752,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get comingSoon => 'This feature is coming soon';
+
+  @override
+  String get onbSkip => 'Skip';
+
+  @override
+  String get onbContinue => 'Continue';
+
+  @override
+  String get onbStart => 'Get Started';
+
+  @override
+  String get onbTitle1 => 'Aeterna Vault';
+
+  @override
+  String get onbDesc1 =>
+      'Your personal CRM and digital vault. Your data stays only in your hands.';
+
+  @override
+  String get onbTitle2 => 'Military-Grade Encryption';
+
+  @override
+  String get onbDesc2 =>
+      'All your data is protected with AES-256-CBC encryption. No one can access it without your master password.';
+
+  @override
+  String get onbTitle3 => 'Private Contact Management';
+
+  @override
+  String get onbDesc3 =>
+      'Store your private contacts, passwords and sensitive documents in one secure place.';
+
+  @override
+  String get onbFeat2a => 'AES-256 Encryption';
+
+  @override
+  String get onbFeat2b => 'Biometric Lock';
+
+  @override
+  String get onbFeat2c => 'No Data Sharing';
+
+  @override
+  String get onbFeat3a => 'Private Contacts';
+
+  @override
+  String get onbFeat3b => 'Smart Reminders';
+
+  @override
+  String get onbFeat3c => 'Secure Backup';
 }

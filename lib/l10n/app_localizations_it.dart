@@ -583,7 +583,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get appResetSuccess => 'App ripristinata con successo.';
 
   @override
-  String get versionInfo => 'Aeterna Vault v1.0.3';
+  String get versionInfo => 'Aeterna Vault v1.0';
 
   @override
   String get language => 'Lingua';
@@ -604,7 +604,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get aboutTitle => 'Informazioni';
 
   @override
-  String get version => 'Versione 1.0.3';
+  String get version => 'Versione 1.0';
 
   @override
   String get dataSafetyTitle => 'Sicurezza Dati';
@@ -628,7 +628,7 @@ class AppLocalizationsIt extends AppLocalizations {
       'Per segnalazioni di bug o suggerimenti di funzionalità, puoi contattarci:';
 
   @override
-  String get copyright => '© 2024 Aeterna Vault. Tutti i diritti riservati.';
+  String get copyright => '© 2026 Aeterna Vault. Tutti i diritti riservati.';
 
   @override
   String get vaultSetupTitle => 'Configurazione Password Cassaforte';
@@ -755,4 +755,52 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get comingSoon => 'Questa funzione sta arrivando presto';
+
+  @override
+  String get onbSkip => 'Salta';
+
+  @override
+  String get onbContinue => 'Continua';
+
+  @override
+  String get onbStart => 'Inizia';
+
+  @override
+  String get onbTitle1 => 'Aeterna Vault';
+
+  @override
+  String get onbDesc1 =>
+      'Il tuo CRM personale e vault digitale. I tuoi dati rimangono solo nelle tue mani.';
+
+  @override
+  String get onbTitle2 => 'Crittografia di Livello Militare';
+
+  @override
+  String get onbDesc2 =>
+      'Tutti i dati sono protetti con crittografia AES-256-CBC. Nessuno può accedervi senza la tua password principale.';
+
+  @override
+  String get onbTitle3 => 'Gestione Contatti Privata';
+
+  @override
+  String get onbDesc3 =>
+      'Archivia i tuoi contatti privati, password e documenti sensibili in un unico posto sicuro.';
+
+  @override
+  String get onbFeat2a => 'Crittografia AES-256';
+
+  @override
+  String get onbFeat2b => 'Blocco Biometrico';
+
+  @override
+  String get onbFeat2c => 'Nessuna Condivisione';
+
+  @override
+  String get onbFeat3a => 'Contatti Privati';
+
+  @override
+  String get onbFeat3b => 'Promemoria Intelligenti';
+
+  @override
+  String get onbFeat3c => 'Backup Sicuro';
 }
