@@ -912,24 +912,6 @@ abstract class AppLocalizations {
   /// **'Hesap Güvenliği'**
   String get accountSecurity;
 
-  /// Kurtarma kodu başlığı
-  ///
-  /// In tr, this message translates to:
-  /// **'Kurtarma Kodu'**
-  String get recoveryCode;
-
-  /// Mevcut kurtarma kodu mesajı
-  ///
-  /// In tr, this message translates to:
-  /// **'Mevcut bir kodunuz var.'**
-  String get recoveryCodeExists;
-
-  /// Kurtarma kodu ipucu
-  ///
-  /// In tr, this message translates to:
-  /// **'12 kelimeli kurtarma anahtarı'**
-  String get recoveryCodeHint;
-
   /// Yedekleme ve geri yükleme başlığı
   ///
   /// In tr, this message translates to:
@@ -995,24 +977,6 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'ONAYLA VE SİL'**
   String get confirmAndDelete;
-
-  /// Kurtarma kodu oluşturuldu dialog başlığı
-  ///
-  /// In tr, this message translates to:
-  /// **'Kurtarma Kodu Oluşturuldu'**
-  String get recoveryCodeGenerated;
-
-  /// Güvenli not al metni
-  ///
-  /// In tr, this message translates to:
-  /// **'Lütfen güvenli bir yere not edin:'**
-  String get saveNote;
-
-  /// Kaydet ve kapat butonu
-  ///
-  /// In tr, this message translates to:
-  /// **'KAYDET VE KAPAT'**
-  String get saveAndClose;
 
   /// Veri yedeği dialog başlığı
   ///
@@ -1709,6 +1673,12 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Geçersiz yedek dosyası.'**
   String get invalidBackupFile;
+
+  /// Master key uyarısı
+  ///
+  /// In tr, this message translates to:
+  /// **'⚠️ Master key\'inizi güvenli bir yere kaydedin. Unutmanız durumunda verilerinize bir daha erişilemez.'**
+  String get masterKeyWarning;
 }
 
 class _AppLocalizationsDelegate

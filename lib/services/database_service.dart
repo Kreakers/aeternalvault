@@ -24,7 +24,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 15,
+      version: 16,
       onConfigure: _onConfigure,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
@@ -79,7 +79,6 @@ class DatabaseService {
         hashedMasterKey TEXT,
         useBiometrics INTEGER DEFAULT 0,
         lastUnlockTime TEXT,
-        recoveryCode TEXT,
         autoLockEnabled INTEGER DEFAULT 0,
         autoLockMinutes INTEGER DEFAULT 1,
         themeColor INTEGER DEFAULT 4284572657,
@@ -156,6 +155,34 @@ class DatabaseService {
       try {
         await db.execute('ALTER TABLE vault_settings ADD COLUMN masterKeyChangedAt TEXT');
       } catch (_) {}
+    }
+    if (oldVersion < 16) {
+      // recoveryCode kolonu kaldırılıyor — özellik iptal edildi
+      await db.transaction((txn) async {
+        await txn.execute('''
+          CREATE TABLE vault_settings_new (
+            id INTEGER PRIMARY KEY,
+            isSetupComplete INTEGER DEFAULT 0,
+            hashedMasterKey TEXT,
+            useBiometrics INTEGER DEFAULT 0,
+            lastUnlockTime TEXT,
+            autoLockEnabled INTEGER DEFAULT 0,
+            autoLockMinutes INTEGER DEFAULT 1,
+            themeColor INTEGER DEFAULT 4284572657,
+            isDarkMode INTEGER DEFAULT 1,
+            locale TEXT DEFAULT 'tr',
+            masterKeyChangedAt TEXT
+          )
+        ''');
+        await txn.execute('''
+          INSERT INTO vault_settings_new
+            SELECT id, isSetupComplete, hashedMasterKey, useBiometrics, lastUnlockTime,
+                   autoLockEnabled, autoLockMinutes, themeColor, isDarkMode, locale, masterKeyChangedAt
+            FROM vault_settings
+        ''');
+        await txn.execute('DROP TABLE vault_settings');
+        await txn.execute('ALTER TABLE vault_settings_new RENAME TO vault_settings');
+      });
     }
   }
 
@@ -278,7 +305,6 @@ class DatabaseService {
       'hashedMasterKey': null,
       'useBiometrics': 0,
       'lastUnlockTime': null,
-      'recoveryCode': null,
       'autoLockMinutes': 1,
       'themeColor': 4284572657,
       'isDarkMode': 1

@@ -439,15 +439,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get accountSecurity => 'Hesap Güvenliği';
 
   @override
-  String get recoveryCode => 'Kurtarma Kodu';
-
-  @override
-  String get recoveryCodeExists => 'Mevcut bir kodunuz var.';
-
-  @override
-  String get recoveryCodeHint => '12 kelimeli kurtarma anahtarı';
-
-  @override
   String get backupRestore => 'Yedekleme & Geri Yükleme';
 
   @override
@@ -480,15 +471,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get confirmAndDelete => 'ONAYLA VE SİL';
-
-  @override
-  String get recoveryCodeGenerated => 'Kurtarma Kodu Oluşturuldu';
-
-  @override
-  String get saveNote => 'Lütfen güvenli bir yere not edin:';
-
-  @override
-  String get saveAndClose => 'KAYDET VE KAPAT';
 
   @override
   String get dataBackupTitle => 'Veri Yedeği (JSON)';
@@ -858,4 +840,8 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get invalidBackupFile => 'Geçersiz yedek dosyası.';
+
+  @override
+  String get masterKeyWarning =>
+      '⚠️ Master key\'inizi güvenli bir yere kaydedin. Unutmanız durumunda verilerinize bir daha erişilemez.';
 }

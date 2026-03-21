@@ -439,15 +439,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get accountSecurity => 'Kontosicherheit';
 
   @override
-  String get recoveryCode => 'Wiederherstellungscode';
-
-  @override
-  String get recoveryCodeExists => 'Sie haben einen vorhandenen Code.';
-
-  @override
-  String get recoveryCodeHint => '12-Wort-Wiederherstellungsschlüssel';
-
-  @override
   String get backupRestore => 'Sicherung & Wiederherstellung';
 
   @override
@@ -480,15 +471,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get confirmAndDelete => 'BESTÄTIGEN UND LÖSCHEN';
-
-  @override
-  String get recoveryCodeGenerated => 'Wiederherstellungscode generiert';
-
-  @override
-  String get saveNote => 'Bitte notieren Sie ihn an einem sicheren Ort:';
-
-  @override
-  String get saveAndClose => 'SPEICHERN UND SCHLIESSEN';
 
   @override
   String get dataBackupTitle => 'Datensicherung (JSON)';
@@ -861,4 +843,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get invalidBackupFile => 'Ungültige Backup-Datei.';
+
+  @override
+  String get masterKeyWarning =>
+      '⚠️ Speichern Sie Ihren Master-Schlüssel an einem sicheren Ort. Wenn Sie ihn vergessen, kann nicht mehr auf Ihre Daten zugegriffen werden.';
 }

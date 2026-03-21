@@ -411,15 +411,6 @@
   "accountSecurity": "Hesap Güvenliği",
   "@accountSecurity": {"description": "Hesap güvenliği bölüm başlığı"},
 
-  "recoveryCode": "Kurtarma Kodu",
-  "@recoveryCode": {"description": "Kurtarma kodu başlığı"},
-
-  "recoveryCodeExists": "Mevcut bir kodunuz var.",
-  "@recoveryCodeExists": {"description": "Mevcut kurtarma kodu mesajı"},
-
-  "recoveryCodeHint": "12 kelimeli kurtarma anahtarı",
-  "@recoveryCodeHint": {"description": "Kurtarma kodu ipucu"},
-
   "backupRestore": "Yedekleme & Geri Yükleme",
   "@backupRestore": {"description": "Yedekleme ve geri yükleme başlığı"},
 
@@ -452,15 +443,6 @@
 
   "confirmAndDelete": "ONAYLA VE SİL",
   "@confirmAndDelete": {"description": "Onayla ve sil butonu"},
-
-  "recoveryCodeGenerated": "Kurtarma Kodu Oluşturuldu",
-  "@recoveryCodeGenerated": {"description": "Kurtarma kodu oluşturuldu dialog başlığı"},
-
-  "saveNote": "Lütfen güvenli bir yere not edin:",
-  "@saveNote": {"description": "Güvenli not al metni"},
-
-  "saveAndClose": "KAYDET VE KAPAT",
-  "@saveAndClose": {"description": "Kaydet ve kapat butonu"},
 
   "dataBackupTitle": "Veri Yedeği (JSON)",
   "@dataBackupTitle": {"description": "Veri yedeği dialog başlığı"},

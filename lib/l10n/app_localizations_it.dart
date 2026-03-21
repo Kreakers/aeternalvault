@@ -440,15 +440,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get accountSecurity => 'Sicurezza Account';
 
   @override
-  String get recoveryCode => 'Codice di Recupero';
-
-  @override
-  String get recoveryCodeExists => 'Hai un codice esistente.';
-
-  @override
-  String get recoveryCodeHint => 'Chiave di recupero a 12 parole';
-
-  @override
   String get backupRestore => 'Backup & Ripristino';
 
   @override
@@ -481,15 +472,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get confirmAndDelete => 'CONFERMA ED ELIMINA';
-
-  @override
-  String get recoveryCodeGenerated => 'Codice di Recupero Generato';
-
-  @override
-  String get saveNote => 'Si prega di annotarlo in un luogo sicuro:';
-
-  @override
-  String get saveAndClose => 'SALVA E CHIUDI';
 
   @override
   String get dataBackupTitle => 'Backup Dati (JSON)';
@@ -862,4 +844,8 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get invalidBackupFile => 'File di backup non valido.';
+
+  @override
+  String get masterKeyWarning =>
+      '⚠️ Salva la tua master key in un posto sicuro. Se la dimentichi, non sarà più possibile accedere ai tuoi dati.';
 }

@@ -439,15 +439,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountSecurity => 'Account Security';
 
   @override
-  String get recoveryCode => 'Recovery Code';
-
-  @override
-  String get recoveryCodeExists => 'You have an existing code.';
-
-  @override
-  String get recoveryCodeHint => '12-word recovery key';
-
-  @override
   String get backupRestore => 'Backup & Restore';
 
   @override
@@ -480,15 +471,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmAndDelete => 'CONFIRM AND DELETE';
-
-  @override
-  String get recoveryCodeGenerated => 'Recovery Code Generated';
-
-  @override
-  String get saveNote => 'Please note it in a safe place:';
-
-  @override
-  String get saveAndClose => 'SAVE AND CLOSE';
 
   @override
   String get dataBackupTitle => 'Data Backup (JSON)';
@@ -857,4 +839,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalidBackupFile => 'Invalid backup file.';
+
+  @override
+  String get masterKeyWarning =>
+      '⚠️ Save your master key somewhere safe. If you forget it, your data cannot be recovered.';
 }
