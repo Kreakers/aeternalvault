@@ -414,7 +414,7 @@ class AppProvider with ChangeNotifier {
 
   /// İlk kurulumda yedeği yükler. masterKey doğrulaması yapar,
   /// vault ayarlarını kurar ve vault'u açık hale getirir.
-  Future<bool> restoreBackupOnSetup(String jsonString, String masterKey) async {
+  Future<bool> restoreBackupOnSetup(String jsonString, String masterKey, {bool useBiometrics = false}) async {
     try {
       final Map<String, dynamic> backupData = jsonDecode(jsonString);
 
@@ -435,8 +435,7 @@ class AppProvider with ChangeNotifier {
         for (var item in backupData['reminders']) await _dbService.insertReminder(Reminder.fromMap(item));
       }
 
-      // Vault ayarlarını kur (biometric opsiyonel — kullanıcı sonradan açabilir)
-      await completeVaultSetup(masterKey, false);
+      await completeVaultSetup(masterKey, useBiometrics);
       await unlockVault(masterKey);
       await loadContacts();
       return true;

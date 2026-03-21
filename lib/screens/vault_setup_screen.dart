@@ -60,43 +60,64 @@ class _VaultSetupScreenState extends State<VaultSetupScreen> {
       return;
     }
 
-    // Master key dialog
+    // Master key + biometric dialog
     final masterKeyController = TextEditingController();
-    final enteredKey = await showDialog<String>(
+    bool dialogUseBiometrics = false;
+    final dialogResult = await showDialog<Map<String, dynamic>>(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.restoreFromBackup),
-        content: TextField(
-          controller: masterKeyController,
-          obscureText: true,
-          decoration: InputDecoration(
-            labelText: l.restoreEnterMasterKey,
-            border: const OutlineInputBorder(),
-            prefixIcon: const Icon(Icons.key),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: Text(l.restoreFromBackup),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: masterKeyController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: l.restoreEnterMasterKey,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.key),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l.enableBiometricAuth),
+                value: dialogUseBiometrics,
+                onChanged: (val) => setDialogState(() => dialogUseBiometrics = val),
+              ),
+            ],
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, {
+                'key': masterKeyController.text,
+                'biometric': dialogUseBiometrics,
+              }),
+              style: ElevatedButton.styleFrom(backgroundColor: AC.gold, foregroundColor: Colors.black),
+              child: Text(l.restoreFromBackup),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, masterKeyController.text),
-            style: ElevatedButton.styleFrom(backgroundColor: AC.gold, foregroundColor: Colors.black),
-            child: const Text('Yükle'),
-          ),
-        ],
       ),
     );
     masterKeyController.dispose();
 
-    if (enteredKey == null || enteredKey.isEmpty) return;
+    if (dialogResult == null || (dialogResult['key'] as String).isEmpty) return;
+
+    final enteredKey = dialogResult['key'] as String;
+    final useBio = dialogResult['biometric'] as bool;
 
     setState(() => _isRestoring = true);
 
     final provider = Provider.of<AppProvider>(context, listen: false);
-    final success = await provider.restoreBackupOnSetup(jsonString, enteredKey);
+    final success = await provider.restoreBackupOnSetup(jsonString, enteredKey, useBiometrics: useBio);
 
     if (!mounted) return;
     setState(() => _isRestoring = false);
