@@ -19,7 +19,6 @@
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
-
     <!-- Transparent theme for AutofillAuthActivity — BiometricPrompt appears on top -->
     <style name="AutofillAuthTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@android:color/transparent</item>

@@ -16,7 +16,23 @@
       "Bash(flutter gen-l10n:*)",
       "Bash(dart run:*)",
       "Bash(sed -i 's/const Color\\(0xFF00BCD4\\)/AC.cyan/g; s/Color\\(0xFF00BCD4\\)/AC.cyan/g' lib/screens/contact_detail_screen.dart)",
-      "Bash(sed -i 's/Color\\(0xFF00BCD4\\)/AC.cyan/g' lib/screens/vault_screen.dart)"
+      "Bash(sed -i 's/Color\\(0xFF00BCD4\\)/AC.cyan/g' lib/screens/vault_screen.dart)",
+      "Bash(sed -i 's/Aeterna Vault v1\\\\.0\\\\.3/Aeterna Vault v1.0/g; s/Sürüm 1\\\\.0\\\\.3/Sürüm 1.0/g; s/© 2024 Aeterna Vault/© 2026 Aeterna Vault/g' app_tr.arb)",
+      "Bash(sed -i 's/Aeterna Vault v1\\\\.0\\\\.3/Aeterna Vault v1.0/g; s/Version 1\\\\.0\\\\.3/Version 1.0/g; s/© 2024 Aeterna Vault/© 2026 Aeterna Vault/g' app_en.arb)",
+      "Bash(sed -i 's/Aeterna Vault v1\\\\.0\\\\.3/Aeterna Vault v1.0/g; s/Version 1\\\\.0\\\\.3/Version 1.0/g; s/© 2024 Aeterna Vault/© 2026 Aeterna Vault/g' app_de.arb)",
+      "Bash(sed -i 's/Aeterna Vault v1\\\\.0\\\\.3/Aeterna Vault v1.0/g; s/Versione 1\\\\.0\\\\.3/Versione 1.0/g; s/© 2024 Aeterna Vault/© 2026 Aeterna Vault/g' app_it.arb)",
+      "Bash(python3 -c \":*)",
+      "Read(//c/Users/alior/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_timezone-5.0.2/**)",
+      "Bash(2)",
+      "Bash(find \"C:/Users/alior/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_local_notifications-18.0.1\" -name \"*.dart\" -exec grep -l \"zonedSchedule\" {})",
+      "Bash(sed -n '243p' lib/l10n/app_en.arb)",
+      "Bash(sed -n '243,244p' lib/l10n/app_it.arb)",
+      "Bash(ls -la \"C:\\\\Users\\\\alior\\\\Desktop\\\\PROJELER\\\\androidproj\\\\aeternavault\\\\android\\\\app\\\\src\\\\main\\\\res\\\\mipmap-\"*)",
+      "Bash(grep -E \"build\\\\.gradle\\\\.kts$\")",
+      "Bash(find C:UsersaliorDesktopPROJELERandroidprojaeternavaultandroidappsrcmainjava -name *.kt -o -name *.java)",
+      "Bash(python -c \":*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)"
     ]
   }
 }
