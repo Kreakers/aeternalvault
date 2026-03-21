@@ -276,5 +276,8 @@
   "backupDesc": "Sicherung als verschlüsselte JSON-Datei teilen",
   "restoreEnterMasterKey": "Master-Schlüssel des Backups eingeben",
   "restoreFailed": "Wiederherstellung fehlgeschlagen. Master-Schlüssel möglicherweise falsch.",
-  "invalidBackupFile": "Ungültige Backup-Datei."
+  "invalidBackupFile": "Ungültige Backup-Datei.",
+  "@invalidBackupFile": {"description": "Ungültige Backup-Datei Meldung"},
+  "masterKeyWarning": "⚠️ Speichern Sie Ihren Master-Schlüssel an einem sicheren Ort. Wenn Sie ihn vergessen, kann nicht mehr auf Ihre Daten zugegriffen werden.",
+  "@masterKeyWarning": {"description": "Master-Schlüssel Warnung"}
 }

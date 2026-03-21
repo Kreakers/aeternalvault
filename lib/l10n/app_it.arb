@@ -277,5 +277,8 @@
   "backupDesc": "Condividi backup come file JSON crittografato",
   "restoreEnterMasterKey": "Inserisci la master key del backup",
   "restoreFailed": "Ripristino fallito. La master key potrebbe essere errata.",
-  "invalidBackupFile": "File di backup non valido."
+  "invalidBackupFile": "File di backup non valido.",
+  "@invalidBackupFile": {"description": "Messaggio file di backup non valido"},
+  "masterKeyWarning": "⚠️ Salva la tua master key in un posto sicuro. Se la dimentichi, non sarà più possibile accedere ai tuoi dati.",
+  "@masterKeyWarning": {"description": "Avviso master key"}
 }

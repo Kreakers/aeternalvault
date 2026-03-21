@@ -761,5 +761,7 @@
   "backupDesc": "Şifreli JSON dosyası olarak yedek paylaş",
   "restoreEnterMasterKey": "Yedeğinizin master key'ini girin",
   "restoreFailed": "Yedek yüklenemedi. Master key yanlış olabilir.",
-  "invalidBackupFile": "Geçersiz yedek dosyası."
+  "invalidBackupFile": "Geçersiz yedek dosyası.",
+  "masterKeyWarning": "⚠️ Master key'inizi güvenli bir yere kaydedin. Unutmanız durumunda verilerinize bir daha erişilemez.",
+  "@masterKeyWarning": {"description": "Master key uyarısı"}
 }

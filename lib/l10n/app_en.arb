@@ -276,5 +276,8 @@
   "backupDesc": "Share backup as encrypted JSON file",
   "restoreEnterMasterKey": "Enter the backup master key",
   "restoreFailed": "Restore failed. Master key may be incorrect.",
-  "invalidBackupFile": "Invalid backup file."
+  "invalidBackupFile": "Invalid backup file.",
+  "@invalidBackupFile": {"description": "Invalid backup file message"},
+  "masterKeyWarning": "⚠️ Save your master key somewhere safe. If you forget it, your data cannot be recovered.",
+  "@masterKeyWarning": {"description": "Master key warning"}
 }

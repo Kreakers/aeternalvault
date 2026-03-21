@@ -206,7 +206,21 @@ class _VaultSetupScreenState extends State<VaultSetupScreen> {
                 value: _useBiometrics,
                 onChanged: (val) => setState(() => _useBiometrics = val),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.4)),
+                ),
+                child: Text(
+                  l.masterKeyWarning,
+                  style: const TextStyle(color: Colors.orange, fontSize: 13),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _completeSetup,
                 style: ElevatedButton.styleFrom(
