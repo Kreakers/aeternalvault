@@ -273,5 +273,8 @@
   "secLastChangedYesterday": "Last changed yesterday",
   "secLastChangedDaysAgo": "Last changed {days} days ago",
   "@secLastChangedDaysAgo": {"placeholders": {"days": {"type": "int"}}},
-  "backupDesc": "Share backup as encrypted JSON file"
+  "backupDesc": "Share backup as encrypted JSON file",
+  "restoreEnterMasterKey": "Enter the backup master key",
+  "restoreFailed": "Restore failed. Master key may be incorrect.",
+  "invalidBackupFile": "Invalid backup file."
 }

@@ -315,7 +315,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sms => 'SMS';
 
   @override
-  String shareContact(String name, String phone, String email) {
+  String shareContact(String name, Object email, Object phone) {
     return 'Contact Share:\nName: $name\nPhone: $phone\nEmail: $email\n\nShared via Aeterna Vault.';
   }
 
@@ -842,8 +842,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get secLastChangedYesterday => 'Last changed yesterday';
 
   @override
-  String secLastChangedDaysAgo(int days) => 'Last changed $days days ago';
+  String secLastChangedDaysAgo(int days) {
+    return 'Last changed $days days ago';
+  }
 
   @override
   String get backupDesc => 'Share backup as encrypted JSON file';
+
+  @override
+  String get restoreEnterMasterKey => 'Enter the backup master key';
+
+  @override
+  String get restoreFailed => 'Restore failed. Master key may be incorrect.';
+
+  @override
+  String get invalidBackupFile => 'Invalid backup file.';
 }

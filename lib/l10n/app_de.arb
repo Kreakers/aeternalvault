@@ -157,7 +157,7 @@
   "backupInstructions": "Kopieren Sie den folgenden Text und bewahren Sie ihn sicher auf:",
   "copyAndClose": "KOPIEREN UND SCHLIESSEN",
   "backupCopied": "Sicherung in Zwischenablage kopiert!",
-  "restoreFromBackup": "Aus Sicherung wiederherstellen",
+  "restoreFromBackup": "Aus Backup wiederherstellen",
   "restoreWarning": "Sicherungstext einfügen. AKTUELLE DATEN WERDEN GELÖSCHT!",
   "restoreSuccess": "Daten erfolgreich wiederhergestellt!",
   "restoreError": "Fehler: Ungültiges Format.",
@@ -273,5 +273,8 @@
   "secLastChangedYesterday": "Gestern geändert",
   "secLastChangedDaysAgo": "Vor {days} Tagen geändert",
   "@secLastChangedDaysAgo": {"placeholders": {"days": {"type": "int"}}},
-  "backupDesc": "Sicherung als verschlüsselte JSON-Datei teilen"
+  "backupDesc": "Sicherung als verschlüsselte JSON-Datei teilen",
+  "restoreEnterMasterKey": "Master-Schlüssel des Backups eingeben",
+  "restoreFailed": "Wiederherstellung fehlgeschlagen. Master-Schlüssel möglicherweise falsch.",
+  "invalidBackupFile": "Ungültige Backup-Datei."
 }

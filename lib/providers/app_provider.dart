@@ -382,10 +382,12 @@ class AppProvider with ChangeNotifier {
     final allContacts = await _dbService.getContacts();
     final allVaultItems = await _dbService.getVaultItems();
     final allReminders = await _dbService.getReminders();
+    final settings = await _dbService.getVaultSettings();
     final backupData = {
       'contacts': allContacts.map((c) => c.toMap()).toList(),
       'vault_items': allVaultItems.map((v) => v.toMap()).toList(),
       'reminders': allReminders.map((r) => r.toMap()).toList(),
+      'hashedMasterKey': settings?['hashedMasterKey'],
       'version': 1,
       'export_date': DateTime.now().toIso8601String(),
     };
@@ -405,6 +407,37 @@ class AppProvider with ChangeNotifier {
       if (backupData['reminders'] != null) {
         for (var item in backupData['reminders']) await _dbService.insertReminder(Reminder.fromMap(item));
       }
+      await loadContacts();
+      return true;
+    } catch (e) { return false; }
+  }
+
+  /// İlk kurulumda yedeği yükler. masterKey doğrulaması yapar,
+  /// vault ayarlarını kurar ve vault'u açık hale getirir.
+  Future<bool> restoreBackupOnSetup(String jsonString, String masterKey) async {
+    try {
+      final Map<String, dynamic> backupData = jsonDecode(jsonString);
+
+      // Eğer backup'ta hashedMasterKey varsa doğrula
+      final storedHash = backupData['hashedMasterKey'] as String?;
+      if (storedHash != null && storedHash != _hashKey(masterKey)) {
+        return false;
+      }
+
+      await _dbService.clearAllData();
+      if (backupData['contacts'] != null) {
+        for (var item in backupData['contacts']) await _dbService.insertContact(Contact.fromMap(item));
+      }
+      if (backupData['vault_items'] != null) {
+        for (var item in backupData['vault_items']) await _dbService.insertVaultItem(VaultItem.fromMap(item));
+      }
+      if (backupData['reminders'] != null) {
+        for (var item in backupData['reminders']) await _dbService.insertReminder(Reminder.fromMap(item));
+      }
+
+      // Vault ayarlarını kur (biometric opsiyonel — kullanıcı sonradan açabilir)
+      await completeVaultSetup(masterKey, false);
+      await unlockVault(masterKey);
       await loadContacts();
       return true;
     } catch (e) { return false; }

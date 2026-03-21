@@ -315,7 +315,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sms => 'SMS';
 
   @override
-  String shareContact(String name, String phone, String email) {
+  String shareContact(String name, Object email, Object phone) {
     return 'Kontakt teilen:\nName: $name\nTelefon: $phone\nE-Mail: $email\n\nGeteilt über Aeterna Vault.';
   }
 
@@ -504,7 +504,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get backupCopied => 'Sicherung in Zwischenablage kopiert!';
 
   @override
-  String get restoreFromBackup => 'Aus Sicherung wiederherstellen';
+  String get restoreFromBackup => 'Aus Backup wiederherstellen';
 
   @override
   String get restoreWarning =>
@@ -845,8 +845,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get secLastChangedYesterday => 'Gestern geändert';
 
   @override
-  String secLastChangedDaysAgo(int days) => 'Vor $days Tagen geändert';
+  String secLastChangedDaysAgo(int days) {
+    return 'Vor $days Tagen geändert';
+  }
 
   @override
   String get backupDesc => 'Sicherung als verschlüsselte JSON-Datei teilen';
+
+  @override
+  String get restoreEnterMasterKey => 'Master-Schlüssel des Backups eingeben';
+
+  @override
+  String get restoreFailed =>
+      'Wiederherstellung fehlgeschlagen. Master-Schlüssel möglicherweise falsch.';
+
+  @override
+  String get invalidBackupFile => 'Ungültige Backup-Datei.';
 }

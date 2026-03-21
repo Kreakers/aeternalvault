@@ -290,9 +290,7 @@
   "@shareContact": {
     "description": "Kişi paylaşım metni",
     "placeholders": {
-      "name": {"type": "String"},
-      "phone": {"type": "String"},
-      "email": {"type": "String"}
+      "name": {"type": "String"}
     }
   },
 
@@ -476,7 +474,7 @@
   "backupCopied": "Yedek panoya kopyalandı!",
   "@backupCopied": {"description": "Yedek kopyalandı snackbar mesajı"},
 
-  "restoreFromBackup": "Yedekten Geri Yükle",
+  "restoreFromBackup": "Yedeği Yükle",
   "@restoreFromBackup": {"description": "Yedekten geri yükle dialog başlığı"},
 
   "restoreWarning": "Yedek metni yapıştırın. MEVCUT VERİLER SİLİNECEK!",
@@ -760,5 +758,8 @@
   "secLastChangedYesterday": "Dün değiştirildi",
   "secLastChangedDaysAgo": "{days} gün önce değiştirildi",
   "@secLastChangedDaysAgo": {"placeholders": {"days": {"type": "int"}}},
-  "backupDesc": "Şifreli JSON dosyası olarak yedek paylaş"
+  "backupDesc": "Şifreli JSON dosyası olarak yedek paylaş",
+  "restoreEnterMasterKey": "Yedeğinizin master key'ini girin",
+  "restoreFailed": "Yedek yüklenemedi. Master key yanlış olabilir.",
+  "invalidBackupFile": "Geçersiz yedek dosyası."
 }

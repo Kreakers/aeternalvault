@@ -315,7 +315,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get sms => 'SMS';
 
   @override
-  String shareContact(String name, String phone, String email) {
+  String shareContact(String name, Object email, Object phone) {
     return 'Condivisione Contatto:\nNome: $name\nTelefono: $phone\nEmail: $email\n\nCondiviso tramite Aeterna Vault.';
   }
 
@@ -505,7 +505,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get backupCopied => 'Backup copiato negli appunti!';
 
   @override
-  String get restoreFromBackup => 'Ripristina da Backup';
+  String get restoreFromBackup => 'Ripristina da backup';
 
   @override
   String get restoreWarning =>
@@ -846,8 +846,20 @@ class AppLocalizationsIt extends AppLocalizations {
   String get secLastChangedYesterday => 'Cambiata ieri';
 
   @override
-  String secLastChangedDaysAgo(int days) => 'Cambiata $days giorni fa';
+  String secLastChangedDaysAgo(int days) {
+    return 'Cambiata $days giorni fa';
+  }
 
   @override
   String get backupDesc => 'Condividi backup come file JSON crittografato';
+
+  @override
+  String get restoreEnterMasterKey => 'Inserisci la master key del backup';
+
+  @override
+  String get restoreFailed =>
+      'Ripristino fallito. La master key potrebbe essere errata.';
+
+  @override
+  String get invalidBackupFile => 'File di backup non valido.';
 }

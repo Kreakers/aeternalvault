@@ -676,7 +676,7 @@ abstract class AppLocalizations {
   ///
   /// In tr, this message translates to:
   /// **'Kişi Paylaşımı:\nAd Soyad: {name}\nTelefon: {phone}\nE-posta: {email}\n\nAeterna Vault üzerinden paylaşıldı.'**
-  String shareContact(String name, String phone, String email);
+  String shareContact(String name, Object email, Object phone);
 
   /// Yeni kişi ekleme başlığı
   ///
@@ -1041,7 +1041,7 @@ abstract class AppLocalizations {
   /// Yedekten geri yükle dialog başlığı
   ///
   /// In tr, this message translates to:
-  /// **'Yedekten Geri Yükle'**
+  /// **'Yedeği Yükle'**
   String get restoreFromBackup;
 
   /// Geri yükleme uyarısı
@@ -1656,41 +1656,59 @@ abstract class AppLocalizations {
   /// **'Devre dışı — Etkinleştirmek için dokunun'**
   String get autofillServiceDisabled;
 
-  /// Şifre uzunluğu etiketi
+  /// No description provided for @passwordLength.
   ///
   /// In tr, this message translates to:
   /// **'Şifre Uzunluğu'**
   String get passwordLength;
 
-  /// Hiç değiştirilmedi metni
+  /// No description provided for @secNeverChanged.
   ///
   /// In tr, this message translates to:
   /// **'Hiç değiştirilmedi'**
   String get secNeverChanged;
 
-  /// Bugün değiştirildi metni
+  /// No description provided for @secLastChangedToday.
   ///
   /// In tr, this message translates to:
   /// **'Bugün değiştirildi'**
   String get secLastChangedToday;
 
-  /// Dün değiştirildi metni
+  /// No description provided for @secLastChangedYesterday.
   ///
   /// In tr, this message translates to:
   /// **'Dün değiştirildi'**
   String get secLastChangedYesterday;
 
-  /// N gün önce değiştirildi metni
+  /// No description provided for @secLastChangedDaysAgo.
   ///
   /// In tr, this message translates to:
   /// **'{days} gün önce değiştirildi'**
   String secLastChangedDaysAgo(int days);
 
-  /// Yedek açıklama metni
+  /// No description provided for @backupDesc.
   ///
   /// In tr, this message translates to:
   /// **'Şifreli JSON dosyası olarak yedek paylaş'**
   String get backupDesc;
+
+  /// No description provided for @restoreEnterMasterKey.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yedeğinizin master key\'ini girin'**
+  String get restoreEnterMasterKey;
+
+  /// No description provided for @restoreFailed.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yedek yüklenemedi. Master key yanlış olabilir.'**
+  String get restoreFailed;
+
+  /// No description provided for @invalidBackupFile.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçersiz yedek dosyası.'**
+  String get invalidBackupFile;
 }
 
 class _AppLocalizationsDelegate

@@ -157,7 +157,7 @@
   "backupInstructions": "Copia il testo sottostante e conservalo in un posto sicuro:",
   "copyAndClose": "COPIA E CHIUDI",
   "backupCopied": "Backup copiato negli appunti!",
-  "restoreFromBackup": "Ripristina da Backup",
+  "restoreFromBackup": "Ripristina da backup",
   "restoreWarning": "Incolla il testo del backup. I DATI ATTUALI VERRANNO ELIMINATI!",
   "restoreSuccess": "Dati ripristinati con successo!",
   "restoreError": "Errore: Formato non valido.",
@@ -274,5 +274,8 @@
   "secLastChangedYesterday": "Cambiata ieri",
   "secLastChangedDaysAgo": "Cambiata {days} giorni fa",
   "@secLastChangedDaysAgo": {"placeholders": {"days": {"type": "int"}}},
-  "backupDesc": "Condividi backup come file JSON crittografato"
+  "backupDesc": "Condividi backup come file JSON crittografato",
+  "restoreEnterMasterKey": "Inserisci la master key del backup",
+  "restoreFailed": "Ripristino fallito. La master key potrebbe essere errata.",
+  "invalidBackupFile": "File di backup non valido."
 }

@@ -315,7 +315,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get sms => 'SMS';
 
   @override
-  String shareContact(String name, String phone, String email) {
+  String shareContact(String name, Object email, Object phone) {
     return 'Kişi Paylaşımı:\nAd Soyad: $name\nTelefon: $phone\nE-posta: $email\n\nAeterna Vault üzerinden paylaşıldı.';
   }
 
@@ -504,7 +504,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get backupCopied => 'Yedek panoya kopyalandı!';
 
   @override
-  String get restoreFromBackup => 'Yedekten Geri Yükle';
+  String get restoreFromBackup => 'Yedeği Yükle';
 
   @override
   String get restoreWarning =>
@@ -843,8 +843,19 @@ class AppLocalizationsTr extends AppLocalizations {
   String get secLastChangedYesterday => 'Dün değiştirildi';
 
   @override
-  String secLastChangedDaysAgo(int days) => '$days gün önce değiştirildi';
+  String secLastChangedDaysAgo(int days) {
+    return '$days gün önce değiştirildi';
+  }
 
   @override
   String get backupDesc => 'Şifreli JSON dosyası olarak yedek paylaş';
+
+  @override
+  String get restoreEnterMasterKey => 'Yedeğinizin master key\'ini girin';
+
+  @override
+  String get restoreFailed => 'Yedek yüklenemedi. Master key yanlış olabilir.';
+
+  @override
+  String get invalidBackupFile => 'Geçersiz yedek dosyası.';
 }
