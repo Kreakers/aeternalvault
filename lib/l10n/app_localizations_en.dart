@@ -626,6 +626,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'For bug reports or feature suggestions, you can reach us:';
 
   @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
   String get copyright => '© 2026 Aeterna Vault. All rights reserved.';
 
   @override
@@ -800,4 +803,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onbFeat3c => 'Secure Backup';
+
+  @override
+  String get autofillSectionTitle => 'Autofill';
+
+  @override
+  String get autofillServiceTitle => 'Aeterna Vault Autofill';
+
+  @override
+  String get autofillServiceDesc => 'Auto-fill your passwords in other apps';
+
+  @override
+  String get autofillServiceEnable => 'Enable';
+
+  @override
+  String get autofillServiceEnabled =>
+      'Active — Aeterna Vault is your autofill provider';
+
+  @override
+  String get autofillServiceDisabled => 'Disabled — Tap to enable';
 }

@@ -590,6 +590,9 @@
   "contactFeedbackContent": "Herhangi bir hata bildirimi veya özellik önerisi için bize ulaşabilirsiniz:",
   "@contactFeedbackContent": {"description": "İletişim ve geri bildirim içeriği"},
 
+  "privacyPolicy": "Gizlilik Politikası",
+  "@privacyPolicy": {"description": "Gizlilik politikası butonu"},
+
   "copyright": "© 2026 Aeterna Vault. Tüm hakları saklıdır.",
   "@copyright": {"description": "Telif hakkı metni"},
 
@@ -725,5 +728,23 @@
   "onbFeat2c": "Veri Paylaşımı Yok",
   "onbFeat3a": "Özel Kişi Listesi",
   "onbFeat3b": "Akıllı Hatırlatıcılar",
-  "onbFeat3c": "Güvenli Yedekleme"
+  "onbFeat3c": "Güvenli Yedekleme",
+
+  "autofillSectionTitle": "Otomatik Doldurma",
+  "@autofillSectionTitle": {"description": "Otomatik doldurma bölüm başlığı"},
+
+  "autofillServiceTitle": "Aeterna Vault Otomatik Doldurma",
+  "@autofillServiceTitle": {"description": "Otomatik doldurma hizmet başlığı"},
+
+  "autofillServiceDesc": "Şifrelerinizi diğer uygulamalarda otomatik doldurun",
+  "@autofillServiceDesc": {"description": "Otomatik doldurma hizmet açıklaması"},
+
+  "autofillServiceEnable": "Etkinleştir",
+  "@autofillServiceEnable": {"description": "Otomatik doldurma etkinleştir butonu"},
+
+  "autofillServiceEnabled": "Etkin — Aeterna Vault aktif şifre sağlayıcı",
+  "@autofillServiceEnabled": {"description": "Otomatik doldurma etkin durum mesajı"},
+
+  "autofillServiceDisabled": "Devre dışı — Etkinleştirmek için dokunun",
+  "@autofillServiceDisabled": {"description": "Otomatik doldurma devre dışı durum mesajı"}
 }

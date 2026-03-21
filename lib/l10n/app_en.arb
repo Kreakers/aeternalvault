@@ -195,6 +195,7 @@
   "developerContent": "This app was developed with the goal of privacy and secure management of personal data.",
   "contactFeedbackTitle": "Contact & Feedback",
   "contactFeedbackContent": "For bug reports or feature suggestions, you can reach us:",
+  "privacyPolicy": "Privacy Policy",
   "copyright": "© 2026 Aeterna Vault. All rights reserved.",
   "vaultSetupTitle": "Vault Password Setup",
   "setupVaultTitle": "Set Up Your Secure Vault",
@@ -255,5 +256,12 @@
   "onbFeat2c": "No Data Sharing",
   "onbFeat3a": "Private Contacts",
   "onbFeat3b": "Smart Reminders",
-  "onbFeat3c": "Secure Backup"
+  "onbFeat3c": "Secure Backup",
+
+  "autofillSectionTitle": "Autofill",
+  "autofillServiceTitle": "Aeterna Vault Autofill",
+  "autofillServiceDesc": "Auto-fill your passwords in other apps",
+  "autofillServiceEnable": "Enable",
+  "autofillServiceEnabled": "Active — Aeterna Vault is your autofill provider",
+  "autofillServiceDisabled": "Disabled — Tap to enable"
 }

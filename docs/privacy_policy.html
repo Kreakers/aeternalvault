@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aeterna Vault – Gizlilik Politikası</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0d1b4b;
+      color: #e8eaf6;
+      min-height: 100vh;
+      padding: 32px 16px;
+    }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      background: #1a2a6c;
+      border-radius: 16px;
+      padding: 40px 36px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .logo-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+    }
+    .logo-text h1 { font-size: 22px; font-weight: 700; color: #ffd700; }
+    .logo-text p  { font-size: 13px; color: #9fa8da; margin-top: 2px; }
+    .badge {
+      display: inline-block;
+      background: rgba(255,215,0,0.12);
+      border: 1px solid rgba(255,215,0,0.3);
+      color: #ffd700;
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      margin-bottom: 32px;
+    }
+    h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffd700;
+      margin: 32px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255,215,0,0.2);
+    }
+    p, li { font-size: 15px; line-height: 1.7; color: #c5cae9; }
+    ul { padding-left: 20px; margin-top: 6px; }
+    li { margin-bottom: 4px; }
+    .highlight {
+      background: rgba(255,215,0,0.08);
+      border-left: 3px solid #ffd700;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 12px 0;
+    }
+    .contact-box {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-top: 10px;
+    }
+    .contact-box a { color: #ffd700; text-decoration: none; }
+    .contact-box a:hover { text-decoration: underline; }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 12px;
+      color: #5c6bc0;
+    }
+    @media (max-width: 500px) {
+      .container { padding: 24px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="logo">
+      <div class="logo-icon">🛡️</div>
+      <div class="logo-text">
+        <h1>Aeterna Vault</h1>
+        <p>Gizlilik Politikası / Privacy Policy</p>
+      </div>
+    </div>
+
+    <span class="badge">Son güncelleme: Mart 2026</span>
+
+    <!-- ─── TÜRKÇE ─── -->
+    <h2>1. Genel Bakış</h2>
+    <p>
+      Aeterna Vault, kişisel verilerinizin gizliliğini en üst düzeyde korumak amacıyla
+      tasarlanmıştır. Bu politika, uygulamanın hangi verileri işlediğini ve bu verilerin
+      nasıl korunduğunu açıklar.
+    </p>
+
+    <h2>2. Toplanan Veriler</h2>
+    <div class="highlight">
+      Aeterna Vault hiçbir veriyi sunuculara göndermez veya üçüncü taraflarla paylaşmaz.
+      Tüm veriler yalnızca cihazınızda saklanır.
+    </div>
+    <p>Uygulama yalnızca sizin girdiğiniz verileri yerel olarak saklar:</p>
+    <ul>
+      <li>Kişi bilgileri (ad, telefon, e-posta, notlar vb.)</li>
+      <li>Kasa öğeleri (şifreler, banka bilgileri, belgeler — AES-256-CBC ile şifrelenmiş)</li>
+      <li>Hatırlatıcılar ve etkinlik kayıtları</li>
+      <li>Uygulama ayarları (tema, dil, otomatik kilit süresi)</li>
+    </ul>
+
+    <h2>3. Biyometrik Kimlik Doğrulama</h2>
+    <p>
+      Uygulama, parmak izi veya yüz tanıma gibi biyometrik verileri
+      <strong>kendi bünyesinde işlemez veya saklamaz</strong>.
+      Tüm biyometrik doğrulama Android işletim sistemi API'leri aracılığıyla gerçekleştirilir
+      ve sonuç yalnızca "başarılı / başarısız" olarak alınır.
+    </p>
+
+    <h2>4. Şifreleme ve Güvenlik</h2>
+    <ul>
+      <li>Kasa verileri <strong>AES-256-CBC</strong> şifreleme ile korunur.</li>
+      <li>Ana şifre (master key) cihazın güvenli depolama alanında (Android Keystore) saklanır.</li>
+      <li>Şifrelenmiş veriler, ana şifre bilinmeden çözülemez.</li>
+      <li>İnternet bağlantısı kullanılmaz; veriler hiçbir zaman cihaz dışına çıkmaz.</li>
+    </ul>
+
+    <h2>5. İzinler</h2>
+    <ul>
+      <li><strong>Biyometrik / Parmak izi:</strong> Kimlik doğrulama için</li>
+      <li><strong>Bildirimler:</strong> Hatırlatıcı bildirimleri için</li>
+      <li><strong>Fotoğraf Galerisi:</strong> Kişilere fotoğraf atamak için (isteğe bağlı)</li>
+      <li><strong>Tam Alarm:</strong> Zamanlanmış hatırlatıcılar için</li>
+    </ul>
+    <p>İnternet izni talep edilmez ve kullanılmaz.</p>
+
+    <h2>6. Veri Silme</h2>
+    <p>
+      Güvenlik Ayarları → Fabrika Sıfırlama seçeneği ile tüm verilerinizi kalıcı olarak
+      silebilirsiniz. Uygulamayı cihazdan kaldırmak da tüm yerel verileri siler.
+    </p>
+
+    <h2>7. Üçüncü Taraf Hizmetler</h2>
+    <p>
+      Uygulama herhangi bir analitik, reklam veya izleme hizmeti içermez.
+      Üçüncü taraf sunuculara hiçbir veri iletilmez.
+    </p>
+
+    <h2>8. Çocukların Gizliliği</h2>
+    <p>
+      Bu uygulama 13 yaşın altındaki çocuklara yönelik değildir ve bu kişilerden
+      bilerek veri toplanmaz.
+    </p>
+
+    <h2>9. Politika Değişiklikleri</h2>
+    <p>
+      Bu politika güncellenirse "Son güncelleme" tarihi değiştirilecektir.
+      Uygulamayı kullanmaya devam etmeniz, değişiklikleri kabul ettiğiniz anlamına gelir.
+    </p>
+
+    <h2>10. İletişim</h2>
+    <div class="contact-box">
+      Gizlilik ile ilgili sorularınız için:<br/>
+      <a href="mailto:destek@aeternavault.com">destek@aeternavault.com</a>
+    </div>
+
+    <hr style="border:none; border-top:1px solid rgba(255,215,0,0.15); margin:40px 0 32px;"/>
+
+    <!-- ─── ENGLISH ─── -->
+    <h2>Privacy Policy (English)</h2>
+
+    <p><strong>Last updated: March 2026</strong></p>
+
+    <h2>Overview</h2>
+    <p>
+      Aeterna Vault is designed with user privacy as a core principle.
+      This policy explains what data the app handles and how it is protected.
+    </p>
+
+    <div class="highlight">
+      Aeterna Vault does not send any data to servers or share it with third parties.
+      All data is stored exclusively on your device.
+    </div>
+
+    <h2>Data We Store (Locally)</h2>
+    <ul>
+      <li>Contact information you enter (name, phone, email, notes, etc.)</li>
+      <li>Vault items (passwords, bank info, documents — encrypted with AES-256-CBC)</li>
+      <li>Reminders and activity logs</li>
+      <li>App preferences (theme, language, auto-lock duration)</li>
+    </ul>
+
+    <h2>Biometric Authentication</h2>
+    <p>
+      The app does <strong>not</strong> store or process biometric data itself.
+      All biometric authentication is handled through Android OS APIs;
+      the app only receives a success/failure result.
+    </p>
+
+    <h2>Encryption &amp; Security</h2>
+    <ul>
+      <li>Vault data is protected with <strong>AES-256-CBC</strong> encryption.</li>
+      <li>The master key is stored in the Android Keystore (secure enclave).</li>
+      <li>Encrypted data cannot be decrypted without the master password.</li>
+      <li>No internet connection is used; data never leaves your device.</li>
+    </ul>
+
+    <h2>Permissions</h2>
+    <ul>
+      <li><strong>Biometric / Fingerprint:</strong> Authentication</li>
+      <li><strong>Notifications:</strong> Reminder alerts</li>
+      <li><strong>Photo Gallery:</strong> Assigning photos to contacts (optional)</li>
+      <li><strong>Exact Alarm:</strong> Scheduled reminders</li>
+    </ul>
+    <p>No INTERNET permission is requested or used.</p>
+
+    <h2>Data Deletion</h2>
+    <p>
+      You can permanently delete all data via Security Settings → Factory Reset.
+      Uninstalling the app also removes all local data.
+    </p>
+
+    <h2>Third-Party Services</h2>
+    <p>
+      The app contains no analytics, advertising, or tracking services.
+      No data is transmitted to any third-party server.
+    </p>
+
+    <h2>Children's Privacy</h2>
+    <p>
+      This app is not directed at children under 13 and does not knowingly
+      collect data from them.
+    </p>
+
+    <h2>Contact</h2>
+    <div class="contact-box">
+      For privacy-related inquiries:<br/>
+      <a href="mailto:destek@aeternavault.com">destek@aeternavault.com</a>
+    </div>
+
+    <footer>
+      © 2026 Aeterna Vault. Tüm hakları saklıdır / All rights reserved.
+    </footer>
+
+  </div>
+</body>
+</html>

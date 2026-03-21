@@ -626,6 +626,9 @@ class AppLocalizationsTr extends AppLocalizations {
       'Herhangi bir hata bildirimi veya özellik önerisi için bize ulaşabilirsiniz:';
 
   @override
+  String get privacyPolicy => 'Gizlilik Politikası';
+
+  @override
   String get copyright => '© 2026 Aeterna Vault. Tüm hakları saklıdır.';
 
   @override
@@ -799,4 +802,25 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get onbFeat3c => 'Güvenli Yedekleme';
+
+  @override
+  String get autofillSectionTitle => 'Otomatik Doldurma';
+
+  @override
+  String get autofillServiceTitle => 'Aeterna Vault Otomatik Doldurma';
+
+  @override
+  String get autofillServiceDesc =>
+      'Şifrelerinizi diğer uygulamalarda otomatik doldurun';
+
+  @override
+  String get autofillServiceEnable => 'Etkinleştir';
+
+  @override
+  String get autofillServiceEnabled =>
+      'Etkin — Aeterna Vault aktif şifre sağlayıcı';
+
+  @override
+  String get autofillServiceDisabled =>
+      'Devre dışı — Etkinleştirmek için dokunun';
 }

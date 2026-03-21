@@ -195,6 +195,7 @@
   "developerContent": "Diese App wurde mit dem Ziel der Privatsphäre und sicheren Verwaltung persönlicher Daten entwickelt.",
   "contactFeedbackTitle": "Kontakt & Feedback",
   "contactFeedbackContent": "Für Fehlermeldungen oder Funktionsvorschläge können Sie uns erreichen:",
+  "privacyPolicy": "Datenschutzerklärung",
   "copyright": "© 2026 Aeterna Vault. Alle Rechte vorbehalten.",
   "vaultSetupTitle": "Tresor-Passwort einrichten",
   "setupVaultTitle": "Sicheren Tresor einrichten",
@@ -255,5 +256,12 @@
   "onbFeat2c": "Keine Datenweitergabe",
   "onbFeat3a": "Private Kontakte",
   "onbFeat3b": "Intelligente Erinnerungen",
-  "onbFeat3c": "Sichere Sicherung"
+  "onbFeat3c": "Sichere Sicherung",
+
+  "autofillSectionTitle": "Automatisches Ausfüllen",
+  "autofillServiceTitle": "Aeterna Vault Autovervollständigung",
+  "autofillServiceDesc": "Passwörter in anderen Apps automatisch ausfüllen",
+  "autofillServiceEnable": "Aktivieren",
+  "autofillServiceEnabled": "Aktiv — Aeterna Vault ist Ihr Autofill-Anbieter",
+  "autofillServiceDisabled": "Deaktiviert — Zum Aktivieren tippen"
 }

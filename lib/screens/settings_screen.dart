@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -7,8 +8,40 @@ import 'package:share_plus/share_plus.dart';
 import '../providers/app_provider.dart';
 import '../l10n/app_localizations.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  static const _autofillChannel = MethodChannel('aeterna/autofill');
+
+  bool? _autofillEnabled;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAutofillStatus();
+  }
+
+  Future<void> _checkAutofillStatus() async {
+    if (!Platform.isAndroid) return;
+    try {
+      final enabled = await _autofillChannel.invokeMethod<bool>('isAutofillServiceEnabled') ?? false;
+      if (mounted) setState(() => _autofillEnabled = enabled);
+    } catch (_) {}
+  }
+
+  Future<void> _openAutofillSettings() async {
+    try {
+      await _autofillChannel.invokeMethod('openAutofillSettings');
+      // Re-check status after returning from settings
+      await Future.delayed(const Duration(milliseconds: 500));
+      _checkAutofillStatus();
+    } catch (_) {}
+  }
 
   static const _languages = [
     ('tr', '🇹🇷', 'Türkçe'),
@@ -27,6 +60,11 @@ class SettingsScreen extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
+              if (Platform.isAndroid) ...[
+                _buildSectionTitle(l.autofillSectionTitle),
+                _buildAutofillCard(l),
+                const SizedBox(height: 24),
+              ],
               _buildSectionTitle(l.appearanceMode),
               Card(
                 child: SwitchListTile(
@@ -81,6 +119,30 @@ class SettingsScreen extends StatelessWidget {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildAutofillCard(AppLocalizations l) {
+    final enabled = _autofillEnabled ?? false;
+    return Card(
+      child: ListTile(
+        leading: Icon(
+          Icons.password,
+          color: enabled ? Colors.green : Colors.grey,
+        ),
+        title: Text(l.autofillServiceTitle),
+        subtitle: Text(
+          enabled ? l.autofillServiceEnabled : l.autofillServiceDisabled,
+          style: TextStyle(color: enabled ? Colors.green : Colors.grey),
+        ),
+        trailing: enabled
+            ? const Icon(Icons.check_circle, color: Colors.green)
+            : OutlinedButton(
+                onPressed: _openAutofillSettings,
+                child: Text(l.autofillServiceEnable),
+              ),
+        onTap: enabled ? null : _openAutofillSettings,
       ),
     );
   }

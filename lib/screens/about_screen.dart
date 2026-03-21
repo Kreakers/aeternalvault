@@ -55,6 +55,18 @@ class AboutScreen extends StatelessWidget {
                 onTap: () => launchUrl(Uri.parse('mailto:destek@aeternavault.com')),
               ),
             ),
+            const SizedBox(height: 12),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.privacy_tip_outlined, color: AC.gold),
+                title: Text(l.privacyPolicy),
+                trailing: const Icon(Icons.open_in_new, size: 16, color: Colors.grey),
+                onTap: () => launchUrl(
+                  Uri.parse('https://kreakers.github.io/aeternalvault/privacy_policy.html'),
+                  mode: LaunchMode.externalApplication,
+                ),
+              ),
+            ),
             const SizedBox(height: 40),
             Center(
               child: Text(

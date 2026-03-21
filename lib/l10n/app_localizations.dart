@@ -1266,6 +1266,12 @@ abstract class AppLocalizations {
   /// **'Herhangi bir hata bildirimi veya özellik önerisi için bize ulaşabilirsiniz:'**
   String get contactFeedbackContent;
 
+  /// Gizlilik politikası butonu
+  ///
+  /// In tr, this message translates to:
+  /// **'Gizlilik Politikası'**
+  String get privacyPolicy;
+
   /// Telif hakkı metni
   ///
   /// In tr, this message translates to:
@@ -1601,6 +1607,42 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Güvenli Yedekleme'**
   String get onbFeat3c;
+
+  /// Otomatik doldurma bölüm başlığı
+  ///
+  /// In tr, this message translates to:
+  /// **'Otomatik Doldurma'**
+  String get autofillSectionTitle;
+
+  /// Otomatik doldurma hizmet başlığı
+  ///
+  /// In tr, this message translates to:
+  /// **'Aeterna Vault Otomatik Doldurma'**
+  String get autofillServiceTitle;
+
+  /// Otomatik doldurma hizmet açıklaması
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifrelerinizi diğer uygulamalarda otomatik doldurun'**
+  String get autofillServiceDesc;
+
+  /// Otomatik doldurma etkinleştir butonu
+  ///
+  /// In tr, this message translates to:
+  /// **'Etkinleştir'**
+  String get autofillServiceEnable;
+
+  /// Otomatik doldurma etkin durum mesajı
+  ///
+  /// In tr, this message translates to:
+  /// **'Etkin — Aeterna Vault aktif şifre sağlayıcı'**
+  String get autofillServiceEnabled;
+
+  /// Otomatik doldurma devre dışı durum mesajı
+  ///
+  /// In tr, this message translates to:
+  /// **'Devre dışı — Etkinleştirmek için dokunun'**
+  String get autofillServiceDisabled;
 }
 
 class _AppLocalizationsDelegate

@@ -195,6 +195,7 @@
   "developerContent": "Questa app è stata sviluppata con l'obiettivo della privacy e della gestione sicura dei dati personali.",
   "contactFeedbackTitle": "Contatto & Feedback",
   "contactFeedbackContent": "Per segnalazioni di bug o suggerimenti di funzionalità, puoi contattarci:",
+  "privacyPolicy": "Informativa sulla Privacy",
   "copyright": "© 2026 Aeterna Vault. Tutti i diritti riservati.",
   "vaultSetupTitle": "Configurazione Password Cassaforte",
   "setupVaultTitle": "Configura la tua Cassaforte Sicura",
@@ -256,5 +257,12 @@
   "onbFeat2c": "Nessuna Condivisione",
   "onbFeat3a": "Contatti Privati",
   "onbFeat3b": "Promemoria Intelligenti",
-  "onbFeat3c": "Backup Sicuro"
+  "onbFeat3c": "Backup Sicuro",
+
+  "autofillSectionTitle": "Compilazione Automatica",
+  "autofillServiceTitle": "Aeterna Vault Compilazione Automatica",
+  "autofillServiceDesc": "Compila automaticamente le password in altre app",
+  "autofillServiceEnable": "Attiva",
+  "autofillServiceEnabled": "Attivo — Aeterna Vault è il tuo provider",
+  "autofillServiceDisabled": "Disabilitato — Tocca per attivare"
 }

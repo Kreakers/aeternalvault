@@ -35,6 +35,27 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- ─── Autofill Service ─────────────────────────────────────────── -->
+        <service
+            android:name=".AeternaAutofillService"
+            android:exported="true"
+            android:permission="android.permission.BIND_AUTOFILL_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.autofill.AutofillService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.autofill"
+                android:resource="@xml/autofill_service" />
+        </service>
+
+        <!-- Transparent activity shown for biometric auth before filling credentials -->
+        <activity
+            android:name=".AutofillAuthActivity"
+            android:exported="false"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:theme="@style/AutofillAuthTheme" />
+
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
             <intent-filter>
