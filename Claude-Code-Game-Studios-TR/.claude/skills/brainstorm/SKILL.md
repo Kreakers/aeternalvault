@@ -1,204 +1,169 @@
 ---
 name: brainstorm
-description: "Rehberli oyun konsepti ideation — sıfırdan fikirlere yapılandırılmış oyun konsept belgesine. Profesyonel stüdyo ideation teknikleri, oyuncu psikolojisi çerçeveleri ve yapılandırılmış yaratıcı araştırma kullanır."
-argument-hint: "[genre or theme hint, or 'open' for fully open brainstorm]"
+description: "Sıfırdan yapılandırılmış oyun konsepti belgesine kadar rehberli oyun konsepti ideasyonu. Profesyonel stüdyo ideasyonu teknikleri, oyuncu psikolojisi çerçeveleri ve yapılandırılmış yaratıcı keşif kullanır."
+argument-hint: "[tür veya tema ipucu, veya açık beyin fırtınası için 'open']"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, WebSearch, AskUserQuestion
 ---
 
-Bu skill çağrıldığında:
+Bu beceri çağrıldığında:
 
-1. **Argümanı ayrıştırın** isteğe bağlı bir tür/tema ipucu için (örn. `roguelike`,
-   `uzay hayatta kalma`, `rahat çiftlik`). `open` veya argüman yoksa,
-   sıfırdan başlayın.
+1. **Argümanı analiz et** isteğe bağlı tür/tema ipucu için (örn. roguelike, uzay hayatta kalma, rahat çiftçilik). open veya argüman yoksa sıfırdan başla.
 
-2. **Mevcut konsept çalışmasını kontrol edin**:
-   - `design/gdd/game-concept.md` varsa okuyun (özgeçmişi yeniden başlamayın)
-   - `design/gdd/game-pillars.md` varsa okuyun (kurulan ayaklarda inşa edin)
+2. **Mevcut konsept çalışmasını kontrol et**:
+   - design/gdd/game-concept.md varsa oku (devam et, yeniden başlama)
+   - design/gdd/game-pillars.md varsa oku (kurulan direkler üzerine inşa et)
 
-3. **Ideation aşamalarını etkileşimli olarak çalıştırın**, her aşamada kullanıcı sorularını sorun.
-   **HER ŞEYİ sessizce üretmeyin** — amaç, AI'ın yaratıcı kolaylaştırıcı olarak davrandığı
-   **işbirlikçi keşif**, insan vizyonunun değiştirilmesi değildir.
+3. **İdeasyon aşamalarından geç** etkileşimli olarak, her aşamada kullanıcıdan soru sor. HER ŞEYİ sessizce üretme - amaç işbirlikçi keşif yapay zekanın yaratıcı kolaylaştırıcı olduğu, insan vizyonunun yedek olmadığı yer.
 
-   **Her aşamada AskUserQuestion kullanın**:
-   - Kısıtlı beğeni soruları (tür tercihleri, kapsam, ekip boyutu)
-   - Konsept seçimi ("Hangi 2-3 konsept rezonans kuruyor?") seçenekler sunulduktan sonra
-   - Yön seçimleri ("Daha geliştirir, daha çok keşfetsem mi, yoksa prototip mi?")
-   - Kavramlar rafine edildikten sonra ayak sıralaması
-   Önce konuşmada tam yaratıcı analiz yazın, ardından
-   `AskUserQuestion` ile kararlı kısaltılmış etiketlerle yakalayın.
+   **AskUserQuestion kullan** anahtar karar noktalarında:
+   - Kısıtlanmış zevk soruları (tür tercihleri, kapsam, ekip boyutu)
+   - Konsept seçimi (Hangi 2-3 konsept rezonans kuruyor?) seçenekleri sunulduktan sonra
+   - Yön seçimleri (Daha fazla geliştir, daha fazla keşfet veya prototip yap?)
+   - Konseptler rafine edildikten sonra pillar sıralaması
+   Önce konuşma metninde tam yaratıcı analiz yaz, ardından AskUserQuestion kullanarak kararı özlü etiketlerle yakla.
 
    Takip edilecek profesyonel stüdyo beyin fırtınası ilkeleri:
-   - Yargıyı erteleyip — keşif sırasında kötü fikir yok
-   - Olağandışı fikirleri teşvik edin — kutu dışı düşünme daha iyi konseptleri ateşler
-   - Birbirinin üzerine inşa edin — "evet, ve..." yanıtları, "ancak..." değil
-   - Kısıtlamaları yaratıcı yakıt olarak kullanın — sınırlamalar genellikle en iyi fikirleri üretir
-   - Her aşamayı zaman kutusu — momentum koru, erken fazlasıyla düşünme yapma
+   - Yargıyı tutut - keşif sırasında hiçbir fikir kötü değil
+   - Alışılmadık fikirleri teşvik et - kutudan çıkan düşünce daha iyi kavramları kışkırtır
+   - Birbirinin üzerine inşa et - "ama" değil "evet, ve..." yanıtları
+   - Kısıtlamaları yaratıcı yakıt olarak kullan - sınırlamalar genellikle en iyi fikirleri üretir
+   - Her aşamayı zaman kes - momentum tut, erken aşamada aşırı tartış
 
 ---
 
 ### Aşama 1: Yaratıcı Keşif
 
-Oyun değil, kişiyi anlayarak başlayın. Bu soruları konuşmacı olarak sorun (kontrol listesi değil):
+İnsan oyunlara değil, oyunları anlayarak başla. Bu soruları sohbet tarzında sor (kontrol listesi olarak değil):
 
-**Duygusal çapalar**:
-- Oyunda sizi gerçekten etkilemiş, heyecanlandırmış veya zamanı kaybettiren bir an nedir? Bu duyguyu özellikle neyin oluşturması?
-- Oyunda hiç bulamadığınız bir fantezi veya güç tripleri var mı?
+**Duygusal çapaları**:
+- Oyunda seni gerçekten etkilemiş, heyecanlandırmış veya zamanını kaybettiren bir an? Spesifik olarak ne o duyguyu yarattı?
+- Hiçbir zaman tam olarak oyunda bulamadığın ama her zaman istediğin bir fantezi veya güç çılgınlığı var mı?
 
-**Beğeni profili**:
-- En çok zaman harcadığınız 3 oyun nelerdir? Sizi geri getiren neydi?
-- Sevdiğiniz türler var mı? Kaçındığınız türler var mı? Neden?
-- Oyunları sever misiniz sizi zorlasın, rahatlatı, hikaye anlatsın,
-  yoksa kendinizi ifade ettirecek misiniz?
+**Zevk profili**:
+- En çok zaman harcadığın 3 oyun nedir? Seni geri döndüren neydi?
+- Sevdiğin türler var mı? Kaçındığın türler var mı? Neden?
+- Seni zorlayan, rahatlatıcı, hikaye anlatan veya kendini ifade etmene izin veren oyunları mı tercih edersin?
 
-**Pratik kısıtlamalar** (brainstorm öncesinde sandbox şeklendirin):
-- Tek geliştirici mi yoksa ekip mi? Hangi beceriler mevcut?
-- Zaman çizelgesi: haftalar, aylar veya yıllar?
+**Pratik kısıtlamalar** (beyin fırtınasından önce sandbox'u şekillendir):
+- Tek geliştirici mi yoksa takım mı? Hangi beceriler mevcut?
+- Zaman çizelgesi: haftalar, aylar mı, yıllar mı?
 - Herhangi bir platform kısıtlaması var mı? (Sadece PC? Mobil? Konsol?)
 - İlk oyun mu yoksa deneyimli geliştirici mi?
 
-**Sentezleyin** yanıtları bir **Yaratıcı Özete** — kişinin duygusal hedeflerini,
-beğeni profilini ve kısıtlamalarını özetleyen 3-5 cümle.
-Özeti geri okuyun ve niyetlerini yakalaması için onaylayın.
+**Sentez** cevapları Yaratıcı Brifle - kişinin duygusal hedefleri, zevk profili ve kısıtlamalarının 3-5 cümlelik özeti. Brifı geri oku ve niyetini yakaladığını doğrula.
 
 ---
 
-### Aşama 2: Konsept Üretimi
+### Aşama 2: Konsept Oluşturma
 
-Yaratıcı özeti temel olarak kullanarak, **3 farklı konsept** oluşturun
-her biri farklı bir yaratıcı yöne gider. Bu ideation teknikleri kullanın:
+Yaratıcı brifı temel olarak kullanarak, her biri farklı bir yaratıcı yön alan 3 ayrı konsept oluştur. Bu ideasyonu tekniklerini kullan:
 
-**Teknik 1: Fiil-İlk Tasarım**
-Çekirdek oyuncu fiilinden (inşa et, savaş, keşfet, çöz, hayatta kal,
-oluştur, yönet, keşfet) başlayın ve buradan dışarıya çıkın. Fiil OYUN'dur.
+**Teknik 1: Fiil-Önce Tasarım**
+Temel oyuncu fiilinden (inşa et, savaş, keşfet, çöz, hayatta kal, yarat, yönet, keşfet) başla ve oradan çıkarak inşa et. Fiil OYUNDUR.
 
 **Teknik 2: Mashup Yöntemi**
-İki beklenmedik unsuru birleştirin: [Tür A] + [Tema B]. İkisi arasındaki gerilim
-eşsiz kancayı oluşturur. (örn. "çiftlik simülasyonu + kozmik korku",
-"roguelike + dating simülasyonu", "şehir yapıcısı + gerçek zamanlı savaş")
+İki beklenmedik öğeyi birleştir: [Tür A] + [Tema B]. İki arasındaki gerilim eşsiz hookunu yaratır. (örn. çiftçilik simülasyonu + kozmik korku, roguelike + dating simülasyonu, şehir inşaatçısı + gerçek zamanlı savaş)
 
-**Teknik 3: Deneyim-İlk Tasarım (MDA Geriye Doğru)**
-İstenen oyuncu duygusundan başlayın (MDA çerçevesinden estetik hedef:
-duyum, fantezi, anlatı, meydan okuma, ortaklık, keşif, ifade,
-teslim olma) ve bunu üretecek dinamikleri ve mekanikeri geriye çalışın.
+**Teknik 3: Deneyim-Önce Tasarım (MDA Geriye)**
+İstenen oyuncu duygusundan başla (MDA çerçevesinden estetik hedef: duyum, fantezi, anlatı, meydan okuma, arkadaşlık, keşif, ifade, teslim) ve bunu üretecek dinamikleri ve mekanikleri işin sonuna çalış.
 
-Her konsept için sunun:
-- **Çalışma Başlığı**
-- **Asansör Tonu** (1-2 cümle — "10 saniye testini" geçmeli)
-- **Çekirdek Fiili** (en sık oyuncu eylemi)
-- **Çekirdek Fantezi** (duygusal söz)
-- **Eşsiz Kanca** ("X gibi, VE AYRICA Y" testini geçer)
-- **Birincil MDA Estetik** (hangi duygu egemen?)
-- **Tahmini Kapsam** (küçük / orta / büyük)
-- **Neden İşe Yarayabilir** (pazar/dinleyici uygunluğu hakkında 1 cümle)
-- **En Büyük Risk** (en zor yanıtlanmamış soru hakkında 1 cümle)
+Her konsept için, sunun:
+- Çalışma Başlığı
+- Asansör Adımı (1-2 cümle - "10 saniye testini" geçmesi gerekir)
+- Temel Fiil (en yaygın oyuncu eylemi)
+- Temel Fantezi (duygusal söz)
+- Benzersiz Hook ("ve ayrıca" testini geçer: X Gibi, VE AYRICA Y)
+- Birincil MDA Estetik (hangi duygu baskındır?)
+- Tahmini Kapsam (küçük / orta / büyük)
+- Neden İşe Yarayabilir (pazarda/kitlede 1 cümle uyum)
+- En Büyük Risk (en zor cevapsız soru hakkında 1 cümle)
 
-Üç tanesini sunun. Kullanıcıdan bir tanesini seçmesini, öğeleri birleştirmesini veya
-yeni konseptler talep etmesini isteyin. Asla seçime doğru zorlama yapma — bununla oturt.
+Üçünü de sunun. Kullanıcıdan bir seçim, öğeleri birleştirmeyi veya yeni konseptleri isteyin. Seçime karşı asla baskı yapmayın - bununla oturt.
 
 ---
 
 ### Aşama 3: Çekirdek Döngü Tasarımı
 
-Seçilen konsept için, çekirdek döngüsünü inşa etmek için yapılandırılmış sorgulamayı kullanın.
-Çekirdek döngü oyunun atardamarıdır — eğer
-yalnız başına eğlenceli değilse, başka hiçbir içerik veya cilalaşma oyunu kurtaramaz.
+Seçilen konsept için, yapılandırılmış sorgulamayı kullanarak çekirdek döngüyü inşa et. Çekirdek döngü oyunun atması gereken kalp - eğer izole halde eğlenceli değilse, hiçbir içerik veya cilam oyunu kurtaramaz.
 
-**30 Saniyelik Döngü** (an-dan-ana):
-- Oyuncu en çok ne yapıyor?
-- Bu eylem içsel olarak tatmin edici mi? (Hiçbir
-  ödül, ilerleme, hikaye olmadan — sadece hissi için yaparlarmı?)
-- Bu eylemi neyin iyi hissettirdiği? (Ses geri bildirimi, görsel efektler,
-  zamanlama tatmini, taktik derinliği?)
+**30 Saniyelik Döngü** (an-an):
+- Oyuncu fiziksel olarak en sık ne yapıyor?
+- Bu eylem doğal olarak tatmin edici mi? (Hiçbir ödül, ilerleme, hikaye olmadan yaparlarmı - sadece hissi için mi?)
+- Bu eylemi iyi ne yapıyor? (Ses geri bildirimi, görsel enerji, zamanlamada tatmin, taktik derinlik?)
 
 **5 Dakikalık Döngü** (kısa vadeli hedefler):
-- Anı-dan-ana oyunu döngülere ne yapılandırıyor?
-- "Bir tur daha" / "Bir koşu daha" psikolojisi nerede başlıyor?
+- Hangi şey an-an oyunu döngülere yapılandırıyor?
+- "Bir tur daha" / "Bir oyuncu daha" psikolojisi nereye tekme vuruyor?
 - Oyuncu bu seviyede hangi seçimleri yapıyor?
 
 **Oturum Döngüsü** (30-120 dakika):
-- Tam bir oturum nasıl görünüyor?
-- Doğal durma noktaları nerede?
-- Oynanmadığını düşünürken onları düşünmelerine neden olan "kanca" nedir?
+- Tam bir oturum neye benziyor?
+- Doğal durdurma noktaları nerede?
+- Oynarken olmadığında oyunu düşündüren "hook" nedir?
 
-**İlerleme Döngüsü** (gün/hafta):
+**İlerleme Döngüsü** (günler/haftalar):
 - Oyuncu nasıl büyüyor? (Güç? Bilgi? Seçenekler? Hikaye?)
-- Uzun vadeli hedef nedir? Oyun ne zaman "bitti"?
+- Uzun vadeli hedef nedir? Oyun ne zaman "yapılır"?
 
-**Oyuncu Motivasyonu Analizi** (Kendi Belirleme Teorisine dayalı):
-- **Özerklik**: Oyuncunun ne kadar anlamlı seçime sahip olması?
-- **Yeterlilik**: Oyuncu kendi becerilerinin büyümesini nasıl hissediyor?
-- **İlişkililik**: Oyuncu kendini nasıl bağlı hissediyor (karakterlere,
-  diğer oyunculara veya dünyaya)?
+**Oyuncu Motivasyonu Analizi** (Öz-Belirleme Teorisine dayalı):
+- Özerklik: Oyuncunun ne kadar anlamlı seçimi var?
+- Yeterlik: Oyuncu yeteneklerinin büyüdüğünü nasıl hissediyor?
+- İlişkililik: Oyuncu nasıl bağlandığını hissediyor (karakterlere, diğer oyunculara veya dünyaya)?
 
 ---
 
-### Aşama 4: Ayaklar ve Sınırlar
+### Aşama 4: Direkler ve Sınırlar
 
-Oyun ayakları gerçek AAA stüdyolar tarafından kullanılır (God of War, Hades, The Last of
-Us) yüzlerce ekip üyesini aynı yöne işaret eden kararlar almaya tutmak için. Tek geliştirici için bile,
-ayaklar kapsam tırmanışını önler ve vizyonu keskin tutar.
+Oyun direkler gerçek AAA stüdyolar (God of War, Hades, The Last of Us) tarafından yüzlerce takım üyesini aynı yöne işaret eden kararlar vermek için tutulur. Hatta Tek geliştiriciler için bile, direkleri kapsam kaymasını önlenir ve vizyonu keskinleştirir.
 
-İşbirlikçi bir şekilde **3-5 ayak** tanımlayın:
-- Her ayak bir **ad** ve **tek cümle tanımına** sahiptir
-- Her ayak **tasarım testine** sahiptir: "X ve Y arasında tartışıyorsak,
-  bu ayak bize __ seçmesini söyler"
-- Ayaklar birbirleriyle gerilim oluşturuyor gibi hissetmelidir — eğer tüm
-  ayaklar aynı yöne işaret ederse, yeterince çalışmıyor
+İşbirlikçi olarak 3-5 direk tanımla:
+- Her direğin bir adı ve tek cümlelik tanımı var
+- Her direğin bir tasarım testi var: X ve Y arasında tartışıyorsak, bu direk bize __ seçmemizi söyler
+- Direktek, birbirleriyle gerilim yaratabilecek şekilde hissetmelidir - eğer tüm direkler aynı yöne işaret ediyorsa yeterince iş yapılmıyor
 
-Ardından **3+ karşı-ayak** (bu oyun DEĞİLDİR) tanımlayın:
-- Karşı-ayaklar en yaygın kapsam tırmanışını önler: "şunlar yapmasak fena olmaz..." öğeleri
-  temel vizyona hizmet etmez
-- Şu şekilde çerçeveleyin: "X yapmayacağız çünkü [ayak] ile uzlaştırmak için"
+Ardından 3+ anti-direk tanımla (bu oyun DEĞİL):
+- Anti-direktek, en yaygın kapsam kaymağını önler: "öyle olmasa iyiydi mi..." özellikleri temel vizyona hizmet etmez
+- Çerçeve: Biz [şey] yapmayacağız çünkü [direk] tehlikeye atardı
 
 ---
 
 ### Aşama 5: Oyuncu Tipi Doğrulaması
 
-Bartle taksonomisi ve Quantic Foundry motivasyon modeli kullanarak,
-bu oyunun aslında kimler için olduğunu doğrulayın:
+Bartle taksonomi ve Quantic Foundry motivasyon modelini kullanarak, bu oyunun aslında kimin olduğunu doğrula:
 
-- **Birincil oyuncu tipi**: Kimler bu oyunu SEVECEK? (Başaranlar, Kaşifler,
-  Sosyalleştiriciler, Rakipler, Yaratıcılar, Hikayeciler)
-- **İkincil çekicilik**: Kim daha yaşayabilir?
-- **Bu OLMAYAN kimler**: Bu oyunu kimlerin sevmeyeceğini bilmek kadar
-  önemli sevenleri bilmek
-- **Pazar doğrulaması**: Benzer oyuncu tipine hizmet eden başarılı oyunlar var mı? Onların
-  dinleyici boyutundan ne öğrenebiliriz?
+- Birincil oyuncu tipi: Bu oyunu KIM SEVECEKTİR? (Başarı Arayıcıları, Kaşifler, Sosyalciler, Rekabetçiler, Yaratıcılar, Hikaye Anlatıcıları)
+- İkincil çekicilik: Başka kim bunu beğenebilir?
+- Bu DEĞIL kimin için: Bu oyunu kimin sevmeyeceğini bilmek olduğu kadar önemlidir kim sevecek bilmek
+- Pazar doğrulaması: Benzer bir oyuncu tipine hizmet eden başarılı oyunlar var mı? Onların kitlesi boyutu hakkında neler öğrenebiliriz?
 
 ---
 
 ### Aşama 6: Kapsam ve Uygulanabilirlik
 
-Konsepti gerçekliğe yerleştirin:
+Konsepti gerçeğe temel al:
 
-- **Motor tavsiyesi** (Godot / Unity / Unreal) kavram ihtiyaçları, ekip uzmanlığı ve
-  platform hedeflerine dayalı mantık ile
-- **Sanat boru hattı**: Sanat stili nedir ve işgücü yoğun midir?
-- **İçerik kapsamı**: Seviye/alan sayısını, öğe sayısını, oynanabilir saat sayısını tahmin edin
-- **MVP tanımı**: Çekirdek döngünün "eğlenceli midir?" testini yapan mutlak minimum nedir?
-- **En büyük riskler**: Teknik riskler, tasarım riskleri, pazar riskleri
-- **Kapsam seviyeleri**: Tam vizyon vs. zaman biterse gemi ne alır?
+- Motor önerisi (Godot / Unity / Unreal) konsept ihtiyaçlarına dayalı akıl yürütme ile, takım uzmanlığı ve platform hedefleri
+- Sanat işlem hattı: Sanat stili nedir ve ne kadar emek yoğun?
+- İçerik kapsamı: Seviye/alan sayısı, öğe sayısı, oynanış saati tahmin et
+- MVP tanımı: "Çekirdek döngü eğlencelikmi?" testini yapan mutlak minimum derleme nedir?
+- En büyük riskler: Teknik riskler, tasarım riskleri, pazar riskleri
+- Kapsam katmanları: Tam vizyon nedir vs. zaman bitmişse gönder?
 
 ---
 
-4. **Şablonu kullanarak oyun konsept belgesini oluşturun**
-   `.claude/docs/templates/game-concept.md`. Brainstorm konuşmasından TÜM bölümleri doldurun,
-   MDA analizi, oyuncu motivasyon
-   profili ve akış durumu tasarım bölümleri de dahil.
+4. **Oyun konsepti belgesini oluştur** .claude/docs/templates/game-concept.md adresindeki şablonu kullanarak. Beyin fırtınası konuşmasından tüm bölümleri doldur, MDA analizi, oyuncu motivasyonu profili ve akış durumu tasarım bölümleri dahil.
 
-5. **Kaydet** `design/gdd/game-concept.md`, gerekirse dizinler oluştur.
+5. **Kaydet** design/gdd/game-concept.md, gerektiğinde dizinler oluştur.
 
-6. **Sonraki adımları öner** (bu sırayla — bu profesyonel stüdyo
-   ön üretim boru hattı):
-   - "Motor ve popülasyonu yapılandırmak için `/setup-engine [engine] [version]` çalıştırın sürüm bilgisi referans doçları"
-   - "Eksiksizliği doğrulamak için `/design-review design/gdd/game-concept.md` kullanın"
-   - "Ayak arınlaması için konsepti `creative-director` ajanı ile tartışın"
-   - "Sistemi `/map-systems` ile ayrı sistemlere ayrıştırın — bağımlılıkları haritalar, öncelikleri atar ve sistem indexi oluşturur"
-   - "Her sistem GDD'i `/design-system` ile yazın — rehberli, bölüm-bölüm GDD yazma"
-   - "Çekirdek döngüsünü `/prototype [core-mechanic]` ile prototipile"
-   - "Prototopi `/playtest-report` ile playtestleyin hipotezi doğrulamak için"
-   - "Doğrulandıysa, ilk sprintle `/sprint-plan new` planlayın"
+6. **Sonraki adımları öner** (bu sırada - bu profesyonel stüdyo ön-üretim işlem hattıdır):
+   - Motor'u yapılandırmak için /setup-engine [motor] [sürüm] çalıştır ve sürüm farkında referans dokümanları doldur
+   - Bütünlüğü doğrulamak için /design-review design/gdd/game-concept.md kullan
+   - Vizyon hakkında creative-director agentle tartış direk rafinasyon için
+   - Konsepti /map-systems ile bireysel sistemlere ayrıştır — bağımlılıkları eşle, öncelikleri ata ve sistem dizini oluştur
+   - System GDD'leri /design-system ile yaz — rehberli, bölüm-bölüm GDD yazması
+   - Çekirdek döngüyü /prototype [çekirdek-mekanik] ile prototipyle
+   - Prototip /playtest-report ile test et hipotezi doğrula
+   - Doğrulandıysa, ilk sprint'i /sprint-plan new ile planla
 
-7. **Özet çıkartın** seçilen konseptin asansör tonu, ayakları,
-   birincil oyuncu tipi, motor tavsiyesi, en büyük risk ve dosya yolu ile.
+7. **Özet çıkar** seçilen konseptin asansör adımı, direktek ile, birincil oyuncu tipi, motor önerisi, en büyük risk ve dosya yolu.
